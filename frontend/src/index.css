@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
 }
+
 .pick-question-btn {
   color: black;
   border-radius: 20px;
@@ -9,4 +10,9 @@
 }
 .pick-question-btn:hover {
   background-color: rgb(29, 235, 29);
+}
+.link {
+  list-style: none;
+  text-decoration: none;
+  color: black;
 }
