@@ -1,0 +1,56 @@
+.nav-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border: solid 1px;
+  height: 74.4px;
+  align-items: center;
+}
+.log-in-btn {
+  width: 30%;
+  height: 80%;
+  border: none;
+  background-color: #31cd63;
+  color: #ffff;
+  border-radius: 5px;
+  text-align: center;
+  align-self: center;
+  align-content: center;
+  cursor: pointer;
+}
+.log-in-btn:hover {
+  background-color: #5ae47f;
+}
+.nav-bar div {
+  width: 30%;
+  height: 75%;
+  display: flex;
+  justify-content: space-between;
+}
+.enter-code-btn {
+  width: 30%;
+  height: 80%;
+  border: 2px gray solid;
+  background-color: rgba(0, 0, 0, 0);
+  color: #31cd63;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  align-self: center;
+  align-content: center;
+}
+.enter-code-btn:hover {
+  background-color: rgb(237, 237, 237);
+}
+.sign-up-btn {
+  width: 30%;
+  height: 80%;
+  border: none;
+  background-color: #31cd63;
+  color: #ffff;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  align-self: center;
+  align-content: center;
+}
