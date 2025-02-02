@@ -2,9 +2,9 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border: solid 1px;
   height: 74.4px;
   align-items: center;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 .log-in-btn {
   width: 30%;

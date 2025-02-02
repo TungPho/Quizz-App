@@ -1,10 +1,13 @@
 const dotenv = require("dotenv");
+const morgan = require("morgan");
+const cors = require("cors");
 dotenv.config();
 const express = require("express");
 const db = require("./dbs/connect.db");
 const mainRouter = require("./routers/main.route");
 const app = express();
-
+app.use(morgan("dev"));
+app.use(cors());
 app.use(express.json());
 app.use(mainRouter);
 

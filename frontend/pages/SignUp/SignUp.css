@@ -1,0 +1,89 @@
+.containers-1 {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.containers-submit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 50%;
+  height: 30rem;
+}
+.holder {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  padding: 10px;
+  border-radius: 10px;
+  position: relative;
+  left: 400px;
+  border-left: solid 1px;
+  margin-top: 10px;
+  height: 100%;
+}
+
+button {
+  width: 90%;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #4caf50;
+  color: white;
+}
+button:hover {
+  background-color: #45a049;
+}
+input {
+  border: none;
+  width: 100%;
+}
+input:focus {
+  outline: none;
+}
+.input-element {
+  border: solid 1px;
+  display: flex;
+  align-items: center;
+  width: 90%;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+.back-btn {
+  width: 10%;
+  align-content: center;
+}
+.role-options {
+  display: flex;
+  flex-direction: row;
+}
+.select-role {
+  display: flex;
+  border: solid 1px;
+  padding: 15px;
+  align-items: center;
+  background-color: #747475;
+  color: white;
+  width: 50%;
+  height: 3em;
+  margin: 10px;
+  cursor: pointer;
+}
+.select-role.active {
+  background-color: #45a049;
+}
+.select-role:hover {
+  background-color: #45a049;
+}
+.select-role:active {
+  background-color: #45a049;
+}
+@media (max-width: 960px) {
+  .holder {
+    width: 130%;
+  }
+}
