@@ -16,3 +16,16 @@
   text-decoration: none;
   color: black;
 }
+button {
+  border: none;
+  background-color: #31cd63;
+  color: #ffff;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  align-self: center;
+  align-content: center;
+}
+button:hover {
+  background-color: #5ae47f;
+}
