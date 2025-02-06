@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./SignUp.css";
+import "./style.css";
 import { CiMail, CiUser } from "react-icons/ci";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { GiTeacher } from "react-icons/gi";
