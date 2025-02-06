@@ -10,6 +10,7 @@ const AUTH = {
 class UserController {
   // x-client-id
   // x-authorization: access token
+  // x-api-key
   getAllUsers = async (req, res, next) => {
     try {
       const result = await UserService.getAllUser();
@@ -38,8 +39,8 @@ class UserController {
     const hashedPassword = await bcrypt.hash(password, salt);
     const newUser = { username, email, password: hashedPassword, role };
     const user = await UserService.createUser(newUser);
-    const accessToken = generateToken({ username, email });
-    const refreshToken = generateToken({ username, email });
+    const accessToken = generateToken({ email });
+    const refreshToken = generateToken({ email });
 
     // remember to save refreshToken to the DB
     // take the accesst token and save it to the local storage
@@ -52,17 +53,15 @@ class UserController {
 
   loginUser = async (req, res, next) => {
     const { email, password } = req.body;
-    const accessToken = req.headers[AUTH.AUTHORIZATION];
-    if (!accessToken) throw new Error("Not Authorized");
     const foundUser = await userModel.findOne({ email });
     const comparePassword = await bcrypt.compare(password, foundUser.password);
     if (!comparePassword) throw new Error("Wrong password");
-    const isVerified = verifyToken({ email }, accessToken);
-    if (!isVerified) throw new Error("Not Authorized");
-
     //TODO: every login time, give the user a new pair of tokens
+    const accessToken = generateToken({ email });
     return res.status(200).json({
       message: "Login Success",
+      AT: accessToken,
+      role: foundUser.role,
     });
   };
 }
