@@ -54,3 +54,10 @@
   align-self: center;
   align-content: center;
 }
+.sign-up-btn:hover {
+  background-color: #5ae47f;
+}
+.icon {
+  color: #31cd63;
+  font-size: xx-large;
+}
