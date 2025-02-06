@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CiMail } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
