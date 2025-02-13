@@ -26,7 +26,7 @@ const UserSchema = Schema(
     },
   },
   {
-    timestamp: true,
+    timestamps: true,
     collection: COLLECTION_NAME,
   }
 );
