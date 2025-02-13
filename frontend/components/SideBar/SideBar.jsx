@@ -7,8 +7,10 @@ import { IoIosLogOut } from "react-icons/io";
 import { GoChecklist } from "react-icons/go";
 
 import styles from "../SideBar/SideBar.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { QuizzContext } from "../../context/ContextProvider";
 const SideBar = () => {
+  const { setCreateState, createState } = useContext(QuizzContext);
   const role = "teacher";
   const modal = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +66,7 @@ const SideBar = () => {
           <IoIosLogOut /> Log out
         </div>
       </div>
-      <div hidden ref={modal} className={`${styles.modal_container} hidden`}>
+      <div ref={modal} className={`${styles.modal_container} hidden`}>
         {role === "student" ? (
           <div className={`${styles.modal}`}>
             <button onClick={closeModal}>X</button>
@@ -72,10 +74,37 @@ const SideBar = () => {
           </div>
         ) : (
           <div className={`${styles.modal}`}>
-            <div onClick={closeModal}>X</div>
-            <div className="modal_btn">
+            <div className="close_modal_btn" onClick={closeModal}>
+              <p>X</p>
+            </div>
+            <div></div>
+            <div
+              onClick={() => {
+                console.log(createState);
+                setCreateState("create a test");
+              }}
+              className="modal_btn"
+            >
               <GoChecklist />
               Create Assetments
+            </div>
+            <div className="modal_btn">
+              <GoChecklist />
+              Create Lessons
+            </div>
+            <div
+              onClick={() => {
+                console.log(createState);
+                setCreateState("create a class");
+              }}
+              className="modal_btn"
+            >
+              <GoChecklist />
+              Create Classes
+            </div>
+            <div className="modal_btn">
+              <GoChecklist />
+              Comprehension
             </div>
           </div>
         )}
