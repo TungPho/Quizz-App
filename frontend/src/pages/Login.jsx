@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CiMail } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../components/Navbar/Navbar";
+import Navbar from "../components/Navbar";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -33,17 +33,12 @@ const Login = () => {
   return (
     <div>
       <Navbar />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div className="holder">
-          <div className="containers-1">
+      <div className="flex justify-center">
+        <div className="w-[50%] flex items-center justify-center p-2 rounded-lg mt-2 h-full">
+          <div className="flex-col w-[50%] p-2 rounded">
             <h1>Log In</h1>
 
-            <div className="input-element">
+            <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
               <CiMail />
               <input
                 placeholder=" Enter Email"
@@ -53,7 +48,7 @@ const Login = () => {
               />
             </div>
 
-            <div className="input-element">
+            <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
               <input
                 placeholder="Enter Password"
                 type="password"
@@ -62,10 +57,15 @@ const Login = () => {
               />
             </div>
 
-            <button onClick={handleSubmit}>Log In</button>
+            <button
+              className="border-none w-[95%] bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
+              onClick={handleSubmit}
+            >
+              Log In
+            </button>
           </div>
-          <div className="containers-2">
-            <img src={"images/background-login.png"} alt="" />
+          <div>
+            <img src="images/background-login.png" alt="" />
           </div>
         </div>
       </div>
