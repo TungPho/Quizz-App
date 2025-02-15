@@ -55,6 +55,7 @@ const SignUp = () => {
               <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
                 <CiUser />
                 <input
+                  className="focus:outline-none"
                   placeholder=" Enter User Name"
                   type="text"
                   value={username}
@@ -65,6 +66,7 @@ const SignUp = () => {
               <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
                 <CiMail />
                 <input
+                  className="focus:outline-none"
                   placeholder=" Enter Email"
                   type="text"
                   value={email}
@@ -74,6 +76,7 @@ const SignUp = () => {
 
               <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
                 <input
+                  className="focus:outline-none"
                   placeholder="Enter Password"
                   type="password"
                   value={password}
