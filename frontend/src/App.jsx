@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
-import SignUp from "../pages/SignUpAndLogin/SignUp";
-import Login from "../pages/SignUpAndLogin/Login";
-import LandingPage from "../pages/LandingPage/LandingPage";
-import Home from "../pages/Home/Home";
+import LandingPage from "./pages/LandingPage/LandingPage";
+import Home from "./pages/Home/Home";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 const App = () => {
   return (
     <div>

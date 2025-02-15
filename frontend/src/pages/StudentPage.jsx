@@ -1,5 +1,5 @@
-import HomeNavBar from "../../components/HomeNavBar/HomeNavBar";
-import SideBar from "../../components/SideBar/SideBar";
+import HomeNavBar from "../components/HomeNavBar/HomeNavBar";
+import SideBar from "../components/SideBar/SideBar";
 
 const StudentPage = () => {
   return (

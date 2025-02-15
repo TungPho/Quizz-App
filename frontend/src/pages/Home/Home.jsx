@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
-import StudentPage from "../StudentPage/StudentPage";
-import TeacherPage from "../TeacherPage/TeacherPage";
+import TeacherPage from "../TeacherPage";
+import StudentPage from "../StudentPage";
 
 const Home = () => {
   const location = useLocation();
