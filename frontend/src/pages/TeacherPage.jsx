@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import HomeNavBar from "../components/HomeNavBar/HomeNavBar";
-import SideBar from "../components/SideBar/SideBar";
 import { QuizzContext } from "../context/ContextProvider";
+import HomeNavBar from "../components/HomeNavBar";
+import SideBar from "../components/SideBar";
 
 const TeacherPage = () => {
   const { createState } = useContext(QuizzContext);

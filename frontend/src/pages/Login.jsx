@@ -41,6 +41,7 @@ const Login = () => {
             <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
               <CiMail />
               <input
+                className="focus:outline-none"
                 placeholder=" Enter Email"
                 type="text"
                 value={email}
@@ -50,6 +51,7 @@ const Login = () => {
 
             <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
               <input
+                className="focus:outline-none"
                 placeholder="Enter Password"
                 type="password"
                 value={password}
