@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaHome, FaPlus } from "react-icons/fa";
 import { IoLibrary } from "react-icons/io5";
 import { TbReportSearch } from "react-icons/tb";
@@ -6,12 +6,11 @@ import { MdClass } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GoChecklist } from "react-icons/go";
 
-import { useContext, useEffect, useRef, useState } from "react";
-import { QuizzContext } from "../context/ContextProvider";
+import { useEffect, useRef, useState } from "react";
 const SideBar = () => {
-  const { setCreateState, createState } = useContext(QuizzContext);
   const role = "teacher";
   const modal = useRef(null);
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const showModal = () => {
@@ -88,8 +87,7 @@ const SideBar = () => {
             <div></div>
             <div
               onClick={() => {
-                setCreateState("create a test");
-                console.log(createState);
+                navigate("/create-question");
               }}
               className="flex justify-center items-center self-center border border-solid border-black rounded-[10px] p-5 cursor-pointer w-[90%] h-[50%] hover:border-[#31cd63]"
             >
@@ -101,10 +99,7 @@ const SideBar = () => {
               Create Lessons
             </div>
             <div
-              onClick={() => {
-                setCreateState("create a class");
-                console.log(createState);
-              }}
+              onClick={() => {}}
               className="flex justify-center items-center self-center border border-solid border-black rounded-[10px] p-5 cursor-pointer w-[90%] h-[50%] hover:border-[#31cd63]"
             >
               <GoChecklist />
