@@ -4,6 +4,7 @@ const DOCUMENT_NAME = "Question";
 // Đây là từng câu hỏi
 // "options": [
 //     {
+//       "index" : number
 //       "text": "string", // Nội dung của lựa chọn
 //       "isCorrect": "boolean" // Lựa chọn đúng hay sai
 //     }

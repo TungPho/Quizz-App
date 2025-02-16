@@ -2,7 +2,8 @@ const testModel = require("../models/test.model");
 
 class TestService {
   static getAllTests = async () => {
-    return {};
+    const tests = await testModel.find();
+    return tests;
   };
   static createTest = async (test) => {
     const newTest = await testModel.create(test);

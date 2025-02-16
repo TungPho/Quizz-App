@@ -1,3 +1,4 @@
+const { Types } = require("mongoose");
 const testModel = require("../models/test.model");
 const QuestionService = require("../services/question.services");
 
@@ -14,8 +15,7 @@ class QuestionController {
   createQuestion = async (req, res, next) => {
     const { quizId, text, options } = req.body;
     const quest = { quizId, text, options };
-    const test = await testModel.findById(quizId);
-    if (!test) throw new Error("Can't find test id");
+    const test = await testModel.findById(new Types.ObjectId(quizId));
     // create a new question
     const result = await QuestionService.createQuestion(quest);
     if (!result) throw new Error("Error in creating question");

@@ -8,14 +8,15 @@ const TestSchema = Schema(
     title: {
       type: String,
       required: true,
+      default: "Untitled Test",
     },
     classId: {
       type: String,
-      required: true,
+      default: "",
     },
     teacherId: {
       type: String,
-      required: true,
+      default: "",
     },
     questions: {
       type: [],
@@ -24,6 +25,7 @@ const TestSchema = Schema(
     timeLimit: {
       type: Number,
       required: true,
+      default: 15,
     },
   },
   {
