@@ -1,10 +1,9 @@
-import { useLocation } from "react-router-dom";
 import TeacherPage from "./TeacherPage";
 import StudentPage from "./StudentPage";
 
 const Home = () => {
-  const location = useLocation();
-  const role = location.state.role;
+  // you should take role and user id, token from context when login
+  const role = localStorage.getItem("role");
   return <div> {role === "teacher" ? <TeacherPage /> : <StudentPage />}</div>;
 };
 

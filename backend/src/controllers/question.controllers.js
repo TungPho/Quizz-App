@@ -17,6 +17,7 @@ class QuestionController {
     const quest = { quizId, text, options };
     const test = await testModel.findById(new Types.ObjectId(quizId));
     // create a new question
+    if (!test) throw new (Error("Can't find the id of the test"))();
     const result = await QuestionService.createQuestion(quest);
     if (!result) throw new Error("Error in creating question");
     // add new question to the test (quizId)
