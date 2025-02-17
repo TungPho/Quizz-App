@@ -16,9 +16,6 @@
   background-color: rgb(29, 235, 29);
 }
 
-button:hover {
-  background-color: #5ae47f;
-}
 .main_content {
   margin-left: 20%;
   height: 2000px;

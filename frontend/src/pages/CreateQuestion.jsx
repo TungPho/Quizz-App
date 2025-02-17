@@ -3,12 +3,16 @@ import { FaRegSave } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { CiImageOn } from "react-icons/ci";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { QuizzContext } from "../context/ContextProvider";
 
 // when u save a question, also creating a new test
 const CreateQuestion = () => {
   // these are the options: max 5 options, min 2 options
   const [question, setQuestion] = useState("");
+  const { setState } = useContext(QuizzContext);
+  const navigate = useNavigate();
   const [answers, setAnswers] = useState([
     //answer 0:
     {
@@ -45,6 +49,10 @@ const CreateQuestion = () => {
     );
   };
   const handleDeleteAnswer = (index) => {
+    if (answers.length <= 2) {
+      console.log("Minimum 2 answers");
+      return;
+    }
     setAnswers((prevAnswers) => prevAnswers.filter((answer, i) => i !== index));
   };
   // phải kiểm tra có sẵn test id nào không ? nếu không thì tạo mới !
@@ -54,6 +62,7 @@ const CreateQuestion = () => {
     if (!question || answers.length <= 0) {
       console.log("think again");
     }
+
     // 1. Create the test first
     const req = await fetch("http://localhost:3000/api/v1/tests", {
       method: "POST",
@@ -78,7 +87,12 @@ const CreateQuestion = () => {
   return (
     <div>
       <div className="flex">
-        <button>
+        <button
+          onClick={() => {
+            setState("normal");
+            navigate("/home");
+          }}
+        >
           <IoArrowBackSharp />
         </button>
         <select name="" id="">

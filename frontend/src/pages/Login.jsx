@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { CiMail } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { useState } from "react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,23 +11,22 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await fetch("http://localhost:3000/api/v1/login", {
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
       headers: {
         "Content-Type": "application/json",
       },
       method: "POST",
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
     });
     console.log(result);
     const res = await result.json();
     const role = res.role;
-    navigate("/home", {
-      state: {
-        role,
-      },
-    });
+    // Remember to set token
+    localStorage.setItem("role", role);
+
+    navigate("/home");
   };
 
   return (

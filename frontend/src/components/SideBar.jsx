@@ -6,9 +6,11 @@ import { MdClass } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GoChecklist } from "react-icons/go";
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { QuizzContext } from "../context/ContextProvider";
 const SideBar = () => {
-  const role = "teacher";
+  const { setState } = useContext(QuizzContext);
+  const role = localStorage.getItem("role");
   const modal = useRef(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -50,20 +52,35 @@ const SideBar = () => {
           </p>
           <p> {role === "student" ? "Join Class" : "Create"}</p>
         </button>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1]">
-          <FaHome /> Explore
+        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center">
+          <FaHome className="mr-1" /> Explore
         </div>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1]">
-          <IoLibrary /> Library
+        <div
+          onClick={() => {
+            setState("library");
+          }}
+          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
+        >
+          <IoLibrary className="mr-1" /> Library
         </div>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1]">
-          <TbReportSearch /> Test History
+        <div
+          onClick={() => {
+            setState("testHistory");
+          }}
+          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
+        >
+          <TbReportSearch className="mr-1" /> Test History
         </div>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1]">
-          <MdClass /> My Classes
+        <div
+          onClick={() => {
+            setState("myClasses");
+          }}
+          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
+        >
+          <MdClass className="mr-1" /> My Classes
         </div>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1]">
-          <IoIosLogOut /> Log out
+        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center">
+          <IoIosLogOut className="mr-1" /> Log out
         </div>
       </div>
       <div ref={modal} className={`flex justify-center `}>
@@ -74,7 +91,7 @@ const SideBar = () => {
           </div>
         ) : (
           <div
-            className={`w-[40%] grid grid-cols-[90%_90%]  h-0 gap-x-[10px] gap-y-[10px] justify-center fixed top-[10%] border border-gray-500 p-[10%] content-center ${
+            className={`w-[40%] grid grid-cols-[90%_90%]  h-0 gap-x-[10px] gap-y-[10px] justify-center fixed top-[10%] border border-gray-500 p-[10%] content-center z-[10] bg-white ${
               isOpen ? "visible" : "hidden"
             }`}
           >

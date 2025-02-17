@@ -13,7 +13,7 @@ const DOCUMENT_NAME = "Question";
 const QuestionSchema = Schema(
   {
     quizId: {
-      type: String,
+      type: Types.ObjectId,
       required: true,
     },
     text: {
