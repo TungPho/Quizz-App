@@ -11,10 +11,23 @@ import { CiTrash } from "react-icons/ci";
 
 import { IoIosMove } from "react-icons/io";
 import { GoCheck } from "react-icons/go";
+import { useEffect, useState } from "react";
 
 const TestEdit = () => {
   const { testId } = useParams();
-  console.log(testId);
+  const [test, setTest] = useState(null);
+
+  useEffect(() => {
+    const fetchTest = async () => {
+      const req = await fetch(`http://localhost:3000/api/v1/tests/${testId}`);
+      console.log(req);
+      const test = await req.json();
+      console.log(test.metadata);
+      setTest(test.metadata);
+    };
+    fetchTest();
+  }, [testId]);
+
   return (
     <div className="">
       <div className="flex justify-between mb-5">
@@ -43,21 +56,21 @@ const TestEdit = () => {
           </div>
           <div className="mt-5 text-sm border-solid border-slate-300 border-[1px]rounded-sm bg-green-500 text-white flex flex-col justify-between items-center h-1/2">
             <p>Import from</p>
-            <p className="flex items-center justify-between hover:bg-green-400 w-full p-3 cursor-pointer">
+            <div className="flex items-center justify-between hover:bg-green-400 w-full p-3 cursor-pointer">
               <div className="flex items-center">
                 <SiGoogleforms className="mr-1" />
                 Google forms
               </div>
               <FaGreaterThan className="text-gray-200" />
-            </p>
-            <p className="flex justify-between hover:bg-green-400 w-full p-3 cursor-pointer">
+            </div>
+            <div className="flex justify-between hover:bg-green-400 w-full p-3 cursor-pointer">
               <div className="flex items-center">
                 <LuFileSpreadsheet className="mr-1" />
                 Spreadsheet
               </div>
 
               <FaGreaterThan className="text-gray-200" />
-            </p>
+            </div>
           </div>
         </div>
         <div className="w-2/3">

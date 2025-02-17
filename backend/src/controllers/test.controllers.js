@@ -8,6 +8,16 @@ class TestController {
       metadata: results,
     });
   };
+  findTestById = async (req, res, next) => {
+    const { id } = req.params;
+    const foundTest = await TestService.findTestById(id);
+    if (!foundTest) throw new Error("Can't find this test ID");
+    return res.status(200).json({
+      message: "Get test by ID success",
+      metadata: foundTest,
+    });
+  };
+
   createTest = async (req, res, next) => {
     const { title, classId, teacherId, timeLimit } = req.body;
     const test = { title, classId, teacherId, timeLimit };

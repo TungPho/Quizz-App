@@ -11,6 +11,15 @@ class QuestionController {
       metadata: results,
     });
   };
+  findQuestionById = async (req, res, next) => {
+    const { id } = req.params;
+    const foundTest = await QuestionService.findQuestionById(id);
+    if (!foundTest) throw new Error("Can't find this question ID");
+    return res.status(200).json({
+      message: "Get test by ID success",
+      metadata: foundTest,
+    });
+  };
   // also add questions to test id // require: testId
   createQuestion = async (req, res, next) => {
     const { quizId, text, options } = req.body;
