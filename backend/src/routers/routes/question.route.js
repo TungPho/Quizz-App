@@ -7,13 +7,12 @@ questionRoute.get(
   "/questions/:id",
   catchAsync(questionController.findQuestionById)
 );
-
 questionRoute.post("/questions", catchAsync(questionController.createQuestion));
 questionRoute.put("/questions", catchAsync(questionController.updateQuestion));
 
 questionRoute.delete(
-  "/questions",
-  catchAsync(questionController.removeQuestion)
+  "/questions/:id",
+  catchAsync(questionController.removeQuestionById)
 );
 
 module.exports = questionRoute;

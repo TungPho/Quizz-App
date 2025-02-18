@@ -29,7 +29,14 @@ class TestController {
   };
 
   updateTest = async (req, res, next) => {
-    const results = await TestService.updateTest();
+    const { id } = req.params;
+    console.log(id);
+    const { title, timeLimit, classId, teacherId } = req.body;
+    console.log(title, timeLimit);
+    const results = await TestService.updateTest(
+      { title, timeLimit, classId, teacherId },
+      id
+    );
     return res.status(200).json({
       message: "Update a tests success",
       metadata: results,

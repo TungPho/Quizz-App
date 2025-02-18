@@ -14,8 +14,14 @@ class TestService {
     const newTest = await testModel.create(test);
     return { newTest };
   };
-  static updateTest = async () => {
-    return {};
+  static updateTest = async (data, id) => {
+    const updatedTest = await testModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(id),
+      },
+      data
+    );
+    return { updatedTest };
   };
   static deleteTest = async () => {
     return {};

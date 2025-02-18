@@ -28,6 +28,7 @@ const TestEdit = () => {
       console.log(testFound.metadata);
       setTest(testFound.metadata);
       setNewTitle(testFound.metadata.title);
+      setTimeLimit(testFound.metadata.timeLimit);
       // loop over the questions in the test
       const questionPromises = testFound.metadata.questions.map(
         async (questionID) => {
@@ -35,7 +36,7 @@ const TestEdit = () => {
             `http://localhost:3000/api/v1/questions/${questionID}`
           );
           const finalQuestionDetail = await questionDetail.json();
-          return finalQuestionDetail.metadata; // Trả về dữ liệu thay vì gọi setQuestions nhiều lần
+          return finalQuestionDetail.metadata;
         }
       );
       const allQuestions = await Promise.all(questionPromises);
@@ -48,8 +49,19 @@ const TestEdit = () => {
   const handleSaveTest = async () => {
     console.log(timeLimit);
     console.log(newTitle);
+    const req = await fetch(`http://localhost:3000/api/v1/tests/${testId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ timeLimit, title: newTitle }),
+    });
+    const res = await req.json();
+    console.log(res);
   };
-
+  const handleDeleteQuestion = async (id) => {
+    console.log(id);
+  };
   return (
     <div className="">
       <div className="flex justify-between mb-5 border-gray-300 border-b-[1px]">
@@ -90,6 +102,7 @@ const TestEdit = () => {
                 const value = e.target.value;
                 setTimeLimit(parseInt(value));
               }}
+              value={timeLimit}
               className="text-sm w-full"
               name=""
               id=""
@@ -153,7 +166,12 @@ const TestEdit = () => {
                       <CiEdit className="mr-1 text-lg" />
                       Edit
                     </button>
-                    <button className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200">
+                    <button
+                      onClick={() => {
+                        handleDeleteQuestion(question._id);
+                      }}
+                      className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200"
+                    >
                       <CiTrash className="mr-1 text-lg" />
                     </button>
                   </div>
