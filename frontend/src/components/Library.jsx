@@ -30,9 +30,9 @@ const Library = () => {
               <Link
                 to={`/tests/${test._id}`}
                 key={index}
-                className="assessment border-solid border-black border-[0.2px] flex w-1/2 p-5 mt-5 cursor-pointer hover:bg-gray-200"
+                className="assessment w-2/3 border-solid border-black border-[0.2px] flex  p-5 mt-5 cursor-pointer hover:bg-gray-200"
               >
-                <div className="flex items-center border-solid  w-1/4 mr-5 bg-[#31cd63]"></div>
+                <div className="flex items-center border-solid  w-1/5 mr-5 bg-[#31cd63]"></div>
                 <div className="w-full">
                   <div className="border-solid border-slate-600 text-slate-600 border-[1px] w-fit  h-fit text-[11px] rounded-2xl p-1">
                     Assessment

@@ -11,7 +11,7 @@ import { QuizzContext } from "../context/ContextProvider";
 const CreateQuestion = () => {
   // these are the options: max 5 options, min 2 options
   const [question, setQuestion] = useState("");
-  const { testId } = useParams();
+  let { testId } = useParams();
   console.log(testId);
   const { setState } = useContext(QuizzContext);
   const navigate = useNavigate();
@@ -66,11 +66,17 @@ const CreateQuestion = () => {
     }
 
     // 1. Create the test first
-    const req = await fetch("http://localhost:3000/api/v1/tests", {
-      method: "POST",
-    });
-    const res = await req.json();
-    console.log(res.metadata.newTest._id);
+    if (!testId) {
+      const req = await fetch("http://localhost:3000/api/v1/tests", {
+        method: "POST",
+      });
+      const res = await req.json();
+      // test id if you create the test for the first time
+
+      testId = res.metadata.newTest._id;
+    }
+    console.log(testId);
+
     // 2. Add the question to that test
     const req2 = await fetch("http://localhost:3000/api/v1/questions/", {
       headers: {
@@ -78,13 +84,14 @@ const CreateQuestion = () => {
       },
       method: "POST",
       body: JSON.stringify({
-        quizId: res.metadata.newTest._id.toString(),
+        quizId: testId.toString(),
         text: question,
         options: answers,
       }),
     });
     const res2 = await req2.json();
     console.log(res2);
+    navigate(`/tests/${testId}`);
   };
   return (
     <div>
