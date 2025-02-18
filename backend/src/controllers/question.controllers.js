@@ -26,7 +26,7 @@ class QuestionController {
     const quest = { quizId, text, options };
     const test = await testModel.findById(new Types.ObjectId(quizId));
     // create a new question
-    if (!test) throw new (Error("Can't find the id of the test"))();
+    if (!test) throw new Error("Can't find the id of the test");
     const result = await QuestionService.createQuestion(quest);
     if (!result) throw new Error("Error in creating question");
     // add new question to the test (quizId)
@@ -38,8 +38,15 @@ class QuestionController {
     });
   };
   // if you remove questions, you also have to remove in the array, provide the id
-  removeQuestion = async (req, res, next) => {
-    const {} = req.body;
+  removeQuestionById = async (req, res, next) => {
+    const { id } = req.params;
+    const result = await QuestionService.removeQuestionById(id);
+
+    // also have to remove it in the tests
+    return res.status(200).json({
+      message: "Delete a question success",
+      metadata: result,
+    });
   };
   updateQuestion = async (req, res, next) => {
     const {} = req.body;
