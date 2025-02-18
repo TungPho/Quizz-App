@@ -4,13 +4,15 @@ import { FaCheck } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { CiImageOn } from "react-icons/ci";
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { QuizzContext } from "../context/ContextProvider";
 
 // when u save a question, also creating a new test
 const CreateQuestion = () => {
   // these are the options: max 5 options, min 2 options
   const [question, setQuestion] = useState("");
+  const { testId } = useParams();
+  console.log(testId);
   const { setState } = useContext(QuizzContext);
   const navigate = useNavigate();
   const [answers, setAnswers] = useState([

@@ -6,19 +6,19 @@ const Navbar = () => {
         Quizzes
       </NavLink>
       <ul className="w-[30%] h-[50%] flex flex-row justify-between items-center">
-        <NavLink className="w-[30%] h-[90%] border-2 border-gray-500 bg-transparent text-[#31cd63] rounded-md cursor-pointer text-center self-center hover:bg-[#31cd63] hover:text-white transition">
+        <NavLink className="flex flex-col items-center w-[30%] h-[90%] border-2 border-gray-500 bg-transparent text-[#31cd63] rounded-md cursor-pointer text-center self-center hover:bg-[#31cd63] hover:text-white transition">
           Enter Code
         </NavLink>
 
         <NavLink
-          className="w-4/12 h-[90%]  bg-[#31cd63] text-white rounded-md text-center self-center cursor-pointer border-none hover:bg-[#5ae47f] transition"
+          className=" flex flex-col items-center w-4/12 h-[90%]  bg-[#31cd63] text-white rounded-md text-center self-center cursor-pointer border-none hover:bg-[#5ae47f] transition"
           to="/login"
         >
           Log in
         </NavLink>
 
         <NavLink
-          className="w-[30%] h-[90%] bg-[#31cd63] text-white rounded-md cursor-pointer text-center self-center border-none"
+          className=" flex flex-col items-center w-[30%] h-[90%] bg-[#31cd63] text-white rounded-md cursor-pointer text-center self-center border-none hover:bg-[#5ae47f]"
           to="/signup"
         >
           Sign up
