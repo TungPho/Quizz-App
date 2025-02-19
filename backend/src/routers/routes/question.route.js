@@ -8,7 +8,10 @@ questionRoute.get(
   catchAsync(questionController.findQuestionById)
 );
 questionRoute.post("/questions", catchAsync(questionController.createQuestion));
-questionRoute.put("/questions", catchAsync(questionController.updateQuestion));
+questionRoute.put(
+  "/questions/:id",
+  catchAsync(questionController.updateQuestion)
+);
 
 questionRoute.delete(
   "/questions/:id",

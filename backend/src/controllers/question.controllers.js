@@ -33,7 +33,22 @@ class QuestionController {
     test.questions.push(result.newQuestion._id);
     test.save();
     return res.status(200).json({
-      message: "Create questions success",
+      message: "Create a question success",
+      metadata: result,
+    });
+  };
+
+  updateQuestion = async (req, res, next) => {
+    const { id } = req.params;
+    console.log(id);
+    const { text, options } = req.body;
+    console.log(text, options);
+    const result = await QuestionService.updateQuestionById(
+      { text, options },
+      id
+    );
+    return res.status(200).json({
+      message: "Update a question success",
       metadata: result,
     });
   };
@@ -47,9 +62,6 @@ class QuestionController {
       message: "Delete a question success",
       metadata: result,
     });
-  };
-  updateQuestion = async (req, res, next) => {
-    const {} = req.body;
   };
 }
 module.exports = new QuestionController();

@@ -17,6 +17,15 @@ class QuestionService {
     const newQuestion = await questionModel.create(question);
     return { newQuestion };
   };
+
+  static updateQuestionById = async (data, id) => {
+    const updatedQuestion = await questionModel.updateOne(
+      { _id: new Types.ObjectId(id) },
+      data
+    );
+    return { updatedQuestion };
+  };
+
   static removeQuestionById = async (id) => {
     const foundQuestion = await questionModel.findById(new Types.ObjectId(id));
     if (!foundQuestion) throw new Error("Can't find that question id");

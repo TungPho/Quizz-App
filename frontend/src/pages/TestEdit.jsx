@@ -20,6 +20,7 @@ const TestEdit = () => {
   const [newTitle, setNewTitle] = useState("");
   // get all questions of that test
   const [questions, setQuestions] = useState([]);
+  const [questionLength, setQuestionLength] = useState(0);
   const [timeLimit, setTimeLimit] = useState(0);
   useEffect(() => {
     const fetchTest = async () => {
@@ -40,11 +41,14 @@ const TestEdit = () => {
         }
       );
       const allQuestions = await Promise.all(questionPromises);
-      console.log(allQuestions);
-      setQuestions(allQuestions);
+
+      // filtered null questions
+      const filteredQuestions = allQuestions.filter((q) => q);
+      setQuestions(filteredQuestions);
+      setQuestionLength(filteredQuestions.length);
     };
     fetchTest();
-  }, [testId]);
+  }, [testId, questionLength]);
 
   const handleSaveTest = async () => {
     console.log(timeLimit);
@@ -61,6 +65,11 @@ const TestEdit = () => {
   };
   const handleDeleteQuestion = async (id) => {
     console.log(id);
+    const req = await fetch(`http://localhost:3000/api/v1/questions/${id}`, {
+      method: "DELETE",
+    });
+    const res = await req.json();
+    console.log(res);
   };
   return (
     <div className="">
@@ -151,54 +160,62 @@ const TestEdit = () => {
             </div>
           </div>
           <p className="mt-5">{questions.length} questions</p>
-          {questions.map((question, index) => {
-            return (
-              <div
-                key={index}
-                className="border-solid border-slate-300 p-3 border-[1px]"
-              >
-                <div className="flex justify-between">
-                  <button className="border-slate-300 border-solid border-[1px]">
-                    <IoIosMove />
-                  </button>
-                  <div className="flex border-solid  w-1/6">
-                    <button className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/2 hover:bg-slate-200">
-                      <CiEdit className="mr-1 text-lg" />
-                      Edit
+          {questionLength > 0 ? (
+            questions.map((question, index) => {
+              return (
+                <div
+                  key={index}
+                  className="border-solid border-slate-300 p-3 border-[1px]"
+                >
+                  <div className="flex justify-between">
+                    <button className="border-slate-300 border-solid border-[1px]">
+                      <IoIosMove />
                     </button>
-                    <button
-                      onClick={() => {
-                        handleDeleteQuestion(question._id);
-                      }}
-                      className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200"
-                    >
-                      <CiTrash className="mr-1 text-lg" />
-                    </button>
+                    <div className="flex border-solid  w-1/6">
+                      <Link
+                        to={`/update-question/${question._id}`}
+                        className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/2 hover:bg-slate-200"
+                      >
+                        <CiEdit className="mr-1 text-lg" />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleDeleteQuestion(question._id);
+                          setQuestionLength((l) => l - 1);
+                        }}
+                        className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200"
+                      >
+                        <CiTrash className="mr-1 text-lg" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between w-fit">
+                    <p className="text-sm mr-2 font-sans">Question:</p>
+                    <p className="text-sm font-sans">{question.text}</p>
+                  </div>
+
+                  <p className="text-sm font-sans">Answer choices:</p>
+                  <div className="grid grid-cols-2 w-1/4 text-sm">
+                    {question.options.map((option, index) => {
+                      return (
+                        <div key={index} className="flex items-center  ">
+                          {option.isCorrect ? (
+                            <GoCheck className="text-green-600 font-extrabold" />
+                          ) : (
+                            <IoMdClose className="text-red-600 font-extrabold" />
+                          )}
+                          <p className="font-sans">{option.text}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                <div className="flex justify-between w-fit">
-                  <p className="text-sm mr-2 font-sans">Question:</p>
-                  <p className="text-sm font-sans">{question.text}</p>
-                </div>
-
-                <p className="text-sm font-sans">Answer choices:</p>
-                <div className="grid grid-cols-2 w-1/4 text-sm">
-                  {question.options.map((option, index) => {
-                    return (
-                      <div key={index} className="flex items-center  ">
-                        {option.isCorrect ? (
-                          <GoCheck className="text-green-600 font-extrabold" />
-                        ) : (
-                          <IoMdClose className="text-red-600 font-extrabold" />
-                        )}
-                        <p className="font-sans">{option.text}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div>No questions in here</div>
+          )}
           <button className="font-sans border-slate-300 border-[1px] mt-3 hover:bg-slate-200 p-1">
             <Link className="font-sans" to={`/create-question/${testId}`}>
               + Add question
