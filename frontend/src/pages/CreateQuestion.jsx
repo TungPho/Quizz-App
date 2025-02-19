@@ -3,7 +3,7 @@ import { FaRegSave } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { CiImageOn } from "react-icons/ci";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { QuizzContext } from "../context/ContextProvider";
 
@@ -11,8 +11,9 @@ import { QuizzContext } from "../context/ContextProvider";
 const CreateQuestion = () => {
   // these are the options: max 5 options, min 2 options
   const [question, setQuestion] = useState("");
-  let { testId } = useParams();
-  console.log(testId);
+  let { testId, questionId } = useParams();
+  const updateState = questionId ? "update" : "create";
+  console.log(updateState);
   const { setState } = useContext(QuizzContext);
   const navigate = useNavigate();
   const [answers, setAnswers] = useState([
@@ -75,7 +76,6 @@ const CreateQuestion = () => {
 
       testId = res.metadata.newTest._id;
     }
-    console.log(testId);
 
     // 2. Add the question to that test
     const req2 = await fetch("http://localhost:3000/api/v1/questions/", {
@@ -92,6 +92,43 @@ const CreateQuestion = () => {
     const res2 = await req2.json();
     console.log(res2);
     navigate(`/tests/${testId}`);
+  };
+
+  useEffect(() => {
+    // get question details
+    const fetchQuestion = async () => {
+      const req = await fetch(
+        `http://localhost:3000/api/v1/questions/${questionId}`
+      );
+      console.log(req);
+      const res = await req.json();
+      console.log(res.metadata);
+      setQuestion(res.metadata.text);
+      setAnswers(res.metadata.options);
+    };
+    if (questionId && updateState === "update") fetchQuestion();
+  }, [questionId, updateState]);
+
+  const updateQuestion = async () => {
+    console.log("UPDATING");
+    if (!questionId) return;
+    console.log(question, answers);
+    const req = await fetch(
+      `http://localhost:3000/api/v1/questions/${questionId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: question,
+          options: answers,
+        }),
+      }
+    );
+    console.log(req);
+    const res = await req.json();
+    console.log(res);
   };
   return (
     <div>
@@ -110,7 +147,7 @@ const CreateQuestion = () => {
         <nav className="w-full flex flex-row justify-end">
           <button
             onClick={() => {
-              createQuestion();
+              updateState === "update" ? updateQuestion() : createQuestion();
             }}
             className="flex items-center bg-[#31CD63] p-2 text-white rounded-md text-sm"
           >
@@ -126,6 +163,7 @@ const CreateQuestion = () => {
             onChange={(e) => {
               setQuestion(e.target.value);
             }}
+            value={question}
             className="flex justify-center border border-black w-full p-10 text-center rounded-lg"
             type="text"
             placeholder="Enter Question"
@@ -162,6 +200,7 @@ const CreateQuestion = () => {
                     </div>
 
                     <input
+                      value={answer.text}
                       onChange={(e) => handleInputChange(index, e.target.value)}
                       className="text-center w-full h-[100%]"
                       type="text"
