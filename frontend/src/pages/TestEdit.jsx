@@ -173,7 +173,7 @@ const TestEdit = () => {
                     </button>
                     <div className="flex border-solid  w-1/6">
                       <Link
-                        to={`/update-question/${question._id}`}
+                        to={`/update-question/${question._id}/${testId}`}
                         className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/2 hover:bg-slate-200"
                       >
                         <CiEdit className="mr-1 text-lg" />

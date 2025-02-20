@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useState } from "react";
 
+// login, save role, and token, user
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,8 +25,8 @@ const Login = () => {
     const res = await result.json();
     const role = res.role;
     // Remember to set token
-    localStorage.setItem("role", role);
-
+    sessionStorage.setItem("role", role);
+    sessionStorage.setItem("userID", res.id);
     navigate("/home");
   };
 
@@ -57,9 +58,11 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-
+            <div className="font-sans text-green-500 ml-3 mb-2 cursor-pointer">
+              Forgot your password ?
+            </div>
             <button
-              className="border-none w-[95%] bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
+              className="border-none ml-2 w-[91%] bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
               onClick={handleSubmit}
             >
               Log In

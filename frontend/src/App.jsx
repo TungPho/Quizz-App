@@ -16,7 +16,7 @@ const App = () => {
         <Route path="/create-question" element={<CreateQuestion />} />
         <Route path="/create-question/:testId" element={<CreateQuestion />} />
         <Route
-          path="/update-question/:questionId"
+          path="/update-question/:questionId/:testId"
           element={<CreateQuestion />}
         />
         <Route path="/tests/:testId" element={<TestEdit />} />

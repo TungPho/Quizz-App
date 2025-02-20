@@ -111,6 +111,7 @@ const CreateQuestion = () => {
 
   const updateQuestion = async () => {
     console.log("UPDATING");
+    console.log(testId);
     if (!questionId) return;
     console.log(question, answers);
     const req = await fetch(
@@ -129,6 +130,7 @@ const CreateQuestion = () => {
     console.log(req);
     const res = await req.json();
     console.log(res);
+    navigate(`/tests/${testId}`);
   };
   return (
     <div>
@@ -136,7 +138,7 @@ const CreateQuestion = () => {
         <button
           onClick={() => {
             setState("normal");
-            navigate("/home");
+            navigate(`/tests/${testId}`);
           }}
         >
           <IoArrowBackSharp />
