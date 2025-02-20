@@ -62,6 +62,7 @@ class UserController {
       message: "Login Success",
       AT: accessToken,
       role: foundUser.role,
+      id: foundUser._id,
     });
   };
 }

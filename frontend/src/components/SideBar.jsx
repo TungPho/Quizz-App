@@ -10,7 +10,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 const SideBar = () => {
   const { setState } = useContext(QuizzContext);
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   const modal = useRef(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -95,12 +95,12 @@ const SideBar = () => {
               isOpen ? "visible" : "hidden"
             }`}
           >
-            <div
+            <button
               className="flex justify-center w-[10%] hover:border hover:border-black hover:bg-[#DEDEDE] rounded-2xl text-gray-400 hover:border-none"
               onClick={closeModal}
             >
-              <p>X</p>
-            </div>
+              X
+            </button>
             <div></div>
             <div
               onClick={() => {

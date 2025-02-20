@@ -47,10 +47,10 @@ const SignUp = () => {
   return (
     <div>
       <Navbar />
-      <div className="flex justify-center">
+      <div className="flex justify-center ">
         <div className="w-[50%] flex items-center justify-center p-2 rounded-lg mt-2 h-full">
           {!isEnoughInfo ? (
-            <div className="flex-col w-[50%] p-10 rounded-lg">
+            <div className="flex-col items-center justify-center w-[50%] p-10 rounded-lg">
               <h1>Sign Up</h1>
               <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
                 <CiUser />
@@ -85,7 +85,7 @@ const SignUp = () => {
               </div>
 
               <button
-                className="w-full border-none bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
+                className="w-full ml-3 border-none bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
                 onClick={handleInfo}
               >
                 Continue
