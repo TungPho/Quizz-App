@@ -138,7 +138,7 @@ const CreateQuestion = () => {
         <button
           onClick={() => {
             setState("normal");
-            navigate(`/tests/${testId}`);
+            testId ? navigate(`/tests/${testId}`) : navigate(`/home`);
           }}
         >
           <IoArrowBackSharp />

@@ -5,9 +5,12 @@ import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
 import CreateQuestion from "./pages/CreateQuestion";
 import TestEdit from "./pages/TestEdit";
+import ClassDetails from "./pages/ClassDetails";
+import ScrollToTop from "./utils/ScrollToTop";
 const App = () => {
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUp />} />
@@ -20,6 +23,7 @@ const App = () => {
           element={<CreateQuestion />}
         />
         <Route path="/tests/:testId" element={<TestEdit />} />
+        <Route path="/class/:classId" element={<ClassDetails />} />
       </Routes>
     </div>
   );
