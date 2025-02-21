@@ -1,10 +1,39 @@
 import { useParams } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ClassDetails = () => {
   const { classId } = useParams();
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
+  const [roomCode, setRoomCode] = useState("");
+  const [classes, setClass] = useState(null);
+  const generateRoomCode = () => {
+    const characters = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    let result = "";
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters[randomIndex];
+    }
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * numbers.length);
+      result += numbers[randomIndex];
+    }
+    setRoomCode("IT-2" + "-" + result);
+  };
+
+  useEffect(() => {
+    const fetchClass = async () => {
+      const req = await fetch(
+        `http://localhost:3000/api/v1/classes/${classId}`
+      );
+      const res = await req.json();
+      console.log(res.metadata);
+      setClass(res.metadata);
+    };
+    fetchClass();
+  }, [classId]);
+
   return (
     <div className="bg-slate-100 min-h-screen">
       <div className="flex justify-between">
@@ -32,21 +61,28 @@ const ClassDetails = () => {
         </div>
       </div>
 
-      <p className="ml-5 text-lg mt-10">Performance</p>
+      <p className="ml-5 text-lg mt-10">Active Rooms:</p>
 
       <div
-        className={`flex justify-center ${isOpenCreateRoom ? "" : "hidden"}`}
+        className={`flex justify-center  ${isOpenCreateRoom ? "" : "hidden"}`}
       >
-        <div className="bg-white border border-black  rounded-md p-5">
+        <div className="bg-white border border-black w-1/3 rounded-md p-5">
           <h3>Create Room</h3>
           <h3>Room Code:</h3>
-          <div className="p-3 border-slate-400 border">
+          <div className="p-3 border-slate-400 border flex justify-between">
             <input
+              value={roomCode}
+              disabled
               className="font-sans focus:outline-none"
               type="text"
               placeholder="UTC-CNTT-2-64@abd"
             />
-            <button className="font-sans font-semibold text-white p-3 bg-green-500 hover:bg-green-400">
+            <button
+              onClick={() => {
+                generateRoomCode();
+              }}
+              className="font-sans font-semibold text-white p-3 bg-green-500 hover:bg-green-400"
+            >
               Generate
             </button>
           </div>
@@ -58,7 +94,7 @@ const ClassDetails = () => {
             Teacher&apos;s name:
             <p className="ml-2 font-sans font-bold">Tung</p>
           </p>
-          <div className="flex justify-between w-[80%] mt-3">
+          <div className="flex justify-between mt-3">
             <button
               onClick={() => {
                 setIsOpenCreateRoom(false);
