@@ -1,3 +1,4 @@
+const userModel = require("../models/user.model");
 const TestService = require("../services/test.service");
 
 class TestController {
@@ -18,6 +19,17 @@ class TestController {
     });
   };
 
+  findAllTestByTeacherID = async (req, res, next) => {
+    const { teacherId } = req.params;
+    console.log(teacherId);
+    const foundTeacher = await userModel.findById(teacherId);
+    if (!foundTeacher) throw new Error("Can't find this teacherId ");
+    const tests = await TestService.findTestsByTeacherID(teacherId);
+    return res.status(200).json({
+      message: "Get all test by teacherID success",
+      metadata: tests,
+    });
+  };
   createTest = async (req, res, next) => {
     const { title, classId, teacherId, timeLimit } = req.body;
     const test = { title, classId, teacherId, timeLimit };

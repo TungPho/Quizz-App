@@ -23,6 +23,15 @@ class TestService {
     );
     return { updatedTest };
   };
+
+  static findTestsByTeacherID = async (teacherId) => {
+    const foundTests = await testModel.find({
+      teacherId,
+    });
+    console.log(foundTests);
+    return { foundTests };
+  };
+
   static deleteTest = async () => {
     return {};
   };
