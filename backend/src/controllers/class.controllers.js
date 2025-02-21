@@ -10,6 +10,17 @@ class ClassController {
       metadata: results,
     });
   };
+
+  getClassById = async (req, res, next) => {
+    const { id } = req.params;
+    console.log(id);
+    const results = await ClassService.getClassById(id);
+    res.status(200).json({
+      messaege: "Get class success",
+      metadata: results,
+    });
+  };
+
   createClass = async (req, res, next) => {
     const { name, teacherId, students, tests } = req.body;
     const newClass = { name, teacherId, students, tests };

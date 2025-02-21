@@ -3,6 +3,8 @@ const catchAsync = require("../../handlers/asyncHandlers");
 const classControllers = require("../../controllers/class.controllers");
 const classRoute = express.Router();
 classRoute.get("/classes", catchAsync(classControllers.getAllClasses));
+classRoute.get("/classes/:id", catchAsync(classControllers.getClassById));
+
 classRoute.post("/classes", catchAsync(classControllers.createClass));
 classRoute.put("/classes", catchAsync(classControllers.updateClass));
 classRoute.delete("/classes", catchAsync(classControllers.deleteClass));

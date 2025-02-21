@@ -43,15 +43,18 @@ const SideBar = () => {
         <div className="border border-solid border-black m-[10px] p-[10px] rounded-[10px] text-[12px]">
           University Of Transport And Communication
         </div>
-        <button
-          onClick={showModal}
-          className="flex justify-center items-center bg-[#31cd63] rounded-lg text-white p-[5px] w-[90%] ml-[5px]"
-        >
-          <p>
-            <FaPlus />
-          </p>
-          <p> {role === "student" ? "Join Class" : "Create"}</p>
-        </button>
+        <div className="flex justify-center">
+          <button
+            onClick={showModal}
+            className="flex justify-center items-center bg-[#31cd63] rounded-lg text-white p-[5px] w-[90%] ml-[5px] hover:bg-green-400"
+          >
+            <p>
+              <FaPlus />
+            </p>
+            <p> {role === "student" ? "Join Class" : "Create"}</p>
+          </button>
+        </div>
+
         <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center">
           <FaHome className="mr-1" /> Explore
         </div>
