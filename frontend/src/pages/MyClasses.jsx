@@ -3,13 +3,14 @@ import { CiSearch } from "react-icons/ci";
 import { FaCirclePlus } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import { CiMenuKebab } from "react-icons/ci";
+import { Link } from "react-router-dom";
 
 const MyClasses = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [className, setClassName] = useState("");
-  const [isOpenKebabMenu, setIsOpenKebabMenu] = useState(false);
   // remember to get all classes from teacher's id
   const [classes, setClasses] = useState([]);
+  const [isEditClass, setIsEditClass] = useState(false);
   const userID = sessionStorage.getItem("userID");
 
   const handleCreateClass = async () => {
@@ -51,7 +52,7 @@ const MyClasses = () => {
           className={` fixed top-[20%] border w-1/3 border-gray-500  p-2 z-[9] bg-white rounded-md `}
         >
           <div className="flex justify-between">
-            <div>Create a new class</div>
+            <div>{isEditClass ? "Edit class details" : "Create Class"}</div>
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -67,6 +68,7 @@ const MyClasses = () => {
             onChange={(e) => {
               setClassName(e.target.value);
             }}
+            value={className}
             className="w-full mb-2 mt-2 border rounded-md border-slate-400 text-sm font-sans focus:outline-none p-2"
             type="text"
             placeholder="Try 'CNTT-2' Or 'Math Class'"
@@ -80,7 +82,7 @@ const MyClasses = () => {
               }}
               className="border bg-[#31cd63] text-white p-1 rounded-md hover:bg-green-400"
             >
-              Create class
+              {isEditClass ? "Save" : "Create Class"}
             </button>
           </div>
         </div>
@@ -100,6 +102,8 @@ const MyClasses = () => {
         <button
           onClick={() => {
             setIsOpen(true);
+            setClassName("");
+            setIsEditClass(false);
           }}
           className=" flex items-center justify-center  pl-1 w-[20%] border-[1px] bg-[#31cd63] text-white rounded-md hover:bg-green-400"
         >
@@ -131,11 +135,24 @@ const MyClasses = () => {
               id={`menu-${index}`}
               className={`absolute left-[805px] mt-3 border  text-[13px] border-slate-300 ml-3 z-2 bg-white hidden`}
             >
-              <p className="font-sans hover:bg-slate-300 cursor-pointer p-1">
-                Create room
+              <Link
+                to={`/class/${c._id}`}
+                className="font-sans hover:bg-slate-300 cursor-pointer p-1"
+              >
+                View Details
+              </Link>
+              <p
+                onClick={() => {
+                  setIsOpen(true);
+                  setIsEditClass(true);
+                  setClassName(c.name);
+                }}
+                className="font-sans hover:bg-slate-300 cursor-pointer p-1"
+              >
+                Edit
               </p>
               <p className="font-sans hover:bg-slate-300 cursor-pointer p-1">
-                Details
+                Delete class
               </p>
             </div>
           </div>
