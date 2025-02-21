@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 
 const ClassDetails = () => {
   const { classId } = useParams();
+  const userID = sessionStorage.getItem("userID");
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
   const [roomCode, setRoomCode] = useState("");
   const [classes, setClass] = useState(null);
+  const [className, setClassName] = useState("");
+  const [tests, setTests] = useState([]);
   const generateRoomCode = () => {
     const characters = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
@@ -19,20 +22,33 @@ const ClassDetails = () => {
       const randomIndex = Math.floor(Math.random() * numbers.length);
       result += numbers[randomIndex];
     }
-    setRoomCode("IT-2" + "-" + result);
+    setRoomCode(classes.name + "-" + result);
   };
 
   useEffect(() => {
     const fetchClass = async () => {
+      console.log(classId);
       const req = await fetch(
         `http://localhost:3000/api/v1/classes/${classId}`
       );
       const res = await req.json();
       console.log(res.metadata);
       setClass(res.metadata);
+      setClassName(res.metadata.name);
+    };
+    const fetchTestByTeacherID = async () => {
+      console.log("ID", userID);
+      const req = await fetch(
+        `http://localhost:3000/api/v1/tests-find/${userID}`
+      );
+      const res = await req.json();
+      console.log(res);
+      setTests(res.metadata.foundTests);
+      console.log(res.metadata.foundTests);
     };
     fetchClass();
-  }, [classId]);
+    fetchTestByTeacherID();
+  }, [classId, userID]);
 
   return (
     <div className="bg-slate-100 min-h-screen">
@@ -88,12 +104,25 @@ const ClassDetails = () => {
           </div>
           <p className="font-sans flex">
             Classname:
-            <p className="ml-2 font-sans font-bold">IT-2</p>
+            <p className="ml-2 font-sans font-bold">{className}</p>
           </p>
           <p className="font-sans flex">
             Teacher&apos;s name:
             <p className="ml-2 font-sans font-bold">Tung</p>
           </p>
+
+          <select
+            className="w-1/2 font-sans font-semibold border border-slate-300 mt-3"
+            name=""
+            id=""
+          >
+            <option className="font-sans" value="">
+              Select Test
+            </option>
+            {tests.map((test, index) => {
+              return <option key={index}>{test.title}</option>;
+            })}
+          </select>
           <div className="flex justify-between mt-3">
             <button
               onClick={() => {
@@ -103,7 +132,12 @@ const ClassDetails = () => {
             >
               Cancel
             </button>
-            <button className="font-sans font-semibold text-white p-1 pr-5 pl-5 bg-green-500 hover:bg-green-400">
+            <button
+              onClick={() => {
+                setIsOpenCreateRoom(false);
+              }}
+              className="font-sans font-semibold text-white p-1 pr-5 pl-5 bg-green-500 hover:bg-green-400"
+            >
               Create Room
             </button>
           </div>
