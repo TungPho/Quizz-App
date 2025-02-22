@@ -1,8 +1,11 @@
 import { useParams } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { QuizzContext } from "../context/ContextProvider";
+import { IoReload } from "react-icons/io5";
 
 const ClassDetails = () => {
+  const { socket } = useContext(QuizzContext);
   const { classId } = useParams();
   const userID = sessionStorage.getItem("userID");
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
@@ -10,6 +13,7 @@ const ClassDetails = () => {
   const [classes, setClass] = useState(null);
   const [className, setClassName] = useState("");
   const [tests, setTests] = useState([]);
+  const [activeRooms, setActiveRooms] = useState([]);
   const generateRoomCode = () => {
     const characters = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
@@ -25,30 +29,44 @@ const ClassDetails = () => {
     setRoomCode(classes.name + "-" + result);
   };
 
+  let createRoom = () => {
+    socket.emit("createRoom", roomCode, userID);
+  };
+
   useEffect(() => {
     const fetchClass = async () => {
-      console.log(classId);
       const req = await fetch(
         `http://localhost:3000/api/v1/classes/${classId}`
       );
       const res = await req.json();
-      console.log(res.metadata);
       setClass(res.metadata);
       setClassName(res.metadata.name);
     };
     const fetchTestByTeacherID = async () => {
-      console.log("ID", userID);
       const req = await fetch(
         `http://localhost:3000/api/v1/tests-find/${userID}`
       );
       const res = await req.json();
-      console.log(res);
       setTests(res.metadata.foundTests);
-      console.log(res.metadata.foundTests);
     };
     fetchClass();
     fetchTestByTeacherID();
   }, [classId, userID]);
+
+  useEffect(() => {
+    // event này kích hoạt khi server gửi lại rooms
+    //chỉ lấy các room thuộc class này, và mỗi tên lớp là unique
+    socket.on("roomList", (rooms) => {
+      setActiveRooms(rooms);
+    });
+    socket.on("getRoomList", (rooms) => {
+      setActiveRooms(rooms);
+    });
+    return () => {
+      socket.off("roomList");
+      socket.off("getRoomList");
+    };
+  }, [socket]);
 
   return (
     <div className="bg-slate-100 min-h-screen">
@@ -77,7 +95,21 @@ const ClassDetails = () => {
         </div>
       </div>
 
-      <p className="ml-5 text-lg mt-10">Active Rooms:</p>
+      <div className="flex items-center mt-10">
+        <p className="ml-5 text-lg mr-3">Active Rooms:</p>
+        <button
+          onClick={() => {
+            socket.emit("getRoomList", className);
+          }}
+          className="border border-black p-2 rounded-md bg-white hover:bg-slate-300"
+        >
+          <IoReload />
+        </button>
+      </div>
+
+      {activeRooms.map((room, index) => {
+        return <li key={index}>{room}</li>;
+      })}
 
       <div
         className={`flex justify-center  ${isOpenCreateRoom ? "" : "hidden"}`}
@@ -102,14 +134,14 @@ const ClassDetails = () => {
               Generate
             </button>
           </div>
-          <p className="font-sans flex">
+          <div className="font-sans flex">
             Classname:
             <p className="ml-2 font-sans font-bold">{className}</p>
-          </p>
-          <p className="font-sans flex">
+          </div>
+          <div className="font-sans flex">
             Teacher&apos;s name:
             <p className="ml-2 font-sans font-bold">Tung</p>
-          </p>
+          </div>
 
           <select
             className="w-1/2 font-sans font-semibold border border-slate-300 mt-3"
@@ -135,6 +167,7 @@ const ClassDetails = () => {
             <button
               onClick={() => {
                 setIsOpenCreateRoom(false);
+                createRoom();
               }}
               className="font-sans font-semibold text-white p-1 pr-5 pl-5 bg-green-500 hover:bg-green-400"
             >
