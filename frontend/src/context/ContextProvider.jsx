@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useState } from "react";
 import PropTypes from "prop-types";
+import io from "socket.io-client";
+const socket = io("ws://localhost:3000");
 export const QuizzContext = createContext();
 const ContextProvider = (props) => {
   // role, token  and userID
@@ -11,6 +13,7 @@ const ContextProvider = (props) => {
     setRole,
     setState,
     state,
+    socket,
   };
   return (
     <QuizzContext.Provider value={value}>

@@ -7,6 +7,7 @@ import CreateQuestion from "./pages/CreateQuestion";
 import TestEdit from "./pages/TestEdit";
 import ClassDetails from "./pages/ClassDetails";
 import ScrollToTop from "./utils/ScrollToTop";
+
 const App = () => {
   return (
     <div>
