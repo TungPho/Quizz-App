@@ -57,6 +57,7 @@ const ClassDetails = () => {
   }, [classId, userID]);
 
   useEffect(() => {
+    // emit 1 event để lấy danh sách các phòng theo tên class
     socket.emit("getRoomList", className);
   }, [className, socket]);
 
