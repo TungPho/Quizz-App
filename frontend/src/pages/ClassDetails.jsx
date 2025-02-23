@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useContext, useEffect, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 import { IoReload } from "react-icons/io5";
 
 const ClassDetails = () => {
-  const { socket } = useContext(QuizzContext);
+  const { socket, setState } = useContext(QuizzContext);
   const { classId } = useParams();
   const userID = sessionStorage.getItem("userID");
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
@@ -14,6 +14,9 @@ const ClassDetails = () => {
   const [className, setClassName] = useState("");
   const [tests, setTests] = useState([]);
   const [activeRooms, setActiveRooms] = useState([]);
+  const navigate = useNavigate();
+
+  // generate className + 6 digits code
   const generateRoomCode = () => {
     const characters = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
@@ -54,17 +57,19 @@ const ClassDetails = () => {
   }, [classId, userID]);
 
   useEffect(() => {
+    socket.emit("getRoomList", className);
+  }, [className, socket]);
+
+  useEffect(() => {
     // event này kích hoạt khi server gửi lại rooms
     //chỉ lấy các room thuộc class này, và mỗi tên lớp là unique
     socket.on("roomList", (rooms) => {
       setActiveRooms(rooms);
+      console.log(rooms);
     });
-    socket.on("getRoomList", (rooms) => {
-      setActiveRooms(rooms);
-    });
+
     return () => {
       socket.off("roomList");
-      socket.off("getRoomList");
     };
   }, [socket]);
 
@@ -72,7 +77,13 @@ const ClassDetails = () => {
     <div className="bg-slate-100 min-h-screen">
       <div className="flex justify-between">
         <div className="flex ml-5">
-          <button className="text-gray-500 mr-5  p-2 hover:bg-slate-300">
+          <button
+            onClick={() => {
+              setState("myClasses");
+              navigate("/home");
+            }}
+            className="text-gray-500 mr-5  p-2 hover:bg-slate-300"
+          >
             <IoIosArrowRoundBack className="text-3xl" />
           </button>
           <div>
@@ -106,15 +117,38 @@ const ClassDetails = () => {
           <IoReload />
         </button>
       </div>
+      <div className="flex justify-center">
+        <div className="grid grid-cols-4  border-r-black border-t-black border-l-black border bg-white font-semibold text-center p-3 rounded-t-md w-2/3">
+          <div className="col-span-1">Class Name</div>
+          <div className="col-span-1">Room Number</div>
+          <div className="col-span-1">Students Joined</div>
+          <div className="col-span-1 flex justify-center">Status</div>
+        </div>
+      </div>
 
       {activeRooms.map((room, index) => {
-        return <li key={index}>{room}</li>;
+        return (
+          <div key={index} className="flex justify-center ">
+            <div
+              onClick={() => {
+                navigate(`/room/${room[0]}`);
+              }}
+              className="cursor-pointer hover:bg-gray-300 grid grid-cols-4 border-l-black border-r-black border-b-black  border  bg-white font-semibold text-center p-3  w-2/3"
+            >
+              <div className="col-span-1">{className}</div>
+              <div className="col-span-1">{room[0]}</div>
+              <div className="col-span-1">{room[1].length - 1} Students</div>
+              <div className="col-span-1 text-green-400">Active</div>
+            </div>
+          </div>
+        );
       })}
-
       <div
-        className={`flex justify-center  ${isOpenCreateRoom ? "" : "hidden"}`}
+        className={`flex justify-center fixed left-[660px] top-[120px]  ${
+          isOpenCreateRoom ? "" : "hidden"
+        }`}
       >
-        <div className="bg-white border border-black w-1/3 rounded-md p-5">
+        <div className="bg-white border fixed border-black w-1/3 rounded-md p-5">
           <h3>Create Room</h3>
           <h3>Room Code:</h3>
           <div className="p-3 border-slate-400 border flex justify-between">
