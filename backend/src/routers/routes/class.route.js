@@ -5,7 +5,9 @@ const classRoute = express.Router();
 classRoute.get("/classes", catchAsync(classControllers.getAllClasses));
 classRoute.get("/classes/:id", catchAsync(classControllers.getClassById));
 
+classRoute.post("/classes/:id", catchAsync(classControllers.addStudentToClass));
+
 classRoute.post("/classes", catchAsync(classControllers.createClass));
-classRoute.put("/classes", catchAsync(classControllers.updateClass));
-classRoute.delete("/classes", catchAsync(classControllers.deleteClass));
+classRoute.put("/classes/:id", catchAsync(classControllers.updateClass));
+classRoute.delete("/classes/:id", catchAsync(classControllers.deleteClass));
 module.exports = classRoute;

@@ -15,5 +15,13 @@ class ClassService {
     const newClass = await classModel.findById(new Types.ObjectId(id));
     return newClass;
   };
+  // delete class
+
+  static addStudentToClassById = async (id, studentID) => {
+    const foundClass = await classModel.findById(new Types.ObjectId(id));
+    foundClass.students.push(new Types.ObjectId(studentID));
+    foundClass.save();
+    return foundClass;
+  };
 }
 module.exports = ClassService;

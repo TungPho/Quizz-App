@@ -3,12 +3,14 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { useContext, useEffect, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 import { IoReload } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
 
 const ClassDetails = () => {
   const { socket, setState } = useContext(QuizzContext);
   const { classId } = useParams();
   const userID = sessionStorage.getItem("userID");
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
+  const [isOpenAddStudent, setIsOpenAddStudent] = useState(false);
   const [roomCode, setRoomCode] = useState("");
   const [classes, setClass] = useState(null);
   const [className, setClassName] = useState("");
@@ -88,7 +90,7 @@ const ClassDetails = () => {
             <IoIosArrowRoundBack className="text-3xl" />
           </button>
           <div>
-            <p className="font-sans font-semibold text-lg">Class 1</p>
+            <p className="font-sans font-semibold text-lg">{className}</p>
             <p className="font-sans text-sm">0 Students</p>
           </div>
         </div>
@@ -101,7 +103,12 @@ const ClassDetails = () => {
           >
             Create Room
           </button>
-          <button className="bg-white border h-fit p-1 border-slate-400 rounded-md text-sm  font-sans font-semibold  hover:bg-slate-300">
+          <button
+            onClick={() => {
+              setIsOpenAddStudent(true);
+            }}
+            className="bg-white border h-fit p-1 border-slate-400 rounded-md text-sm  font-sans font-semibold  hover:bg-slate-300"
+          >
             Add Student
           </button>
         </div>
@@ -132,7 +139,11 @@ const ClassDetails = () => {
           <div key={index} className="flex justify-center ">
             <div
               onClick={() => {
-                navigate(`/room/${room[0]}`);
+                navigate(`/room/${room[0]}`, {
+                  state: {
+                    classID: classId,
+                  },
+                });
               }}
               className="cursor-pointer hover:bg-gray-300 grid grid-cols-4 border-l-black border-r-black border-b-black  border  bg-white font-semibold text-center p-3  w-2/3"
             >
@@ -209,6 +220,36 @@ const ClassDetails = () => {
               Create Room
             </button>
           </div>
+        </div>
+      </div>
+      <div
+        className={`flex justify-center fixed left-[600px] top-[120px] border border-black bg-white ${
+          isOpenAddStudent ? "" : "hidden"
+        }`}
+      >
+        <div className="flex flex-col p-3">
+          <div className="p-2 hover:bg-slate-300 w-fit rounded-2xl cursor-pointer">
+            <IoMdClose
+              onClick={() => {
+                setIsOpenAddStudent(false);
+              }}
+            />
+          </div>
+
+          <h1 className="text-sm">Enter Student ID:</h1>
+          <input
+            className="border border-slate-300 p-2 mb-2"
+            type="text"
+            placeholder="Enter Student ID"
+          />
+          <button
+            onClick={() => {
+              setIsOpenAddStudent(false);
+            }}
+            className="bg-green-500 text-white"
+          >
+            Invite Student
+          </button>
         </div>
       </div>
     </div>

@@ -21,6 +21,18 @@ class ClassController {
     });
   };
 
+  // phải check student đã trong class chưa, nếu rồi thì không cần add
+  addStudentToClass = async (req, res, next) => {
+    // co the add theo classname hoac id
+    const { id } = req.params;
+    const { studentID } = req.body;
+    const result = await ClassService.addStudentToClassById(id, studentID);
+    res.status(200).json({
+      messaege: "Add Student to the class success",
+      metadata: result,
+    });
+  };
+
   createClass = async (req, res, next) => {
     const { name, teacherId, students, tests } = req.body;
     const newClass = { name, teacherId, students, tests };

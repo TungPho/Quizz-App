@@ -1,7 +1,9 @@
 import { useContext, useEffect } from "react";
 import { QuizzContext } from "../context/ContextProvider";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
+import { IoIosArrowRoundBack } from "react-icons/io";
+
 import io from "socket.io-client";
 
 const Room = () => {
@@ -11,12 +13,13 @@ const Room = () => {
   const role = sessionStorage.getItem("role");
   const { socket, setSocket } = useContext(QuizzContext);
   const [data, setData] = useState([]);
+  const { classID } = useLocation().state;
+  const navigate = useNavigate();
   useEffect(() => {
     // emit an event to get students in the room
     socket.emit("getRoomById", roomID);
     // if the server returns data, take it
     socket.on("studentData", (data) => {
-      console.log(data);
       setData(data);
     });
     return () => {
@@ -25,7 +28,6 @@ const Room = () => {
     };
   }, [roomID, socket]);
 
-  // server sẽ nhận :)) yên tâm
   useEffect(() => {
     setSocket(
       io("ws://localhost:3000", {
@@ -34,8 +36,19 @@ const Room = () => {
     );
   }, [role, setSocket, userID]);
   return (
-    <div>
-      <div>Student List</div>
+    <div className="bg-slate-100 min-h-screen">
+      <div className="flex items-center">
+        <button
+          onClick={() => {
+            navigate(`/class/${classID}`);
+          }}
+          className="text-3xl mr-3 hover:bg-slate-300 p-2"
+        >
+          <IoIosArrowRoundBack />
+        </button>
+        <div>Student List</div>
+      </div>
+
       <div className="flex justify-center">
         <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border bg-white font-semibold text-center p-3 rounded-t-md w-2/3">
           <div className="col-span-1">Student Name</div>
@@ -54,7 +67,7 @@ const Room = () => {
         if (student.teacher_id) return;
         return (
           <div key={index} className="flex justify-center">
-            <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border bg-white font-semibold text-center p-3 rounded-t-md w-2/3">
+            <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border-b-black border bg-white font-semibold text-center p-3  w-2/3">
               <div className="col-span-1">{student.name}</div>
               <div className="col-span-1">{student.student_id}</div>
               <div className="col-span-1">Joined</div>

@@ -2,7 +2,7 @@ const socketIO = require("socket.io");
 const http = require("http");
 
 const app = require("./src/app");
-const FILTER_LENGTH = 7;
+const FILTER_LENGTH = -7;
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
@@ -12,14 +12,8 @@ const io = socketIO(server, {
     methods: ["GET", "POST"],
   },
 });
-// notifications này nên được lấy từ DB, rồi push tiếp rồi set lại, không nên push chồng chéo lên nhau
-// danh sách lỗi (record lại buổi thi nên lấy từ Database và cả notifications cũng vậy)
-const rooms = {};
-// lưu socket của teacher theo id của teacher
-// VD abcd314: (teacher's id) : socketid -> ghi đè socket mỗi khi reload
-// gửi role và user id mỗi khi đăng nhập hoặc reload
 
-// sử dụng cái này để tìm socket theo teacher id
+const rooms = {};
 const teachersID = {};
 
 io.on("connection", (socket) => {
@@ -27,7 +21,6 @@ io.on("connection", (socket) => {
   const { userId, role } = socket.handshake.query;
 
   if (role === "teacher" && userId) {
-    console.log("USERID", userId, role);
     teachersID[userId] = socket.id;
     console.log(teachersID);
   }
@@ -37,8 +30,8 @@ io.on("connection", (socket) => {
       console.log("Room has exist");
       return;
     }
-
-    const className = room.slice(0, room.length - FILTER_LENGTH);
+    const className = room.slice(0, FILTER_LENGTH);
+    console.log(className);
     rooms[room] = [];
     rooms[room].push({
       teacher_socket_id: socket.id,
@@ -46,16 +39,15 @@ io.on("connection", (socket) => {
       className: className,
     });
     const filterdRooms = Object.entries(rooms).filter(
-      (r) => r[0].slice(0, -7) === className
+      (r) => r[0].slice(0, FILTER_LENGTH) === className
     );
-    console.log(filterdRooms);
     io.to(socket.id).emit("roomList", filterdRooms);
   });
 
   // Khi ấn refresh button
   socket.on("getRoomList", (className) => {
     const filterdRooms = Object.entries(rooms).filter(
-      (r) => r[0].slice(0, -7) === className
+      (r) => r[0].slice(0, FILTER_LENGTH) === className
     );
     io.to(socket.id).emit("roomList", filterdRooms);
   });
@@ -77,10 +69,9 @@ io.on("connection", (socket) => {
 
     // this works but it needs class name
     const filterdRooms = Object.entries(rooms).filter(
-      (r) => r[0].slice(0, -7) === teacher.className
+      (r) => r[0].slice(0, FILTER_LENGTH) === teacher.className
     );
     io.to(teachersID[teacher.teacher_id]).emit("roomList", filterdRooms);
-
     console.log(`Student ${student.name} joined`);
   });
   // get room by room's id and teacher's id
