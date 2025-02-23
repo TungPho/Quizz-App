@@ -34,34 +34,43 @@ io.on("connection", (socket) => {
     // const final = Object.entries(rooms).filter(
     //   (r) => r[0].slice(0, room.length - 7) === className
     // );
-    const filterdRooms = Object.keys(rooms).filter(
-      (r) => r.slice(0, r.length - FILTER_LENGTH) === className
+    const filterdRooms = Object.entries(rooms).filter(
+      (r) => r[0].slice(0, -7) === className
     );
+    console.log(filterdRooms);
     io.to(socket.id).emit("roomList", filterdRooms);
   });
 
+  // Khi ấn refresh button
   socket.on("getRoomList", (className) => {
-    const filterdRooms = Object.keys(rooms).filter(
-      (r) => r.slice(0, r.length - FILTER_LENGTH) === className
+    const filterdRooms = Object.entries(rooms).filter(
+      (r) => r[0].slice(0, -7) === className
     );
     io.to(socket.id).emit("roomList", filterdRooms);
   });
 
-  /// when someone join the room
-  socket.on("joinRoom", (room, name) => {
+  /// when students join the room, lưu ý phải để teacher tạo phòng mới được vào
+  socket.on("joinRoom", (room, student) => {
     if (!rooms[room]) {
-      console.log("No Room found");
+      console.log("Room not found");
       return;
     }
     const teacher_socket_id = rooms[room].find(
       (user) => user.teacher_socket_id
     ).teacher_socket_id;
+    // pusht the student to the room array
     rooms[room].push({
-      student_id: socket.id,
-      name: name,
+      socket_student_id: socket.id,
+      ...student,
     });
+    console.log("TEACHER_SOCKET", teacher_socket_id);
+    console.log(rooms[room]);
     io.to(teacher_socket_id).emit("studentData", rooms[room]);
-    console.log(`Student ${name} joined`);
+    console.log(`Student ${student.name} joined`);
+  });
+  // Khi ấn vào chi tiết phòng
+  socket.on("getStudentsByRoom", (room) => {
+    io.to(socket.id).emit("studentData", rooms[room]);
   });
 });
 server.listen(PORT, () => {

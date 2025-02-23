@@ -49,7 +49,7 @@ const SideBar = () => {
             className="flex justify-center items-center bg-[#31cd63] rounded-lg text-white p-[5px] w-[90%] ml-[5px] hover:bg-green-400"
           >
             <p>
-              <FaPlus />
+              <FaPlus className="mr-1" />
             </p>
             <p> {role === "student" ? "Join Class" : "Create"}</p>
           </button>
@@ -86,11 +86,24 @@ const SideBar = () => {
           <IoIosLogOut className="mr-1" /> Log out
         </div>
       </div>
-      <div ref={modal} className={`flex justify-center `}>
+      <div ref={modal} className={`flex justify-center`}>
         {role === "student" ? (
-          <div className="grid grid-cols-[90%_90%] w-[20%] h-0 gap-x-[10px] gap-y-[10px] justify-center fixed top-[10%] border border-gray-500 p-[10%] content-center">
-            <button onClick={closeModal}>X</button>
-            <p>Student Modal</p>
+          <div
+            className={`${
+              isOpen ? "" : "hidden"
+            } border border-black rounded-sm flex flex-col p-3 absolute mt-20`}
+          >
+            <div>
+              <button onClick={closeModal}>X</button>
+            </div>
+            <input
+              className="border border-slate-400 mb-3 mt-3 p-3"
+              type="text"
+              placeholder="Enter class name"
+            />
+            <button className="border border-black">
+              Send Request to Join
+            </button>
           </div>
         ) : (
           <div
