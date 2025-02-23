@@ -12,15 +12,11 @@ class UserController {
   // x-authorization: access token
   // x-api-key
   getAllUsers = async (req, res, next) => {
-    try {
-      const result = await UserService.getAllUser();
-      res.status(200).json({
-        metadata: result,
-        message: "Get all Users Success",
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    const result = await UserService.getAllUser();
+    res.status(200).json({
+      metadata: result,
+      message: "Get all Users Success",
+    });
   };
   // TODO
   // password 0-8 characters

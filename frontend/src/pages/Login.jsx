@@ -1,12 +1,14 @@
 import { CiMail } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { useState } from "react";
-
+import { useContext, useState } from "react";
+import { QuizzContext } from "../context/ContextProvider";
+import io from "socket.io-client";
 // login, save role, and token, user
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setSocket } = useContext(QuizzContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,6 +29,11 @@ const Login = () => {
     // Remember to set token
     sessionStorage.setItem("role", role);
     sessionStorage.setItem("userID", res.id);
+    setSocket(
+      io("ws://localhost:3000", {
+        query: { userId: res.id, role }, // Gửi userId và role khi kết nối
+      })
+    );
     navigate("/home");
   };
 
