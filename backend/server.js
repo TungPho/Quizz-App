@@ -15,8 +15,22 @@ const io = socketIO(server, {
 // notifications này nên được lấy từ DB, rồi push tiếp rồi set lại, không nên push chồng chéo lên nhau
 // danh sách lỗi (record lại buổi thi nên lấy từ Database và cả notifications cũng vậy)
 const rooms = {};
+// lưu socket của teacher theo id của teacher
+// VD abcd314: (teacher's id) : socketid -> ghi đè socket mỗi khi reload
+// gửi role và user id mỗi khi đăng nhập hoặc reload
+
+// sử dụng cái này để tìm socket theo teacher id
+const teachersID = {};
+
 io.on("connection", (socket) => {
-  console.log("a new user connected");
+  console.log("A new user connected or re-connect");
+  const { userId, role } = socket.handshake.query;
+
+  if (role === "teacher" && userId) {
+    console.log("USERID", userId, role);
+    teachersID[userId] = socket.id;
+    console.log(teachersID);
+  }
   //1. event tạo phòng (lọc những phòng nào có teacher ID đúng để lấy về)
   socket.on("createRoom", (room, teacherID) => {
     if (rooms[room]) {
@@ -28,12 +42,7 @@ io.on("connection", (socket) => {
       teacher_socket_id: socket.id,
       teacher_id: teacherID,
     });
-
     const className = room.slice(0, room.length - FILTER_LENGTH);
-    //console.log(Object.entries(rooms)[0][1][0].teacher_id);
-    // const final = Object.entries(rooms).filter(
-    //   (r) => r[0].slice(0, room.length - 7) === className
-    // );
     const filterdRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, -7) === className
     );
@@ -50,27 +59,35 @@ io.on("connection", (socket) => {
   });
 
   /// when students join the room, lưu ý phải để teacher tạo phòng mới được vào
+  //khi student enter room, tìm tới teacher id để gửi tới socket
   socket.on("joinRoom", (room, student) => {
     if (!rooms[room]) {
       console.log("Room not found");
       return;
     }
-    const teacher_socket_id = rooms[room].find(
+    const teacher_id = rooms[room].find(
       (user) => user.teacher_socket_id
-    ).teacher_socket_id;
-    // pusht the student to the room array
+    ).teacher_id;
+    // push the student to the room array
     rooms[room].push({
       socket_student_id: socket.id,
       ...student,
     });
-    console.log("TEACHER_SOCKET", teacher_socket_id);
-    console.log(rooms[room]);
-    io.to(teacher_socket_id).emit("studentData", rooms[room]);
+    io.to(teachersID[teacher_id]).emit("studentData", rooms[room]);
+
+    // const filterdRooms = Object.entries(rooms).filter(
+    //   (r) => r[0].slice(0, -7) === className
+    // );
+    // io.to(teachersID[teacher_id]).emit("roomList", filterdRooms);
+
     console.log(`Student ${student.name} joined`);
   });
-  // Khi ấn vào chi tiết phòng
-  socket.on("getStudentsByRoom", (room) => {
+  // get room by room's id and teacher's id
+  socket.on("getRoomById", (room) => {
     io.to(socket.id).emit("studentData", rooms[room]);
+  });
+  socket.on("disconnect", () => {
+    console.log(`User ${socket.id} disconnected`);
   });
 });
 server.listen(PORT, () => {
