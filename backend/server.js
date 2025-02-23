@@ -37,12 +37,14 @@ io.on("connection", (socket) => {
       console.log("Room has exist");
       return;
     }
+
+    const className = room.slice(0, room.length - FILTER_LENGTH);
     rooms[room] = [];
     rooms[room].push({
       teacher_socket_id: socket.id,
       teacher_id: teacherID,
+      className: className,
     });
-    const className = room.slice(0, room.length - FILTER_LENGTH);
     const filterdRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, -7) === className
     );
@@ -65,20 +67,19 @@ io.on("connection", (socket) => {
       console.log("Room not found");
       return;
     }
-    const teacher_id = rooms[room].find(
-      (user) => user.teacher_socket_id
-    ).teacher_id;
+    const teacher = rooms[room].find((user) => user.teacher_socket_id);
     // push the student to the room array
     rooms[room].push({
       socket_student_id: socket.id,
       ...student,
     });
-    io.to(teachersID[teacher_id]).emit("studentData", rooms[room]);
+    io.to(teachersID[teacher.teacher_id]).emit("studentData", rooms[room]);
 
-    // const filterdRooms = Object.entries(rooms).filter(
-    //   (r) => r[0].slice(0, -7) === className
-    // );
-    // io.to(teachersID[teacher_id]).emit("roomList", filterdRooms);
+    // this works but it needs class name
+    const filterdRooms = Object.entries(rooms).filter(
+      (r) => r[0].slice(0, -7) === teacher.className
+    );
+    io.to(teachersID[teacher.teacher_id]).emit("roomList", filterdRooms);
 
     console.log(`Student ${student.name} joined`);
   });

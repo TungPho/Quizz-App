@@ -12,6 +12,7 @@ const HomeNavBar = () => {
   const [studentID, setStudentID] = useState("");
   const userID = sessionStorage.getItem("userID");
   const { socket } = useContext(QuizzContext);
+  /// TODO: thêm class name vào đây
   const handleJoinRoom = () => {
     socket.emit("joinRoom", roomCode, {
       name: studentName,

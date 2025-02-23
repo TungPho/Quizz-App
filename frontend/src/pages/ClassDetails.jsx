@@ -33,7 +33,7 @@ const ClassDetails = () => {
   };
 
   let createRoom = () => {
-    socket.emit("createRoom", roomCode, userID);
+    socket.emit("createRoom", roomCode, userID, className);
   };
 
   useEffect(() => {
