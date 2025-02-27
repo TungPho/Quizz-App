@@ -1,5 +1,6 @@
 const { Types } = require("mongoose");
 const classModel = require("../models/class.model");
+const { studentModel } = require("../models/user.model");
 
 class ClassService {
   static getAllClasses = async () => {
@@ -19,7 +20,12 @@ class ClassService {
 
   static addStudentToClassById = async (id, studentID) => {
     const foundClass = await classModel.findById(new Types.ObjectId(id));
-    foundClass.students.push(new Types.ObjectId(studentID));
+    console.log("clsss", foundClass);
+    const student = await studentModel.findOne({
+      student_id: studentID,
+    });
+    console.log(student._id);
+    foundClass.students.push(student._id);
     foundClass.save();
     return foundClass;
   };
