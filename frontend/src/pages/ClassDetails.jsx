@@ -36,7 +36,7 @@ const ClassDetails = () => {
   };
 
   let createRoom = () => {
-    socket.emit("createRoom", roomCode, userID, className);
+    socket.emit("createRoom", roomCode, userID, "123");
   };
 
   useEffect(() => {
@@ -48,11 +48,13 @@ const ClassDetails = () => {
       setClass(res.metadata);
       setClassName(res.metadata.name);
     };
+    console.log(userID);
     const fetchTestByTeacherID = async () => {
       const req = await fetch(
         `http://localhost:3000/api/v1/tests-find/${userID}`
       );
       const res = await req.json();
+      console.log(res.metadata.foundTests);
       setTests(res.metadata.foundTests);
     };
     fetchClass();
@@ -205,6 +207,10 @@ const ClassDetails = () => {
           </div>
 
           <select
+            onChange={(e) => {
+              const value = e.target.id;
+              console.log(value);
+            }}
             className="w-1/2 font-sans font-semibold border border-slate-300 mt-3"
             name=""
             id=""
@@ -213,7 +219,11 @@ const ClassDetails = () => {
               Select Test
             </option>
             {tests.map((test, index) => {
-              return <option key={index}>{test.title}</option>;
+              return (
+                <option id={test._id} key={index}>
+                  {test.title}
+                </option>
+              );
             })}
           </select>
           <div className="flex justify-between mt-3">
