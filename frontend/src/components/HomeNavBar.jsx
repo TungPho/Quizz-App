@@ -3,6 +3,7 @@ import { CiBellOn } from "react-icons/ci";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import { QuizzContext } from "../context/ContextProvider";
+import { useNavigate } from "react-router-dom";
 
 const HomeNavBar = () => {
   const role = sessionStorage.getItem("role");
@@ -12,6 +13,8 @@ const HomeNavBar = () => {
   const [studentID, setStudentID] = useState("");
   const userID = sessionStorage.getItem("userID");
   const { socket } = useContext(QuizzContext);
+  const navigate = useNavigate();
+
   /// TODO: thêm class name vào đây
   const handleJoinRoom = () => {
     socket.emit("joinRoom", roomCode, {
@@ -97,6 +100,11 @@ const HomeNavBar = () => {
             <button
               onClick={() => {
                 handleJoinRoom();
+                navigate(`/main_exam`, {
+                  state: {
+                    room: roomCode,
+                  },
+                });
               }}
               className="bg-green-500 hover:bg-green-400 text-white mt-2 p-3"
             >

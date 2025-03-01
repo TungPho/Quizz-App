@@ -5,7 +5,6 @@ const { studentModel } = require("../models/user.model");
 class ClassService {
   static getAllClasses = async () => {
     const results = await classModel.find();
-    console.log(results);
     return results;
   };
   static createClass = async (inputClass) => {
@@ -20,7 +19,6 @@ class ClassService {
 
   static addStudentToClassById = async (id, studentID) => {
     const foundClass = await classModel.findById(new Types.ObjectId(id));
-    console.log("clsss", foundClass);
     const student = await studentModel.findOne({
       student_id: studentID,
     });

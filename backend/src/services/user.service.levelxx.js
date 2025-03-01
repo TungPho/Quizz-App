@@ -12,7 +12,6 @@ class UserServiceFactory {
   static async createUser({ role, payload }) {
     // lấy user class tại đây
     const userClass = this.userRegistry[role];
-    console.log(userClass);
     if (!userClass) throw new Error(`Invalid Type ${role}`);
 
     return new userClass(payload).createUser();
