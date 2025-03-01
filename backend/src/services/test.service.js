@@ -26,7 +26,7 @@ class TestService {
 
   static findTestsByTeacherID = async (teacherId) => {
     const foundTests = await testModel.find({
-      teacherId,
+      teacherId: new Types.ObjectId(teacherId),
     });
     console.log(foundTests);
     return { foundTests };

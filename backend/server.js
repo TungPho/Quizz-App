@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
     console.log(teachersID);
   }
   //1. event tạo phòng (lọc những phòng nào có teacher ID đúng để lấy về)
-  socket.on("createRoom", (room, teacherID) => {
+  socket.on("createRoom", (room, teacherID, testID) => {
     if (rooms[room]) {
       console.log("Room has exist");
       return;
@@ -37,10 +37,12 @@ io.on("connection", (socket) => {
       teacher_socket_id: socket.id,
       teacher_id: teacherID,
       className: className,
+      test_id: testID,
     });
     const filterdRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, FILTER_LENGTH) === className
     );
+    console.log(rooms[room]);
     io.to(socket.id).emit("roomList", filterdRooms);
   });
 
@@ -78,6 +80,8 @@ io.on("connection", (socket) => {
   socket.on("getRoomById", (room) => {
     io.to(socket.id).emit("studentData", rooms[room]);
   });
+  // send test assestment to the room
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
   });

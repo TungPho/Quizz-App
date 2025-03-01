@@ -16,6 +16,7 @@ const ClassDetails = () => {
   const [className, setClassName] = useState("");
   const [tests, setTests] = useState([]);
   const [activeRooms, setActiveRooms] = useState([]);
+  const [studentID, setStudentID] = useState("");
   const navigate = useNavigate();
 
   // generate className + 6 digits code
@@ -35,7 +36,7 @@ const ClassDetails = () => {
   };
 
   let createRoom = () => {
-    socket.emit("createRoom", roomCode, userID, className);
+    socket.emit("createRoom", roomCode, userID, "123");
   };
 
   useEffect(() => {
@@ -47,11 +48,13 @@ const ClassDetails = () => {
       setClass(res.metadata);
       setClassName(res.metadata.name);
     };
+    console.log(userID);
     const fetchTestByTeacherID = async () => {
       const req = await fetch(
         `http://localhost:3000/api/v1/tests-find/${userID}`
       );
       const res = await req.json();
+      console.log(res.metadata.foundTests);
       setTests(res.metadata.foundTests);
     };
     fetchClass();
@@ -76,6 +79,20 @@ const ClassDetails = () => {
     };
   }, [socket]);
 
+  const handleAddStudent = async () => {
+    console.log(studentID);
+    const req = await fetch(`http://localhost:3000/api/v1/classes/${classId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        studentID: studentID,
+      }),
+    });
+    const res = await req.json();
+    console.log(res);
+  };
   return (
     <div className="bg-slate-100 min-h-screen">
       <div className="flex justify-between">
@@ -91,7 +108,7 @@ const ClassDetails = () => {
           </button>
           <div>
             <p className="font-sans font-semibold text-lg">{className}</p>
-            <p className="font-sans text-sm">0 Students</p>
+            <p className="font-sans text-sm">{}</p>
           </div>
         </div>
         <div className="flex mr-5 justify-between h-fit">
@@ -190,6 +207,10 @@ const ClassDetails = () => {
           </div>
 
           <select
+            onChange={(e) => {
+              const value = e.target.id;
+              console.log(value);
+            }}
             className="w-1/2 font-sans font-semibold border border-slate-300 mt-3"
             name=""
             id=""
@@ -198,7 +219,11 @@ const ClassDetails = () => {
               Select Test
             </option>
             {tests.map((test, index) => {
-              return <option key={index}>{test.title}</option>;
+              return (
+                <option id={test._id} key={index}>
+                  {test.title}
+                </option>
+              );
             })}
           </select>
           <div className="flex justify-between mt-3">
@@ -238,6 +263,9 @@ const ClassDetails = () => {
 
           <h1 className="text-sm">Enter Student ID:</h1>
           <input
+            onChange={(e) => {
+              setStudentID(e.target.value);
+            }}
             className="border border-slate-300 p-2 mb-2"
             type="text"
             placeholder="Enter Student ID"
@@ -245,6 +273,7 @@ const ClassDetails = () => {
           <button
             onClick={() => {
               setIsOpenAddStudent(false);
+              handleAddStudent();
             }}
             className="bg-green-500 text-white"
           >

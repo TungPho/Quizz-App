@@ -25,9 +25,11 @@ const Login = () => {
     });
     console.log(result);
     const res = await result.json();
+    console.log(res);
     const role = res.role;
     // Remember to set token
     sessionStorage.setItem("role", role);
+    console.log(role);
     sessionStorage.setItem("userID", res.id);
     setSocket(
       io("ws://localhost:3000", {
