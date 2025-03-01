@@ -1,7 +1,6 @@
 const { Types } = require("mongoose");
 const questionModel = require("../models/question.model");
 const testModel = require("../models/test.model");
-const { updateQuestion } = require("../controllers/question.controllers");
 
 class QuestionService {
   static getAllQuestions = async () => {

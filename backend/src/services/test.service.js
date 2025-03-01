@@ -28,6 +28,7 @@ class TestService {
     const foundTests = await testModel.find({
       teacherId: new Types.ObjectId(teacherId),
     });
+    console.log(new Types.ObjectId(teacherId));
     console.log(foundTests);
     return { foundTests };
   };

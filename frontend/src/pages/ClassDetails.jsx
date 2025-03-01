@@ -17,6 +17,10 @@ const ClassDetails = () => {
   const [tests, setTests] = useState([]);
   const [activeRooms, setActiveRooms] = useState([]);
   const [studentID, setStudentID] = useState("");
+
+  //selected Test
+  const [selectedTest, setSelectedTest] = useState("");
+
   const navigate = useNavigate();
 
   // generate className + 6 digits code
@@ -36,7 +40,7 @@ const ClassDetails = () => {
   };
 
   let createRoom = () => {
-    socket.emit("createRoom", roomCode, userID, "123");
+    socket.emit("createRoom", roomCode, userID, selectedTest);
   };
 
   useEffect(() => {
@@ -150,12 +154,13 @@ const ClassDetails = () => {
           <div className="col-span-1 flex justify-center">Status</div>
         </div>
       </div>
-
+      {/* Active rooms */}
       {activeRooms.map((room, index) => {
         return (
           <div key={index} className="flex justify-center ">
             <div
               onClick={() => {
+                // Navigate to Room.jsx (truyền classID và TestID để sinh viên nhận bài)
                 navigate(`/room/${room[0]}`, {
                   state: {
                     classID: classId,
@@ -208,8 +213,8 @@ const ClassDetails = () => {
 
           <select
             onChange={(e) => {
-              const value = e.target.id;
-              console.log(value);
+              const test = e.target.value;
+              setSelectedTest(test);
             }}
             className="w-1/2 font-sans font-semibold border border-slate-300 mt-3"
             name=""
@@ -220,7 +225,7 @@ const ClassDetails = () => {
             </option>
             {tests.map((test, index) => {
               return (
-                <option id={test._id} key={index}>
+                <option value={test._id} key={test._id}>
                   {test.title}
                 </option>
               );
@@ -237,6 +242,10 @@ const ClassDetails = () => {
             </button>
             <button
               onClick={() => {
+                if (!selectedTest) {
+                  alert("Please Select a test");
+                  return;
+                }
                 setIsOpenCreateRoom(false);
                 createRoom();
               }}

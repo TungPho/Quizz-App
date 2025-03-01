@@ -8,6 +8,7 @@ import TestEdit from "./pages/TestEdit";
 import ClassDetails from "./pages/ClassDetails";
 import ScrollToTop from "./utils/ScrollToTop";
 import Room from "./pages/Room";
+import MainExam from "./pages/MainExam";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/tests/:testId" element={<TestEdit />} />
         <Route path="/class/:classId" element={<ClassDetails />} />
         <Route path="/room/:roomID" element={<Room />} />
+        <Route path="/main_exam" element={<MainExam />} />
       </Routes>
     </div>
   );

@@ -40,9 +40,7 @@ class QuestionController {
 
   updateQuestion = async (req, res, next) => {
     const { id } = req.params;
-    console.log(id);
     const { text, options } = req.body;
-    console.log(text, options);
     const result = await QuestionService.updateQuestionById(
       { text, options },
       id

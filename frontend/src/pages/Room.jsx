@@ -14,7 +14,8 @@ const Room = () => {
   const { socket, setSocket } = useContext(QuizzContext);
   const [data, setData] = useState([]);
   const { classID } = useLocation().state;
-  console.log(classID);
+  console.log("ClassID", classID);
+
   const navigate = useNavigate();
   useEffect(() => {
     // emit an event to get students in the room
