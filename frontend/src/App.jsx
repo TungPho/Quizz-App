@@ -9,6 +9,12 @@ import ClassDetails from "./pages/ClassDetails";
 import ScrollToTop from "./utils/ScrollToTop";
 import Room from "./pages/Room";
 import MainExam from "./pages/MainExam";
+import Library from "./components/Library";
+import MyClasses from "./pages/MyClasses";
+import TestHistory from "./pages/TestHistory";
+import Explore from "./pages/Explore";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 const App = () => {
   return (
@@ -29,6 +35,14 @@ const App = () => {
         <Route path="/class/:classId" element={<ClassDetails />} />
         <Route path="/room/:roomID" element={<Room />} />
         <Route path="/main_exam" element={<MainExam />} />
+        {/* Route Side Bars*/}
+        <Route path="/home/library" element={<Library />} />
+        <Route path="/home/my_classes" element={<MyClasses />} />
+        <Route path="/home/test_history" element={<TestHistory />} />
+        <Route path="/home/explore" element={<Explore />} />
+        {/*Menu Profile*/}
+        <Route path="/my_profile" element={<Profile />} />
+        <Route path="/setting" element={<Settings />} />
       </Routes>
     </div>
   );

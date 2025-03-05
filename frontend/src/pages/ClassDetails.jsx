@@ -104,7 +104,7 @@ const ClassDetails = () => {
           <button
             onClick={() => {
               setState("myClasses");
-              navigate("/home");
+              navigate("/home/my_classes");
             }}
             className="text-gray-500 mr-5  p-2 hover:bg-slate-300"
           >
@@ -225,7 +225,7 @@ const ClassDetails = () => {
             </option>
             {tests.map((test, index) => {
               return (
-                <option value={test._id} key={test._id}>
+                <option value={test._id} key={index}>
                   {test.title}
                 </option>
               );

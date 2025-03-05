@@ -48,7 +48,7 @@ const Room = () => {
         >
           <IoIosArrowRoundBack />
         </button>
-        <div>Student List</div>
+        <div>Room: {roomID}</div>
       </div>
 
       <div className="flex justify-center">

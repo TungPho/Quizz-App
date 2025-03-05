@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 import { useLocation } from "react-router-dom";
 import CountdownTimer from "../utils/CountDownTimer";
-const API_URL = import.meta.env.LOCAL_API_CALL_URL;
 
 const MainExam = () => {
   const [examID, setExamID] = useState(sessionStorage.getItem("examID"));
@@ -18,31 +17,32 @@ const MainExam = () => {
   // student info
   const [studentName, setStudentName] = useState("");
   const [studentID, setStudentID] = useState("");
-  console.log(API_URL);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   useEffect(() => {
     // get student information
-    if (!examID || !studentName) {
-      socket.emit("studentInfo", userID, room);
-      // recived student information in server
-      socket.on("sentStudentInfo", (student) => {
-        console.log(student);
-        sessionStorage.setItem("student", student);
-        setExamID(student.examID);
-        setStudentName(student.name);
-        setStudentID(student.student_id);
-      });
-    }
-  }, [examID, mainExam, room, socket, studentName, userID]);
+    console.log(userID, room);
+    socket.emit("studentInfo", userID, room);
+    // recived student information in server
+    socket.on("sentStudentInfo", (student) => {
+      console.log("student", student);
+      sessionStorage.setItem("student", student);
+      setExamID(student.examID);
+      setStudentName(student.name);
+      setStudentID(student.student_id);
+    });
+    const sessionStudent = sessionStorage.getItem("student", student);
+    console.log(sessionStudent);
+  }, []);
 
   useEffect(() => {
     // fetch the exam by exam ID
     const fetchTest = async () => {
       const req = await fetch(`http://localhost:3000/api/v1/tests/${examID}`);
       const testFound = await req.json();
-      setMainExam(testFound.metadata);
+      console.log(testFound);
+      setMainExam(testFound.metadata.timeLimit);
       setTimeLimit(testFound.metadata.timeLimit);
-      // loop over the questions in the test
+      //loop over the questions in the test
       const questionPromises = testFound.metadata.questions.map(
         async (questionID) => {
           const questionDetail = await fetch(
@@ -107,7 +107,7 @@ const MainExam = () => {
           </p>
           <p>Time Left:</p>
           <div className="text-3xl mr-10">
-            <CountdownTimer minutes={1} setIsFinished={setIsFinished} />
+            <CountdownTimer minutes={10} setIsFinished={setIsFinished} />
           </div>
           <button
             onClick={() => {
@@ -142,7 +142,9 @@ const MainExam = () => {
               <p className="text-lg font-sans">
                 Current Question: {currentQuestion + 1}
               </p>
-              <p className="text-2xl font-sans">{questions[0]?.text}</p>
+              <p className="text-2xl font-sans">
+                {questions[currentQuestion]?.text}
+              </p>
 
               <div className="flex  p-3">
                 {questions[currentQuestion]?.options.map((answer, index) => {
