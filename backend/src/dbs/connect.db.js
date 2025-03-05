@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const DB_CONFIG = {
   MONGO_LOCAL: process.env.CONNECTION_STRING_MONGO,
-  MONGO_CLOUD: "",
+  MONGO_CLOUD: process.env.CONNECTION_STRING_MONGO_CLOUD,
 };
 
 class Database {

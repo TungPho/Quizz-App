@@ -1,9 +1,12 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CiBellOn } from "react-icons/ci";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import { QuizzContext } from "../context/ContextProvider";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { IoLogOutOutline } from "react-icons/io5";
+import { CgProfile } from "react-icons/cg";
+import { CiSettings } from "react-icons/ci";
 
 const HomeNavBar = () => {
   const role = sessionStorage.getItem("role");
@@ -13,6 +16,7 @@ const HomeNavBar = () => {
   const [studentID, setStudentID] = useState("");
   const userID = sessionStorage.getItem("userID");
   const { socket } = useContext(QuizzContext);
+  const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   /// TODO: thêm class name vào đây
@@ -24,6 +28,17 @@ const HomeNavBar = () => {
     });
   };
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (!event.target.closest(".menu-content")) {
+        setIsOpenProfileMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <div>
       <div className="flex flex-row justify-end items-center h-[50px] shadow-lg ml-[15%] sticky top-0 bg-white">
@@ -42,9 +57,54 @@ const HomeNavBar = () => {
         >
           Enter Code
         </div>
-        <div className="w-[6%] cursor-pointer hover:bg-slate-200 border flex justify-between  items-center border-gray-500 self-center  text-[13px] mr-[10px]  border-solid rounded-3xl p-1">
+        <div
+          onClick={() => {
+            setIsOpenProfileMenu(true);
+          }}
+          className="w-[6%] cursor-pointer hover:bg-slate-200 border flex justify-between  items-center border-gray-500 self-center  text-[13px] mr-[10px]  border-solid rounded-3xl p-1"
+        >
           <img className="w-1/2 rounded-3xl" src="/images/avatar.png" alt="" />
           <IoMdArrowDropdown className="text-xl" />
+          <div
+            id="profile-menu menu-content"
+            className={`flex w-1/5 flex-col p-3 absolute top-[48px] right-[20px] border border-green-400 z-1 bg-white ${
+              isOpenProfileMenu ? "" : "hidden"
+            }`}
+          >
+            <div className="flex  items-center">
+              <div className="mr-2">
+                <img
+                  className="w-[30px] rounded-3xl"
+                  src="/images/avatar.png"
+                  alt=""
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <p>Tung Pho</p>
+                <p className="font-sans text-gray-500">tungpho6@gmail.com</p>
+              </div>
+            </div>
+            <hr />
+            <Link
+              to={"/my_profile"}
+              className="flex items-center text-[15px] mt-3 hover:bg-slate-200 p-3 rounded-md menu-content"
+            >
+              <CgProfile className="mr-3 text-xl" />
+              <p>View profile</p>
+            </Link>
+            <Link
+              to={"/setting"}
+              className="flex items-center text-[15px]  mt-3 hover:bg-slate-200 p-3 rounded-md menu-content"
+            >
+              <CiSettings className="mr-3 text-xl" />
+              <p>Settings</p>
+            </Link>
+            <div className="flex items-center text-[15px] mt-3 hover:bg-slate-200 p-3 rounded-md menu-content">
+              <IoLogOutOutline className="mr-3 text-xl" />
+              <p>Logout</p>
+            </div>
+          </div>
         </div>
       </div>
 

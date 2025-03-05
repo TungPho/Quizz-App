@@ -6,10 +6,8 @@ import { MdClass } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GoChecklist } from "react-icons/go";
 
-import { useContext, useEffect, useRef, useState } from "react";
-import { QuizzContext } from "../context/ContextProvider";
+import { useEffect, useRef, useState } from "react";
 const SideBar = () => {
-  const { setState } = useContext(QuizzContext);
   const role = sessionStorage.getItem("role");
   const modal = useRef(null);
   const navigate = useNavigate();
@@ -35,55 +33,66 @@ const SideBar = () => {
   return (
     <div>
       <div
-        className={`flex flex-col w-[15%] h-full border-r border-gray-500 fixed top-0 text-gray-500`}
+        className={`flex flex-col justify-between w-[15%] h-full border-r border-gray-300 border-[1px] fixed top-0 text-gray-500`}
       >
-        <NavLink className="text-[#31cd63] text-3xl" to={"/"}>
-          Quizzes
-        </NavLink>
-        <div className="border border-solid border-black m-[10px] p-[10px] rounded-[10px] text-[12px]">
-          University Of Transport And Communication
-        </div>
-        <div className="flex justify-center">
-          <button
-            onClick={showModal}
-            className="flex justify-center items-center bg-[#31cd63] rounded-lg text-white p-[5px] w-[90%] ml-[5px] hover:bg-green-400"
+        <div>
+          <NavLink className="text-[#31cd63] text-3xl ml-3" to={"/"}>
+            Quizzes
+          </NavLink>
+          <div className="border border-solid border-black m-[10px] p-[10px] rounded-[10px] text-[12px]">
+            University Of Transport And Communication
+          </div>
+          <div className="flex justify-center">
+            <button
+              onClick={showModal}
+              className="flex justify-center items-center bg-[#31cd63] rounded-lg text-white p-[5px] w-[90%] ml-[5px] hover:bg-green-400"
+            >
+              <p>
+                <FaPlus className="mr-1" />
+              </p>
+              <p> {role === "student" ? "Join Class" : "Create"}</p>
+            </button>
+          </div>
+          <NavLink
+            to={"/home/explore"}
+            className={({ isActive }) =>
+              `flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-slate-200 items-center ${
+                isActive ? "text-[#31cd63]" : "hover:bg-slate-200"
+              }`
+            }
           >
-            <p>
-              <FaPlus className="mr-1" />
-            </p>
-            <p> {role === "student" ? "Join Class" : "Create"}</p>
-          </button>
-        </div>
-
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center">
-          <FaHome className="mr-1" /> Explore
-        </div>
-        <div
-          onClick={() => {
-            setState("library");
-          }}
-          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
-        >
-          <IoLibrary className="mr-1" /> Library
-        </div>
-        <div
-          onClick={() => {
-            setState("testHistory");
-          }}
-          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
-        >
-          <TbReportSearch className="mr-1" /> Test History
-        </div>
-        <div
-          onClick={() => {
-            setState("myClasses");
-          }}
-          className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center"
-        >
-          <MdClass className="mr-1" /> My Classes
-        </div>
-        <div className="flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-[#c2c1c1] items-center">
-          <IoIosLogOut className="mr-1" /> Log out
+            <FaHome className="mr-1" /> Explore
+          </NavLink>
+          <NavLink
+            to={"/home/library"}
+            className={({ isActive }) =>
+              `flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-slate-200 items-center ${
+                isActive ? "text-[#31cd63]" : "hover:bg-slate-200"
+              }`
+            }
+          >
+            <IoLibrary className="mr-1" /> Library
+          </NavLink>
+          <NavLink
+            to={"/home/test_history"}
+            className={({ isActive }) =>
+              `flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-slate-200 items-center ${
+                isActive ? "text-[#31cd63]" : "hover:bg-slate-200"
+              }`
+            }
+          >
+            <TbReportSearch className="mr-1" /> Test History
+          </NavLink>
+          <NavLink
+            to={"/home/my_classes"}
+            className={({ isActive }) =>
+              `flex ml-[5%] mt-[5%] cursor-pointer p-[10px] hover:bg-slate-200 items-center ${
+                isActive ? "text-[#31cd63]" : "hover:bg-slate-200"
+              }`
+            }
+          >
+            <MdClass className="mr-1" /> My Classes
+          </NavLink>
         </div>
       </div>
       <div ref={modal} className={`flex justify-center`}>

@@ -94,7 +94,10 @@ io.on("connection", (socket) => {
     io.to(socket.id).emit("studentData", rooms[room]);
   });
   socket.on("studentInfo", (userID, room) => {
+    console.log("OK");
+    console.log(userID, room);
     const currentRoom = rooms[room];
+    console.log(room);
     let foundStudent;
     for (let student of currentRoom) {
       if (student.student_id_db === userID) {

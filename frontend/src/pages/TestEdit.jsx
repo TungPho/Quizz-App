@@ -73,11 +73,11 @@ const TestEdit = () => {
   };
   return (
     <div className="">
-      <div className="flex justify-between mb-5 border-gray-300 border-b-[1px]">
+      <div className="flex justify-between mb-5 ">
         <div className="flex">
           <button
             onClick={() => {
-              navigate("/home");
+              navigate("/home/library");
             }}
             className=" ml-2 p-1 mr-3"
           >
@@ -104,7 +104,7 @@ const TestEdit = () => {
 
       <div className="flex justify-center w-full">
         <div className="mr-5 w-1/5">
-          <div className="flex items-center border-solid border-slate-300 border-[1px] p-3 rounded-sm">
+          <div className="flex items-center border-solid border-slate-300 border-[1px] p-3 rounded-sm mt-3">
             <IoTimeOutline className="mr-1" />
             <select
               onChange={(e) => {
@@ -125,7 +125,7 @@ const TestEdit = () => {
               <option value="150">150 mins</option>
             </select>
           </div>
-          <div className="mt-5 text-sm border-solid border-slate-300 border-[1px]rounded-sm bg-green-500 text-white flex flex-col justify-between items-center h-fit">
+          <div className="mt-[70px] text-sm border-solid border-slate-300 border-[1px]rounded-sm bg-green-500 text-white flex flex-col justify-between items-center h-fit">
             <p>Import from</p>
             <div className="flex items-center justify-between hover:bg-green-400 w-full p-3 cursor-pointer">
               <div className="flex items-center">
@@ -145,82 +145,83 @@ const TestEdit = () => {
           </div>
         </div>
         <div className="w-2/3">
-          <div className="border-solid border-slate-300 border-[1px] p-3">
-            <p>Search question in Quizzes Libarry</p>
+          <div className="p-3">
             <div className="border-solid border-gray-300 border-[1px] flex justify-between p-3">
               <input
                 className="focus:outline-none "
                 type="text"
-                placeholder="Search"
+                placeholder="Search question in Quizzes Libarry"
               />
               <button className="flex items-center border-slate-300 border-solid border-[1px] p-1 bg-slate-200">
                 <CiSearch className="mr-2" />
-                Search Questions
+                Search
               </button>
             </div>
           </div>
-          <p className="mt-5">{questions.length} questions</p>
-          {questionLength > 0 ? (
-            questions.map((question, index) => {
-              return (
-                <div
-                  key={index}
-                  className="border-solid border-slate-300 p-3 border-[1px]"
-                >
-                  <div className="flex justify-between">
-                    <button className="border-slate-300 border-solid border-[1px]">
-                      <IoIosMove />
-                    </button>
-                    <div className="flex border-solid  w-1/6">
-                      <Link
-                        to={`/update-question/${question._id}/${testId}`}
-                        className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/2 hover:bg-slate-200"
-                      >
-                        <CiEdit className="mr-1 text-lg" />
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleDeleteQuestion(question._id);
-                          setQuestionLength((l) => l - 1);
-                        }}
-                        className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200"
-                      >
-                        <CiTrash className="mr-1 text-lg" />
+          <div className="mt-5 ml-3">
+            <p>{questions.length} questions</p>
+            {questionLength > 0 ? (
+              questions.map((question, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="border-solid border-slate-300 p-3 border-[1px] mb-3 bg-slate-100"
+                  >
+                    <div className="flex justify-between">
+                      <button className="border-slate-300 border-solid border-[1px]">
+                        <IoIosMove />
                       </button>
+                      <div className="flex border-solid  w-1/6">
+                        <Link
+                          to={`/update-question/${question._id}/${testId}`}
+                          className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/2 hover:bg-slate-200"
+                        >
+                          <CiEdit className="mr-1 text-lg" />
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleDeleteQuestion(question._id);
+                            setQuestionLength((l) => l - 1);
+                          }}
+                          className="flex mr-5 items-center border-solid border-slate-300 justify-center border-[1px] text-sm text-center w-1/3  hover:bg-slate-200"
+                        >
+                          <CiTrash className="mr-1 text-lg" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between w-fit">
+                      <p className="text-sm mr-2 font-sans">Question:</p>
+                      <p className="text-sm font-sans">{question.text}</p>
+                    </div>
+
+                    <p className="text-sm font-sans">Answer choices:</p>
+                    <div className="grid grid-cols-2 w-1/4 text-sm">
+                      {question.options.map((option, index) => {
+                        return (
+                          <div key={index} className="flex items-center  ">
+                            {option.isCorrect ? (
+                              <GoCheck className="text-green-600 font-extrabold" />
+                            ) : (
+                              <IoMdClose className="text-red-600 font-extrabold" />
+                            )}
+                            <p className="font-sans">{option.text}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="flex justify-between w-fit">
-                    <p className="text-sm mr-2 font-sans">Question:</p>
-                    <p className="text-sm font-sans">{question.text}</p>
-                  </div>
-
-                  <p className="text-sm font-sans">Answer choices:</p>
-                  <div className="grid grid-cols-2 w-1/4 text-sm">
-                    {question.options.map((option, index) => {
-                      return (
-                        <div key={index} className="flex items-center  ">
-                          {option.isCorrect ? (
-                            <GoCheck className="text-green-600 font-extrabold" />
-                          ) : (
-                            <IoMdClose className="text-red-600 font-extrabold" />
-                          )}
-                          <p className="font-sans">{option.text}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div>No questions in here</div>
-          )}
-          <button className="font-sans border-slate-300 border-[1px] mt-3 hover:bg-slate-200 p-1">
-            <Link className="font-sans" to={`/create-question/${testId}`}>
-              + Add question
-            </Link>
-          </button>
+                );
+              })
+            ) : (
+              <div>No questions in here</div>
+            )}
+            <button className="font-sans border-slate-300 border-[1px] mt-3 hover:bg-slate-200 p-1">
+              <Link className="font-sans" to={`/create-question/${testId}`}>
+                + Add question
+              </Link>
+            </button>
+          </div>
         </div>
       </div>
     </div>

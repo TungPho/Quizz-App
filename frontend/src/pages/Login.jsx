@@ -13,37 +13,41 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await fetch("http://localhost:3000/api/v1/login", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    });
-    console.log(result);
-    const res = await result.json();
-    console.log(res);
-    const role = res.role;
-    // Remember to set token
-    sessionStorage.setItem("role", role);
-    console.log(role);
-    sessionStorage.setItem("userID", res.id);
-    setSocket(
-      io("ws://localhost:3000", {
-        query: { userId: res.id, role }, // Gửi userId và role khi kết nối
-      })
-    );
-    navigate("/home");
+    try {
+      const result = await fetch("http://localhost:3000/api/v1/login", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      console.log(result);
+      const res = await result.json();
+      console.log(res);
+      const role = res.role;
+      // Remember to set token
+      sessionStorage.setItem("role", role);
+      console.log(role);
+      sessionStorage.setItem("userID", res.id);
+      setSocket(
+        io("ws://localhost:3000", {
+          query: { userId: res.id, role }, // Gửi userId và role khi kết nối
+        })
+      );
+      navigate("/home");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <div>
       <Navbar />
       <div className="flex justify-center">
-        <div className="w-[50%] flex items-center justify-center p-2 rounded-lg mt-2 h-full">
+        <div className="w-[50%] border border-black flex items-center justify-between p-2 rounded-lg mt-2 h-full">
           <div className="flex-col w-[50%] p-2 rounded">
             <h1>Log In</h1>
 
