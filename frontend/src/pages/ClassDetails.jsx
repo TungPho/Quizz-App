@@ -8,7 +8,7 @@ import { IoMdClose } from "react-icons/io";
 const ClassDetails = () => {
   const { socket, setState } = useContext(QuizzContext);
   const { classId } = useParams();
-  const userID = sessionStorage.getItem("userID");
+  const userID = localStorage.getItem("userID");
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
   const [isOpenAddStudent, setIsOpenAddStudent] = useState(false);
   const [roomCode, setRoomCode] = useState("");
@@ -99,8 +99,8 @@ const ClassDetails = () => {
   };
   return (
     <div className="bg-slate-100 min-h-screen">
-      <div className="flex justify-between">
-        <div className="flex ml-5">
+      <div className="flex justify-between items-center">
+        <div className="flex ml-5 items-center">
           <button
             onClick={() => {
               setState("myClasses");
@@ -115,12 +115,12 @@ const ClassDetails = () => {
             <p className="font-sans text-sm">{}</p>
           </div>
         </div>
-        <div className="flex mr-5 justify-between h-fit">
+        <div className="flex mr-5 justify-between">
           <button
             onClick={() => {
               setIsOpenCreateRoom(true);
             }}
-            className="bg-white h-fit border p-1 border-slate-400 rounded-md text-sm mr-3 font-sans font-semibold hover:bg-slate-300"
+            className="bg-white h-fit border p-2 border-slate-400 rounded-md text-sm mr-3 font-sans font-semibold hover:bg-slate-300"
           >
             Create Room
           </button>
@@ -128,7 +128,7 @@ const ClassDetails = () => {
             onClick={() => {
               setIsOpenAddStudent(true);
             }}
-            className="bg-white border h-fit p-1 border-slate-400 rounded-md text-sm  font-sans font-semibold  hover:bg-slate-300"
+            className="bg-white border h-fit p-2 border-slate-400 rounded-md text-sm  font-sans font-semibold  hover:bg-slate-300"
           >
             Add Student
           </button>

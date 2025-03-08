@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 // eslint-disable-next-line react/prop-types
 const CountdownTimer = ({ minutes, setIsFinished }) => {
   const [timeLeft, setTimeLeft] = useState(minutes * 60); // Chuyển phút thành giây
-
   useEffect(() => {
     if (timeLeft <= 0) {
       setIsFinished(true);

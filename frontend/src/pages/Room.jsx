@@ -5,24 +5,31 @@ import { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 
 import io from "socket.io-client";
+import RoomNotExist from "../components/RoomNotExist";
 
 const Room = () => {
   // nhớ lấy danh sách học sinh theo room number!
   const { roomID } = useParams();
-  const userID = sessionStorage.getItem("userID");
-  const role = sessionStorage.getItem("role");
+  const userID = localStorage.getItem("userID");
+  const role = localStorage.getItem("role");
   const { socket, setSocket } = useContext(QuizzContext);
   const [data, setData] = useState([]);
   const { classID } = useLocation().state;
   console.log("ClassID", classID);
-
+  const [isRoomExist, setIsRoomExist] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
     // emit an event to get students in the room
     socket.emit("getRoomById", roomID);
+    socket.emit("checkRoomExist", roomID);
+
     // if the server returns data, take it
     socket.on("studentData", (data) => {
       setData(data);
+    });
+    socket.on("isRoomExist", (roomExist) => {
+      console.log(roomExist ? "Exist" : "Room not exist");
+      setIsRoomExist(roomExist);
     });
     return () => {
       socket.off("studentData");
@@ -37,7 +44,7 @@ const Room = () => {
       })
     );
   }, [role, setSocket, userID]);
-  return (
+  return isRoomExist ? (
     <div className="bg-slate-100 min-h-screen">
       <div className="flex items-center">
         <button
@@ -83,6 +90,8 @@ const Room = () => {
         );
       })}
     </div>
+  ) : (
+    <RoomNotExist />
   );
 };
 

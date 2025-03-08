@@ -7,16 +7,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoLogOutOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
+import { FaExclamation } from "react-icons/fa6";
+import { FaArrowRightLong } from "react-icons/fa6";
 
 const HomeNavBar = () => {
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const [isOpenEnterCode, setIsOpenEnterCode] = useState(false);
   const [roomCode, setRoomCode] = useState("");
   const [studentName, setStudentName] = useState("");
   const [studentID, setStudentID] = useState("");
-  const userID = sessionStorage.getItem("userID");
+  const userID = localStorage.getItem("userID");
   const { socket } = useContext(QuizzContext);
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
+  const [isOpenYesNoMenu, setIsOpenYesNoMenu] = useState(false);
   const navigate = useNavigate();
 
   /// TODO: thêm class name vào đây
@@ -26,6 +29,10 @@ const HomeNavBar = () => {
       student_id_db: userID,
       student_id: studentID,
     });
+  };
+  const handleLogOut = () => {
+    localStorage.removeItem("role");
+    localStorage.removeItem("userID");
   };
 
   useEffect(() => {
@@ -39,8 +46,46 @@ const HomeNavBar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   return (
     <div>
+      <div className="flex justify-center">
+        <div
+          className={`${
+            isOpenYesNoMenu ? "" : "hidden"
+          } absolute top-[170px] border border-slate-400  text-black rounded-lg p-5 pb-6 bg-white z-1`}
+        >
+          <div className=" flex justify-center">
+            <FaExclamation className="text-[#31cd63] border-[2px] border-[#31cd63] text-6xl rounded-3xl p-3" />
+          </div>
+          <h1 className="text-3xl font-sans text-gray-400 mt-3">
+            Are you leaving ?
+          </h1>
+          <div className="flex justify-end h-[3em]">
+            <div className="flex items-center relative left-[4em] bottom-5">
+              <button
+                onClick={() => {
+                  setIsOpenYesNoMenu(false);
+                }}
+                className="bg-white mr-1 mt-20 h-[2.7em] border border-slate-200 font-sans text-gray-400 p-2 rounded-lg hover:bg-slate-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleLogOut();
+                  navigate("/");
+                }}
+                className="bg-[#31cd63] text-lg w-[4em] text-white mt-20 p-2  rounded-lg flex items-center justify-between font-sans hover:bg-green-400"
+              >
+                Yes
+                <FaArrowRightLong />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-row justify-end items-center h-[50px] shadow-lg ml-[15%] sticky top-0 bg-white">
         <div
           className={`cursor-pointer hover:bg-slate-200 border border-gray-500 self-center p-2 text-[13px] mr-[10px]`}
@@ -67,7 +112,7 @@ const HomeNavBar = () => {
           <IoMdArrowDropdown className="text-xl" />
           <div
             id="profile-menu menu-content"
-            className={`flex w-1/5 flex-col p-3 absolute top-[48px] right-[20px] border border-green-400 z-1 bg-white ${
+            className={`flex w-1/5 flex-col p-3  absolute top-[48px] right-[20px] border border-green-400 z-10 bg-white ${
               isOpenProfileMenu ? "" : "hidden"
             }`}
           >
@@ -100,7 +145,12 @@ const HomeNavBar = () => {
               <CiSettings className="mr-3 text-xl" />
               <p>Settings</p>
             </Link>
-            <div className="flex items-center text-[15px] mt-3 hover:bg-slate-200 p-3 rounded-md menu-content">
+            <div
+              onClick={() => {
+                setIsOpenYesNoMenu(true);
+              }}
+              className="flex items-center text-[15px] mt-3 hover:bg-slate-200 p-3 rounded-md menu-content"
+            >
               <IoLogOutOutline className="mr-3 text-xl" />
               <p>Logout</p>
             </div>
