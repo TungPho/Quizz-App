@@ -15,14 +15,20 @@ const io = socketIO(server, {
 
 const rooms = {};
 const teachersID = {};
+const joinedStudentID = {};
 
 io.on("connection", (socket) => {
   console.log("A new user connected or re-connect");
   const { userId, role } = socket.handshake.query;
 
+  // get teacher's user id
   if (role === "teacher" && userId) {
     teachersID[userId] = socket.id;
-    console.log(teachersID);
+  }
+  // get student's user id
+
+  if (role === "student" && userId) {
+    joinedStudentID[userId] = socket.id;
   }
 
   socket.on("createRoom", (room, teacherID, testID) => {
@@ -31,7 +37,6 @@ io.on("connection", (socket) => {
       return;
     }
     const className = room.slice(0, FILTER_LENGTH);
-    console.log(className);
     rooms[room] = [];
     rooms[room].push({
       teacher_socket_id: socket.id,
@@ -43,7 +48,6 @@ io.on("connection", (socket) => {
     const filteredRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, FILTER_LENGTH) === className
     );
-    console.log(rooms[room]);
     io.to(socket.id).emit("roomList", filteredRooms);
   });
 
@@ -62,50 +66,60 @@ io.on("connection", (socket) => {
     const foundStudent = rooms[room].find(
       (user) => user.student_id_db === student.student_id_db
     );
+    console.log("FOUND", foundStudent);
     if (foundStudent) {
       console.log("You are already joined");
+      return;
       //TODO: remember to emit an event to show that you're alread
     }
-    const studentSocketID = socket.id;
-    // find the teacher
+    const studentSocketID = joinedStudentID[student.student_id_db];
+    // 1.  find the teacher
     const teacher = rooms[room].find((user) => user.teacher_socket_id);
-    console.log("teacher", teacher);
-    // push the student to the room array
+    // 2.  push the student to the room array
     rooms[room].push({
-      socket_student_id: studentSocketID,
       examID: teacher.test_id,
       ...student,
     });
+    // 3.  send student data to the teacher's room
     io.to(teachersID[teacher.teacher_id]).emit("studentData", rooms[room]);
 
     const filteredRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, FILTER_LENGTH) === teacher.className
     );
-    // gửi cho teacher room của class teacher đó dạy
+    //4.  gửi cho teacher room của class teacher đó dạy
     io.to(teachersID[teacher.teacher_id]).emit("roomList", filteredRooms);
 
-    // gửi id bài test cho socket.id
+    // gửi id bài test cho student's socket.id
     const testID = teacher.test_id;
     io.to(studentSocketID).emit("sentTestID", testID);
-    console.log("rooms", rooms);
     console.log(`Student ${student.name} joined room ${room}`);
   });
   socket.on("getRoomById", (room) => {
     io.to(socket.id).emit("studentData", rooms[room]);
   });
   socket.on("studentInfo", (userID, room) => {
-    console.log("OK");
-    console.log(userID, room);
     const currentRoom = rooms[room];
-    console.log(room);
+    if (!currentRoom) {
+      console.log("error");
+      return;
+    }
     let foundStudent;
     for (let student of currentRoom) {
       if (student.student_id_db === userID) {
         foundStudent = student;
       }
     }
-    io.to(foundStudent.socket_student_id).emit("sentStudentInfo", foundStudent);
+    // sent data to students
+    io.to(joinedStudentID[foundStudent.student_id_db]).emit(
+      "sentStudentInfo",
+      foundStudent
+    );
   });
+  // check room exist
+  socket.on("checkRoomExist", (room) => {
+    if (!rooms[room]) io.to(socket.id).emit("isRoomExist", false);
+  });
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
   });

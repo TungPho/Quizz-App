@@ -3,12 +3,11 @@ import { FaHome, FaPlus } from "react-icons/fa";
 import { IoLibrary } from "react-icons/io5";
 import { TbReportSearch } from "react-icons/tb";
 import { MdClass } from "react-icons/md";
-import { IoIosLogOut } from "react-icons/io";
 import { GoChecklist } from "react-icons/go";
 
 import { useEffect, useRef, useState } from "react";
 const SideBar = () => {
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const modal = useRef(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);

@@ -13,7 +13,7 @@ const MyClasses = () => {
   // remember to get all classes from teacher's id
   const [classes, setClasses] = useState([]);
   const [isEditClass, setIsEditClass] = useState(false);
-  const userID = sessionStorage.getItem("userID");
+  const userID = localStorage.getItem("userID");
 
   const handleCreateClass = async () => {
     const req = await fetch(`http://localhost:3000/api/v1/classes`, {
