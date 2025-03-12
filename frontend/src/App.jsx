@@ -16,6 +16,7 @@ import Explore from "./pages/Explore";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ProtectedLayout from "./utils/ProtectedLayout";
+import ResetPassword from "./components/ResetPassword";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         {/* Routes không cần đăng nhập */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password/:id/:token" element={<ResetPassword />} />
 
         {/* Routes cần đăng nhập, bọc trong ProtectedLayout */}
         <Route element={<ProtectedLayout />}>

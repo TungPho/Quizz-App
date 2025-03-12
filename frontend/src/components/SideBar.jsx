@@ -60,7 +60,8 @@ const SideBar = () => {
               }`
             }
           >
-            <FaHome className="mr-1" /> Explore
+            <FaHome className="mr-1" />
+            Explore
           </NavLink>
           <NavLink
             to={"/home/library"}

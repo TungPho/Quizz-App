@@ -31,8 +31,7 @@ const HomeNavBar = () => {
     });
   };
   const handleLogOut = () => {
-    localStorage.removeItem("role");
-    localStorage.removeItem("userID");
+    localStorage.clear();
   };
 
   useEffect(() => {

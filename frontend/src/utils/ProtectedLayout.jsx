@@ -5,14 +5,11 @@ export default function ProtectedLayout() {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const userID = localStorage.getItem("userID");
-  console.log("Credentials");
-  console.log(role, userID);
   const location = useLocation(); // Lấy đường dẫn hiện tại
 
   // Kiểm tra nếu người dùng đang ở trang /login
   const isLoginPage = location.pathname === "/login";
   useEffect(() => {
-    console.log(location.pathname, role, userID);
     if ((role || userID) && isLoginPage) {
       navigate("/home"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
     }

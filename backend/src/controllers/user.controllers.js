@@ -1,4 +1,6 @@
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const UserService = require("../services/user.services");
 const { userModel } = require("../models/user.model");
 const { generateToken, verifyToken } = require("../utils/tokenHandlers");
@@ -69,6 +71,89 @@ class UserController {
       AT: accessToken,
       role: foundUser.role,
       id: foundUser._id,
+    });
+  };
+
+  // request reset-password using nodemailer:
+  ///////////////////////////////////////////////
+  // TEST THIS SHIT
+  requestPasswordReset = async (req, res, next) => {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User doesn't exist" });
+
+    // mã hóa jwt = SECRET + password gốc (bcrypt) sign như nào giải mã ra sẽ như thế
+    const secret = process.env.JWT_SECRET + user.password;
+    const token = jwt.sign({ id: user._id, email: user.email }, secret);
+    // Put the frontend URL here and compare userid and token from the URL param
+    const resetURL = `${process.env.FRONT_END_URL}forgot-password/${user._id}/${token}`;
+    // http://localhost:3000/api/v1/users/reset-password/${user._id}/${token}
+    console.log(resetURL);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      secure: true,
+      auth: {
+        user: process.env.GMAIL,
+        pass: process.env.APP_GMAIL,
+      },
+    });
+
+    const mailOptions = {
+      to: user.email,
+      from: process.env.EMAIL, //ductungpho1005@gmail.com
+      subject: "Password Reset Request",
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+            Please click on the following link, or paste this into your browser to complete the process:\n\n
+            ${resetURL}\n\n
+            If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({ message: "Password reset link sent", link: resetURL });
+  };
+  //////////////////////////
+  resetPassword = async (req, res, next) => {
+    const { id, token } = req.params;
+    const { password } = req.body;
+
+    const user = await userModel.findOne({ _id: id });
+    if (!user) {
+      return res.status(400).json({ message: "User not exists!" });
+    }
+
+    const secret = process.env.JWT_SECRET + user.password;
+    const verify = jwt.verify(token, secret);
+    const salt = await bcrypt.genSalt(10);
+    const encryptedPassword = await bcrypt.hash(password, salt);
+    await userModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: encryptedPassword,
+        },
+      }
+    );
+    await user.save();
+    res.status(200).json({ message: "Password has been reset" });
+  };
+
+  verifyUser = async (req, res, next) => {
+    const { userId, token } = req.body;
+    const user = await userModel.findOne({ _id: userId });
+    if (!user) {
+      return res.status(400).json({ message: "User not exists!" });
+    }
+    // mã hóa token như nào thì giải mã như thế
+    const secret = process.env.JWT_SECRET + user.password;
+    const verify = jwt.verify(token, secret);
+    return res.status(200).json({
+      message: "Verify Success",
     });
   };
 }
