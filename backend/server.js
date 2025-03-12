@@ -2,10 +2,11 @@ const socketIO = require("socket.io");
 const http = require("http");
 
 const app = require("./src/app");
-const FILTER_LENGTH = -7;
+
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
+const FILTER_LENGTH = -7;
 const io = socketIO(server, {
   cors: {
     origin: "http://localhost:5173",

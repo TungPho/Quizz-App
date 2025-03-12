@@ -2,7 +2,7 @@
 import { createContext, useState } from "react";
 import PropTypes from "prop-types";
 import io from "socket.io-client";
-const s = io("ws://localhost:3000");
+const s = io(`ws://localhost:3000`);
 export const QuizzContext = createContext();
 const ContextProvider = (props) => {
   // role, token  and userID
