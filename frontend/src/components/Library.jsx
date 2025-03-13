@@ -1,94 +1,237 @@
 import { useEffect, useState } from "react";
-import LibrarySearchBar from "./LibrarySearchBar";
 import { Link, NavLink } from "react-router-dom";
-import SideBar from "./SideBar";
 import HomeNavBar from "./HomeNavBar";
+import NewSideBar from "./NewSideBar";
+import { Search } from "lucide-react";
 
-// This is where we save documents and tests
+// Improved Library Search Bar component
+const LibrarySearchBar = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    // Add your search logic here
+  };
+
+  return (
+    <div className="relative w-full sm:w-64 md:w-72">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Search className="h-4 w-4 text-green-600" />
+      </div>
+      <input
+        type="text"
+        className="block w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white placeholder-green-500 text-green-800 text-sm"
+        placeholder="Search in library..."
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+    </div>
+  );
+};
+
 const Library = () => {
-  // perform when the component mounted
+  // State for tests/assessments
   const [tests, setTests] = useState([]);
+  const [activeTab, setActiveTab] = useState("assessments"); // Track active tab
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // Number of items per page
+
+  // Fetch tests when component mounts
   useEffect(() => {
     const fetchTest = async () => {
-      const test = await fetch("http://localhost:3000/api/v1/tests");
-      const res = await test.json();
-      setTests(res.metadata);
+      try {
+        const test = await fetch("http://localhost:3000/api/v1/tests");
+        const res = await test.json();
+        setTests(res.metadata);
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+      }
     };
     fetchTest();
   }, []);
 
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tests.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(tests.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
-    <div>
+    <div className="flex flex-col min-h-screen bg-green-100">
       <HomeNavBar />
-      <SideBar />
-      <div className="flex justify-center">
-        <LibrarySearchBar />
-      </div>
 
-      <div className="flex mt-5 ml-[250px]">
-        <div className="flex flex-col w-full">
-          <h1 className="mr-20 w-[10%] mb-3">My Library</h1>
+      <div className="flex flex-1">
+        <NewSideBar />
 
-          <ul className="flex">
-            <NavLink className="cursor-pointer mr-3 text-sm hover:text-[#31cd63]">
-              Assetments
-            </NavLink>
-            <NavLink className="cursor-pointer mr-3 text-sm hover:text-[#31cd63]">
-              Documents
-            </NavLink>
-          </ul>
-          <div className="grid grid-cols-2 gap-5 mr-10">
-            {tests.map((test, index) => {
-              return (
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="bg-white rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold text-green-800 mb-4 sm:mb-0">
+                My Library
+              </h1>
+              <LibrarySearchBar />
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-green-200 mb-6">
+              <button
+                className={`py-2 px-4 font-medium text-md border-b-2 ${
+                  activeTab === "assessments"
+                    ? "border-green-400 text-green-700"
+                    : "border-transparent text-gray-500 hover:text-green-700"
+                }`}
+                onClick={() => setActiveTab("assessments")}
+              >
+                Assessments
+              </button>
+              <button
+                className={`py-2 px-4 font-medium text-md border-b-2 ${
+                  activeTab === "documents"
+                    ? "border-green-400 text-green-700"
+                    : "border-transparent text-gray-500 hover:text-green-700"
+                }`}
+                onClick={() => setActiveTab("documents")}
+              >
+                Documents
+              </button>
+            </div>
+
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {currentItems.map((test, index) => (
                 <div
-                  to={`/tests/${test._id}`}
                   key={index}
-                  className="assessment w-full border-solid border-black border-[0.2px] flex  p-5 mt-5 cursor-pointer hover:bg-gray-200 rounded-xl"
+                  className="border border-green-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
-                  <div className="flex items-center border-solid  w-1/5 mr-5 bg-[#31cd63]"></div>
-                  <div className="w-full">
-                    <div className="border-solid border-slate-600 text-slate-600 border-[1px] w-fit  h-fit text-[11px] rounded-2xl p-1">
+                  <div className="bg-green-400 p-3 border-b border-green-300 text-white">
+                    <span className="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-white rounded">
                       Assessment
-                    </div>
-                    <div className="flex justify-between ">
-                      <p>{test.title}</p>
-                      <p>{test.timeLimit} mins</p>
+                    </span>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-2 text-green-800 line-clamp-2">
+                      {test.title}
+                    </h3>
+                    <p className="text-green-600 mb-4">{test.timeLimit} mins</p>
+
+                    <div className="flex justify-between items-center text-sm text-green-600 mb-4">
+                      <span className="flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                        {test.questions.length} questions
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 rounded text-xs font-medium text-green-800">
+                        Mathematics
+                      </span>
                     </div>
 
-                    <div className="flex items-center   justify-between">
-                      <div className="flex">
-                        <p className="mr-3 text-sm">
-                          {test.questions.length} questions
-                        </p>
-                        <p className="mr-3 text-sm">Mathematics</p>
-                      </div>
-                      <div>
+                    <div className="flex justify-between pt-3 border-t border-green-100">
+                      <div className="flex items-center">
                         <Link
                           to={`/tests/${test._id}`}
-                          className="p-1 text-white bg-[#31cd63] mr-2"
+                          className="p-1 text-white bg-[#31cd63] rounded mr-2 px-3 py-1 font-medium text-sm inline-flex items-center"
                         >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
                           Edit
                         </Link>
-                        <button className="p-1 text-white bg-red-500 hover:bg-red-400">
+                        <button className="p-1 text-white bg-red-500 rounded px-3 py-1 font-medium text-sm inline-flex items-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
                           Delete
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <nav className="flex items-center">
+                  {Array.from({ length: totalPages }).map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(index + 1)}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        currentPage === index + 1
+                          ? "bg-green-400 text-white"
+                          : "bg-green-100 text-green-700 hover:bg-green-200"
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            )}
+
+            {/* Create New Button */}
+            <div className="mt-6 text-center">
+              <button className="bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                Create New Assessment
+              </button>
+            </div>
           </div>
-          {/* button cho phân trang */}
-          <div className="mt-10 flex justify-center">
-            <button className="text-white w-[3%]  rounded-3xl p-1 hover:bg-green-600 bg-green-400">
-              1
-            </button>
-            <button className="text-white w-[3%]  rounded-3xl p-1 hover:bg-green-600 bg-green-400">
-              2
-            </button>
-          </div>
-        </div>
+        </main>
       </div>
     </div>
   );

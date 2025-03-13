@@ -11,7 +11,7 @@ export default function ProtectedLayout() {
   const isLoginPage = location.pathname === "/login";
   useEffect(() => {
     if ((role || userID) && isLoginPage) {
-      navigate("/home"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
+      navigate("/home/explore"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
     }
     if (!role || !userID) {
       navigate("/login"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập

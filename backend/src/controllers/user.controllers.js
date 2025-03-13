@@ -26,7 +26,7 @@ class UserController {
   // 1 speacial Characters
   // 1 Uppercase Chars
   registerUser = async (req, res, next) => {
-    const { username, email, password, role, user_attributes } = req.body;
+    const { email, password, role, user_attributes } = req.body;
     const foundEmail = await userModel.findOne({ email });
     if (foundEmail) {
       throw new Error("Email has already exist");
@@ -40,7 +40,6 @@ class UserController {
     const user = await UserServiceFactory.createUser({
       role,
       payload: {
-        username,
         email,
         password: hashedPassword,
         role,

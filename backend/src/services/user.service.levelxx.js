@@ -19,8 +19,7 @@ class UserServiceFactory {
 }
 // tạo class con (teacher, student) trước rồi tạo user chính
 class User {
-  constructor({ username, email, password, role, classes, user_attributes }) {
-    this.username = username;
+  constructor({ email, password, role, classes, user_attributes }) {
     this.email = email;
     this.password = password;
     this.role = role;

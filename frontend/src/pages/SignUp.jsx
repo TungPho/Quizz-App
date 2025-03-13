@@ -1,56 +1,42 @@
 import { useState } from "react";
-import { CiMail, CiUser } from "react-icons/ci";
-import { IoArrowBackSharp } from "react-icons/io5";
-import { GiTeacher } from "react-icons/gi";
-import { PiStudent } from "react-icons/pi";
-import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isEnoughInfo, setIsEnoughInfo] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(false);
-  const [isSetRole, setIsSetRole] = useState(false);
+  const [formStep, setFormStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "",
+    firstName: "",
+    lastName: "",
+    school: "",
+    studentId: "",
+    receiveEmails: false,
+  });
 
-  // Personal Info
-  const [name, setName] = useState("");
-  const [studentID, setStudentID] = useState("");
-  const [schoolName, setSchoolName] = useState("");
-  const handleInfo = (e) => {
-    e.preventDefault();
-    if (!username && !password && !email) {
-      alert("Please fill in all the information");
-      return;
-    }
-    setIsEnoughInfo(true);
-
-    //  alert("Please fill in all the fields");
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     let user;
-    if (!isTeacher) {
+    if (formData.role === "student") {
       user = {
-        username: username,
-        email: email,
-        password: password,
-        role: isTeacher ? "teacher" : "student",
+        email: formData.email,
+        password: formData.password,
+        role: "student",
         user_attributes: {
-          name,
-          student_id: studentID ? studentID : "",
-          school_name: schoolName,
+          name: formData.firstName + formData.lastName,
+          student_id: formData.studentId,
+          school_name: formData.school,
         },
       };
     } else {
       user = {
-        username: username,
-        email: email,
-        password: password,
-        role: isTeacher ? "teacher" : "student",
+        email: formData.email,
+        password: formData.password,
+        role: "teacher",
         user_attributes: {
-          name,
-          school_name: schoolName,
+          name: formData.firstName + formData.lastName,
+          school_name: formData.school,
         },
       };
     }
@@ -62,229 +48,352 @@ const SignUp = () => {
       },
       method: "POST",
     });
+    console.log(formData);
     console.log(result);
     const res = await result.json();
     console.log(res);
   };
 
-  const resetInfo = () => {
-    setName("");
-    setUsername("");
-    setEmail("");
-    setIsTeacher(false);
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+    console.log(formData);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleContinue = (e) => {
+    e.preventDefault();
+    if (formData.role) {
+      setFormStep(2);
+    }
+  };
+
+  const handleBack = () => {
+    setFormStep(1);
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="flex justify-center ">
-        <div className="w-[50%] flex items-center justify-center p-2 rounded-lg mt-2 h-full">
-          {!isEnoughInfo ? (
-            <div className="flex-col items-center justify-center w-[50%] p-10 rounded-lg">
-              <h1>Sign Up</h1>
-              <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
-                <CiUser />
-                <input
-                  className="focus:outline-none"
-                  placeholder=" Enter User Name"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
+    <div className="flex flex-col md:flex-row min-h-screen w-full bg-white">
+      {/* Left Panel - Form */}
+      <div className="w-full md:w-1/2 p-4 sm:p-8 flex flex-col justify-center">
+        <div className="max-w-md mx-auto w-full">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">
+            Welcome to Design Community
+          </h1>
+          <p className="mb-4 sm:mb-6 text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link to={"/login"} className="text-green-600 hover:underline">
+              Log in
+            </Link>
+          </p>
 
-              <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
-                <CiMail />
-                <input
-                  className="focus:outline-none"
-                  placeholder=" Enter Email"
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
-              <div className="border border-solid border-black flex items-center w-full p-[10px] m-[10px] rounded-[10px]">
-                <input
-                  className="focus:outline-none"
-                  placeholder="Enter Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              <button
-                className="w-full ml-3 border-none bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
-                onClick={handleInfo}
-              >
-                Continue
-              </button>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="flex-col justify-between w-[50%]"
-            >
+          {formStep === 1 ? (
+            <form onSubmit={handleContinue} className="space-y-4">
               <div>
-                <div>
-                  <div
-                    className={`flex flex-col ${
-                      isSetRole ? "hidden" : ""
-                    }  h-[250px] mr-3 justify-between`}
-                  >
-                    <div>
-                      <h1>Select Your Role</h1>
-                      <button
-                        className="w-[10%] p-2 align-middle border-none bg-[#31cd63] text-white rounded-sm flex justify-center"
-                        onClick={() => {
-                          setIsEnoughInfo(false);
-                          resetInfo();
-                        }}
-                      >
-                        <IoArrowBackSharp />
-                      </button>
-                    </div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm mb-1 text-gray-700"
+                >
+                  Email
+                </label>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                  required
+                />
+              </div>
 
-                    <div className="flex flex-col ">
-                      <div className="flex">
-                        <div
-                          onClick={() => {
-                            setIsTeacher(false);
-                          }}
-                          className={`cursor-pointer flex  p-[15px] items-center  text-white w-1/2 h-[3em] m-[10px] cursor-pointer" ${
-                            !isTeacher ? "bg-[#45a049]" : "bg-[#747475]"
-                          }`}
-                        >
-                          <PiStudent />
-                          <p>Student</p>
-                        </div>
-                        <div
-                          onClick={() => {
-                            setIsTeacher(true);
-                          }}
-                          className={`cursor-pointer flex  p-[15px] items-center  text-white w-1/2 h-[3em] m-[10px] cursor-pointer" ${
-                            isTeacher ? "bg-[#45a049]" : "bg-[#747475]"
-                          }`}
-                        >
-                          <GiTeacher />
-                          <p>Teacher</p>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setIsSetRole(true);
-                      }}
-                      className="bg-[#31cd63] hover:bg-green-400 p-1 text-white w-full"
-                    >
-                      Next
-                    </button>
-                  </div>
-                  {/*Enter Info Section*/}
-                  <div
-                    className={`${
-                      isSetRole && !isTeacher ? "" : "hidden"
-                    }  mb-2 w-4/5`}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm mb-1 text-gray-700"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-600"
                   >
-                    <button
-                      className="w-[20%] p-2 align-middle border-none bg-[#31cd63] text-white rounded-sm flex justify-center"
-                      onClick={() => setIsSetRole(false)}
-                    >
-                      <IoArrowBackSharp />
-                    </button>
-                    <div>
-                      <h1>Enter your Personal Info</h1>
-                      <input
-                        onChange={(e) => {
-                          setName(e.target.value);
-                        }}
-                        className="p-2 border border-slate-300 mb-2 mt-1 w-full"
-                        type="text"
-                        placeholder="Enter your name"
-                      />
-                      <input
-                        onChange={(e) => {
-                          setStudentID(e.target.value);
-                        }}
-                        className="p-2 border border-slate-300 mb-2 mt-1 w-full"
-                        type="text"
-                        placeholder="Enter Student ID"
-                      />
-                      <input
-                        onChange={(e) => {
-                          setSchoolName(e.target.value);
-                        }}
-                        className="p-2 border border-slate-300 mb-2 mt-1 w-full"
-                        type="text"
-                        placeholder="Enter School name"
-                      />
-                      <button
-                        className="bg-[#45a049] text-white p-2 w-[40%]"
-                        type="submit"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    className={`${
-                      isSetRole && isTeacher ? "" : "hidden"
-                    }  mb-2 w-4/5`}
-                  >
-                    <div className=" p-3 mt-5 flex flex-col justify-between h-[350px]">
-                      <button
-                        className="w-[20%] p-2 align-middle border-none bg-[#31cd63] text-white rounded-sm flex justify-center"
-                        onClick={() => {
-                          setIsSetRole(false);
-                          setName("");
-                          setSchoolName("");
-                        }}
-                      >
-                        <IoArrowBackSharp />
-                      </button>
-                      <div>
-                        <h1>Enter your Personal Info</h1>
-                        <input
-                          onChange={(e) => {
-                            setName(e.target.value);
-                          }}
-                          className="p-2 border border-slate-300 mb-2 mt-1"
-                          type="text"
-                          placeholder="Enter your name"
-                        />
-                        <input
-                          onChange={(e) => {
-                            setSchoolName(e.target.value);
-                          }}
-                          className="p-2 border border-slate-300 mb-2 mt-1"
-                          type="text"
-                          placeholder="Enter School name"
-                        />
-                        <button
-                          className="bg-[#45a049] text-white p-2 w-[40%]"
-                          type="submit"
-                        >
-                          Submit
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
                 </div>
               </div>
 
-              {/* <button
-                className="bg-[#45a049] text-white p-2 w-[40%]"
+              {/* Password Requirements */}
+              <div className="text-xs text-gray-600">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>Use 8 or more characters</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>One uppercase character</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>One special character</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>One number</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Role Selection */}
+              <div>
+                <label className="block text-sm mb-2 text-gray-700">
+                  Choose your role
+                </label>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                  <label
+                    className={`flex-1 p-3 border rounded-lg cursor-pointer flex flex-col items-center ${
+                      formData.role === "teacher"
+                        ? "border-green-500 bg-green-50"
+                        : ""
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value="teacher"
+                      checked={formData.role === "teacher"}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <div className="w-10 h-10 mb-2 flex items-center justify-center bg-green-100 rounded-full">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-medium">Teacher</span>
+                  </label>
+
+                  <label
+                    className={`flex-1 p-3 border rounded-lg cursor-pointer flex flex-col items-center ${
+                      formData.role === "student"
+                        ? "border-green-500 bg-green-50"
+                        : ""
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value="student"
+                      checked={formData.role === "student"}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <div className="w-10 h-10 mb-2 flex items-center justify-center bg-green-100 rounded-full">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-medium">Student</span>
+                  </label>
+                </div>
+                {formData.role === "" && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Please select a role to continue
+                  </p>
+                )}
+              </div>
+
+              {/* Checkbox */}
+              <div>
+                <label className="flex items-start">
+                  <input
+                    type="checkbox"
+                    name="receiveEmails"
+                    checked={formData.receiveEmails}
+                    onChange={handleChange}
+                    className="mt-1 mr-2"
+                  />
+                  <span className="text-sm text-gray-600">
+                    I want to receive emails about the product, feature updates,
+                    events, and marketing promotions.
+                  </span>
+                </label>
+              </div>
+
+              {/* Terms Agreement */}
+              <div className="text-sm text-gray-600">
+                <p>
+                  By creating an account, you agree to the{" "}
+                  <a href="#" className="text-green-600 hover:underline">
+                    Terms of Use
+                  </a>{" "}
+                  and{" "}
+                  <a href="#" className="text-green-600 hover:underline">
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
+              </div>
+
+              {/* Continue Button */}
+              <button
                 type="submit"
+                className={`w-full py-2 px-4 rounded transition-colors ${
+                  formData.role
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                }`}
+                disabled={!formData.role}
               >
-                Submit
-              </button> */}
+                Continue
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm mb-1 text-gray-700"
+                >
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm mb-1 text-gray-700"
+                >
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="school"
+                  className="block text-sm mb-1 text-gray-700"
+                >
+                  School
+                </label>
+                <input
+                  type="text"
+                  id="school"
+                  name="school"
+                  value={formData.school}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                  required
+                />
+              </div>
+
+              {formData.role === "student" && (
+                <div>
+                  <label
+                    htmlFor="studentId"
+                    className="block text-sm mb-1 text-gray-700"
+                  >
+                    Student ID
+                  </label>
+                  <input
+                    type="text"
+                    id="studentId"
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="w-full sm:w-1/2 bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="submit"
+                  className="w-full sm:w-1/2 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors"
+                >
+                  Create account
+                </button>
+              </div>
             </form>
           )}
-          <div className="containers-2">
-            <img src={"images/background-login.png"} alt="" />
-          </div>
         </div>
+      </div>
+
+      {/* Right Panel - Background Image with Green Overlay */}
+      <div className="hidden md:block md:w-1/2 relative overflow-hidden">
+        <div className="absolute inset-0  opacity-60 z-10"></div>
+        <img
+          src="images/new_background.png"
+          alt="3D geometric shapes"
+          className="w-full h-full object-cover object-center absolute inset-0"
+        />
       </div>
     </div>
   );
