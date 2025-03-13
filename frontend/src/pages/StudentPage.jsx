@@ -1,11 +1,11 @@
 import HomeNavBar from "../components/HomeNavBar";
-import SideBar from "../components/SideBar";
+import NewSideBar from "../components/NewSideBar";
 
 const StudentPage = () => {
   return (
     <div>
       <HomeNavBar />
-      <SideBar />
+      <NewSideBar />
       <div className="main_content">Student Page</div>
     </div>
   );

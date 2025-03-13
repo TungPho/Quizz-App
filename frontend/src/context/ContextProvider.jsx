@@ -9,6 +9,9 @@ const ContextProvider = (props) => {
   const [role, setRole] = useState("");
   const [state, setState] = useState("normal");
   const [socket, setSocket] = useState(s);
+
+  const [collapsed, setCollapsed] = useState(false);
+
   const value = {
     role,
     setRole,
@@ -16,6 +19,8 @@ const ContextProvider = (props) => {
     state,
     socket,
     setSocket,
+    collapsed,
+    setCollapsed,
   };
   return (
     <QuizzContext.Provider value={value}>

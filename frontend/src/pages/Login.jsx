@@ -1,19 +1,34 @@
-import { CiMail } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { useContext, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
+import { Link, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
-// login, save role, and token, user
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { setSocket } = useContext(QuizzContext);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const navigate = useNavigate();
 
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
     try {
       const result = await fetch("http://localhost:3000/api/v1/login", {
         headers: {
@@ -21,12 +36,13 @@ const Login = () => {
         },
         method: "POST",
         body: JSON.stringify({
-          email: email,
-          password: password,
+          email: formData.email,
+          password: formData.password,
         }),
       });
       console.log(result);
       const res = await result.json();
+      console.log(res);
       const role = res.role;
       // Remember to set token
       localStorage.setItem("role", role);
@@ -40,89 +56,121 @@ const Login = () => {
         alert("Wrong email or password");
         return;
       }
-      navigate("/home");
+      navigate("/home/explore");
     } catch (error) {
       console.log(error);
     }
   };
-  const handleRequestChangePassword = () => {};
+
   return (
-    <div>
-      <Navbar />
-      <div className="flex justify-center">
-        <div className="w-[50%] border border-black flex items-center justify-between p-2 rounded-lg mt-2 h-full">
-          {/* Login Panel */}
-          {isForgotPassword ? (
+    <div className="flex flex-col md:flex-row min-h-screen w-full bg-white">
+      {/* Left Panel - Login Form */}
+      <div className="w-full md:w-1/2 p-4 sm:p-8 flex flex-col justify-center">
+        <div className="max-w-md mx-auto w-full">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">
+            Welcome to Design Community
+          </h1>
+          <p className="mb-4 sm:mb-6 text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to={"/signup"}
+              href="#"
+              className="text-green-600 hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <h1>Forgot password</h1>
-              <div className="flex justify-center  items-center">
-                <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
-                  <CiMail />
-                  <input
-                    className="focus:outline-none"
-                    placeholder=" Enter Email"
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <button
-                    onClick={() => {
-                      handleRequestChangePassword();
-                    }}
-                    className="bg-green-400 text-white p-3 rounded-lg"
-                  >
-                    Submit
-                  </button>
-                </div>
+              <label
+                htmlFor="email"
+                className="block text-sm mb-1 text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                type="text"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm mb-1 text-gray-700"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
               </div>
             </div>
-          ) : (
-            <div className="flex-col w-[50%] p-2 rounded">
-              <h1>Log In</h1>
 
-              <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
-                <CiMail />
+            {/* Remember Me & Forgot Password */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+              <label className="flex items-center">
                 <input
-                  className="focus:outline-none"
-                  placeholder=" Enter Email"
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="checkbox"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className="mr-2"
                 />
-              </div>
-
-              <div className="border border-solid border-black flex items-center w-[90%] p-[10px] m-[10px] rounded-[10px]">
-                <input
-                  className="focus:outline-none"
-                  placeholder="Enter Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div
-                onClick={() => {
-                  setIsForgotPassword(true);
-                }}
-                className="font-sans text-green-500 ml-3 mb-2 cursor-pointer"
-              >
-                Forgot your password ?
-              </div>
-              <button
-                className="border-none ml-2 w-[91%] bg-[#31cd63] text-white rounded-lg cursor-pointer text-center self-center content-center p-2 hover:bg-[#5ae47f]"
-                onClick={handleSubmit}
-              >
-                Log In
-              </button>
+                <span className="text-sm text-gray-600">Remember me</span>
+              </label>
+              <a href="#" className="text-sm text-green-600 hover:underline">
+                Forgot password?
+              </a>
             </div>
-          )}
 
-          <div>
-            <img src="images/background-login.png" alt="" />
-          </div>
+            {/* Login Button */}
+            <button
+              type="submit"
+              className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors"
+            >
+              Log in
+            </button>
+
+            {/* Signup Link for smaller screens */}
+            <div className="sm:hidden text-center text-sm text-gray-600">
+              New to Design Community?{" "}
+              <a href="#" className="text-green-600 hover:underline">
+                Create an account
+              </a>
+            </div>
+          </form>
         </div>
+      </div>
+
+      {/* Right Panel - Background Image with Green Overlay */}
+      <div className="hidden md:block md:w-1/2  relative overflow-hidden">
+        <div className="absolute inset-0 opacity-60 z-10"></div>
+        <img
+          src="images/new_background.png"
+          alt="3D geometric shapes"
+          className="w-full h-full object-cover object-center absolute inset-0"
+        />
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+
 import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
 import CreateQuestion from "./pages/CreateQuestion";
@@ -17,6 +16,9 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ProtectedLayout from "./utils/ProtectedLayout";
 import ResetPassword from "./components/ResetPassword";
+import NewSideBar from "./components/NewSideBar";
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
 
 const App = () => {
   return (
@@ -27,7 +29,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password/:id/:token" element={<ResetPassword />} />
-
+        <Route path="/test" element={<NewSideBar />} />
         {/* Routes cần đăng nhập, bọc trong ProtectedLayout */}
         <Route element={<ProtectedLayout />}>
           <Route path="/login" element={<Login />} />
