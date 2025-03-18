@@ -1,15 +1,14 @@
 import HomeNavBar from "../components/HomeNavBar";
 import { FaSchool } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
-import { CiCamera } from "react-icons/ci";
 import { LiaUserEditSolid } from "react-icons/lia";
-import NewSideBar from "../components/NewSideBar";
+import SideBar from "../components/SideBar";
 
 const Profile = () => {
   return (
     <div>
       <HomeNavBar />
-      <NewSideBar />
+      <SideBar />
       <div className="flex justify-center hidden">
         <div className="absolute  z-10 bg-white p-5 flex flex-col rounded-lg top-[150px] w-1/4">
           <div className="flex justify-between">

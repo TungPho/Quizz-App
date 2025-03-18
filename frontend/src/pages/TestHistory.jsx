@@ -1,11 +1,11 @@
 import HomeNavBar from "../components/HomeNavBar";
-import NewSideBar from "../components/NewSideBar";
+import SideBar from "../components/SideBar";
 
 const TestHistory = () => {
   return (
     <div>
       <HomeNavBar />
-      <NewSideBar />
+      <SideBar />
       <div className="main ml-[250px]">TestHistory</div>
     </div>
   );

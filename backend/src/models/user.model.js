@@ -16,11 +16,6 @@ const UserSchema = Schema(
       type: String,
       required: true,
     },
-    // xem xet cai nay
-    classes: {
-      type: [Types.ObjectId],
-      default: [],
-    },
     user_attributes: {
       type: Object,
     },
@@ -61,6 +56,11 @@ const StudentSchema = new Schema(
     student_id: {
       type: String,
       required: true,
+    },
+    // xem xet cai nay
+    classes: {
+      type: [Types.ObjectId],
+      default: [],
     },
   },
   {

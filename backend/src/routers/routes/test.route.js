@@ -12,6 +12,6 @@ testRoute.get(
 testRoute.post("/tests", catchAsync(testControllers.createTest));
 testRoute.put("/tests/:id", catchAsync(testControllers.updateTest));
 
-testRoute.delete("/tests", catchAsync(testControllers.getAllTests));
+testRoute.delete("/tests/:test_id", catchAsync(testControllers.deleteTest));
 
 module.exports = testRoute;

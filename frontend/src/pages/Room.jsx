@@ -7,6 +7,9 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import io from "socket.io-client";
 import RoomNotExist from "../components/RoomNotExist";
 
+// TODO:
+// 1. lấy danh sách student hiển thị ra
+
 const Room = () => {
   // nhớ lấy danh sách học sinh theo room number!
   const { roomID } = useParams();
@@ -15,18 +18,29 @@ const Room = () => {
   const { socket, setSocket } = useContext(QuizzContext);
   const [data, setData] = useState([]);
   const { classID } = useLocation().state;
-  console.log("ClassID", classID);
   const [isRoomExist, setIsRoomExist] = useState(true);
   const navigate = useNavigate();
+
+  // const intitializeStudentList = async () => {
+  //   const fetchStudentsReq = await fetch(
+  //     `http://localhost:3000/api/v1/get_all_students/${classID}`
+  //   );
+  //   console.log(await fetchStudentsReq.json());
+  // };
+
+  // Dùng để lấy thông tin sinh viên
   useEffect(() => {
     // emit an event to get students in the room
     socket.emit("getRoomById", roomID);
     socket.emit("checkRoomExist", roomID);
+    // intitializeStudentList();
 
     // if the server returns data, take it
     socket.on("studentData", (data) => {
+      console.log("Data", data);
       setData(data);
     });
+    //
     socket.on("isRoomExist", (roomExist) => {
       console.log(roomExist ? "Exist" : "Room not exist");
       setIsRoomExist(roomExist);
@@ -34,6 +48,7 @@ const Room = () => {
     return () => {
       socket.off("studentData");
       socket.off("getRoomById");
+      socket.off("isRoomExist");
     };
   }, [roomID, socket]);
 
@@ -49,7 +64,7 @@ const Room = () => {
       <div className="flex items-center">
         <button
           onClick={() => {
-            navigate(`/class/${classID}`);
+            navigate(`/teacher_class/${classID}`);
           }}
           className="text-3xl mr-3 hover:bg-slate-300 p-2"
         >
@@ -79,11 +94,27 @@ const Room = () => {
             <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border-b-black border bg-white font-semibold text-center p-3  w-2/3">
               <div className="col-span-1">{student.name}</div>
               <div className="col-span-1">{student.student_id}</div>
-              <div className="col-span-1">Joined</div>
-              <div className="col-span-1 flex justify-center">Question 4</div>
-              <div className="col-span-1 flex justify-center">0 Times</div>
+              <div
+                className={`col-span-1 ${
+                  student.state === "joined" ? "text-green-400" : "text-red-500"
+                }`}
+              >
+                {student.state}
+              </div>
               <div className="col-span-1 flex justify-center">
-                Not Submitted
+                {student.current_question}
+              </div>
+              <div className="col-span-1 flex justify-center text-red-500">
+                {student.number_of_violates} times
+              </div>
+              <div
+                className={`col-span-1 flex justify-center ${
+                  student.status === "Not Submitted"
+                    ? "text-red-500"
+                    : "text-green-500"
+                }`}
+              >
+                {student.status}
               </div>
             </div>
           </div>

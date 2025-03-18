@@ -9,7 +9,7 @@ import { IoMdClose } from "react-icons/io";
 import { useContext, useEffect, useRef, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 
-const NewSideBar = () => {
+const SideBar = () => {
   const role = localStorage.getItem("role");
   const modal = useRef(null);
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const NewSideBar = () => {
   const { collapsed, setCollapsed } = useContext(QuizzContext);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  //TODO: phân route cho role tại đây
   const showModal = () => {
     setIsOpen(true);
   };
@@ -52,7 +53,7 @@ const NewSideBar = () => {
       document.body.style.overflow = "auto"; // Cleanup when unmount
       window.removeEventListener("resize", handleResize);
     };
-  }, [isOpen, collapsed]);
+  }, [isOpen, collapsed, setCollapsed]);
 
   // Calculate sidebar width classes
   const sidebarWidthClass = collapsed
@@ -180,7 +181,11 @@ const NewSideBar = () => {
                 className={`${collapsed && !isMobile ? "" : "mr-3"}`}
                 size={18}
               />
-              {collapsed && !isMobile ? "" : "Test History"}
+              {collapsed && !isMobile
+                ? ""
+                : role === "student"
+                ? "My Submission"
+                : "Test History"}
             </NavLink>
 
             <NavLink
@@ -299,4 +304,4 @@ const NewSideBar = () => {
   );
 };
 
-export default NewSideBar;
+export default SideBar;

@@ -5,7 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import { CiMenuKebab } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import HomeNavBar from "../components/HomeNavBar";
-import NewSideBar from "../components/NewSideBar";
+import SideBar from "../components/SideBar";
 
 const MyClasses = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,9 +16,12 @@ const MyClasses = () => {
   const [currentClassId, setCurrentClassId] = useState(null);
   const userID = localStorage.getItem("userID");
   const [activeMenu, setActiveMenu] = useState(null);
+  const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userID");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const handleCreateClass = async () => {
-    const req = await fetch(`http://localhost:3000/api/v1/classes`, {
+    const req = await fetch(`${BACK_END_LOCAL_URL}/classes`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -36,19 +39,15 @@ const MyClasses = () => {
 
   const handleEditClass = async () => {
     if (!currentClassId) return;
-
-    const req = await fetch(
-      `http://localhost:3000/api/v1/classes/${currentClassId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-        body: JSON.stringify({
-          name: className,
-        }),
-      }
-    );
+    const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${currentClassId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PUT",
+      body: JSON.stringify({
+        class_name: className,
+      }),
+    });
     const res = await req.json();
     console.log(res);
     // Refresh classes after editing
@@ -57,14 +56,11 @@ const MyClasses = () => {
 
   const handleDeleteClass = async (classId) => {
     if (!classId) return;
-
+    console.log(classId);
     if (window.confirm("Are you sure you want to delete this class?")) {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/classes/${classId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`, {
+        method: "DELETE",
+      });
       const res = await req.json();
       console.log(res);
       // Refresh classes after deleting
@@ -81,7 +77,9 @@ const MyClasses = () => {
   };
 
   const fetchClasses = async () => {
-    const req = await fetch("http://localhost:3000/api/v1/classes");
+    const req = await fetch(
+      `${BACK_END_LOCAL_URL}/teacher_get_classes/${userId}`
+    );
     const classes = await req.json();
     setClasses(classes.metadata);
   };
@@ -108,9 +106,8 @@ const MyClasses = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NewSideBar />
+      <SideBar />
       <HomeNavBar />
-
       {/* Modal for creating/editing class */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
@@ -256,7 +253,11 @@ const MyClasses = () => {
 
                 <div className="mt-6 flex justify-between items-center">
                   <Link
-                    to={`/class/${c._id}`}
+                    to={
+                      role === "student"
+                        ? `/student_class/${c._id}`
+                        : `/teacher_class/${c._id}`
+                    }
                     className="inline-flex items-center text-green-500 hover:text-green-600 text-sm font-medium"
                   >
                     Go to classroom

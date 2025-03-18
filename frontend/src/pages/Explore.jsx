@@ -1,11 +1,8 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { MessageSquare, Users, Plus } from "lucide-react";
 import HomeNavBar from "../components/HomeNavBar";
-import NewSideBar from "../components/NewSideBar";
-
-// Assuming QuizzContext is already defined in your application
-// This is a placeholder to make the component work
-const QuizzContext = React.createContext({ collapsed: false });
+import { QuizzContext } from "../context/ContextProvider";
+import SideBar from "../components/SideBar";
 
 const Explore = () => {
   const { collapsed } = useContext(QuizzContext);
@@ -23,7 +20,7 @@ const Explore = () => {
   return (
     <div>
       <HomeNavBar />
-      <NewSideBar />
+      <SideBar />
       <div
         className={`transition-all duration-300 ease-in-out p-6 ${
           collapsed ? "ml-16" : "ml-64"

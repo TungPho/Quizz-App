@@ -11,7 +11,7 @@ const RoomNotExist = () => {
           THE PAGE YOU REQUESTED COULD NOT FOUND
         </h1>
         <Link
-          to={"/home"}
+          to={"/home/explore"}
           className="bg-green-500 text-white p-3 rounded-3xl w-1/6 mt-10 hover:bg-green-400 text-center"
         >
           HOME

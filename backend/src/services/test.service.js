@@ -33,8 +33,9 @@ class TestService {
     return { foundTests };
   };
 
-  static deleteTest = async () => {
-    return {};
+  static deleteTest = async (testId) => {
+    const deletedTest = await testModel.findByIdAndDelete(testId);
+    return { deletedTest };
   };
 }
 module.exports = TestService;
