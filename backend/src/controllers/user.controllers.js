@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const UserService = require("../services/user.services");
-const { userModel } = require("../models/user.model");
+const { userModel, studentModel } = require("../models/user.model");
 const { generateToken, verifyToken } = require("../utils/tokenHandlers");
 const UserServiceFactory = require("../services/user.service.levelxx");
 
@@ -27,6 +27,7 @@ class UserController {
   // 1 Uppercase Chars
   registerUser = async (req, res, next) => {
     const { email, password, role, user_attributes } = req.body;
+    const student_id = req.body.user_attributes.student_id;
     const foundEmail = await userModel.findOne({ email });
     if (foundEmail) {
       throw new Error("Email has already exist");
@@ -34,6 +35,14 @@ class UserController {
     if (password.length < 8) {
       throw new Error("Password Length must be > 8 ");
     }
+    const foundStudent = await studentModel.find({
+      student_id,
+    });
+    // console.log(student_id.length, foundStudent.length);
+    // if (student_id.length < 9 || foundStudent.length > 0) {
+    //   throw new Error("Student ID not valid ");
+    // }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

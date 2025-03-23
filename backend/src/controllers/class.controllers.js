@@ -1,4 +1,5 @@
 const classModel = require("../models/class.model");
+const { studentModel } = require("../models/user.model");
 const ClassService = require("../services/class.services");
 
 class ClassController {
@@ -10,13 +11,43 @@ class ClassController {
       metadata: results,
     });
   };
-
+  // get class by the id of the class
   getClassById = async (req, res, next) => {
     const { id } = req.params;
     console.log(id);
     const results = await ClassService.getClassById(id);
     res.status(200).json({
       messaege: "Get class success",
+      metadata: results,
+    });
+  };
+
+  getAllClassesByStudentId = async (req, res, next) => {
+    const { student_id } = req.params;
+    const classes = await ClassService.getAllClassesByStudentId(student_id);
+    res.status(200).json({
+      messaege: "Get class success",
+      metadata: classes,
+    });
+  };
+
+  getAllStudentsByClassId = async (req, res, next) => {
+    const { classId } = req.params;
+    const foundStudents = await studentModel.find({ classes: classId });
+    res.status(200).json({
+      messaege: "Get all students by class id success",
+      metadata: foundStudents,
+    });
+    v;
+  };
+
+  // get class by teacherId
+  getClassByTeacherId = async (req, res, next) => {
+    const { teacher_id } = req.params;
+    console.log(req.params);
+    const results = await ClassService.getClassByTeacherId(teacher_id);
+    res.status(200).json({
+      messaege: "Get class for teacher success",
       metadata: results,
     });
   };
@@ -43,15 +74,21 @@ class ClassController {
     });
   };
   updateClass = async (req, res, next) => {
+    // implement update
+    const { id } = req.params;
+    const { class_name } = req.body;
+    const updatedClass = await ClassService.updateClassById(id, class_name);
     res.status(200).json({
       messaege: "Update class success",
-      metadata: {},
+      metadata: { updatedClass },
     });
   };
   deleteClass = async (req, res, next) => {
+    const { id } = req.params;
+    const deletedClass = await ClassService.deleteClass(id);
     res.status(200).json({
       messaege: "Delete a  class success",
-      metadata: {},
+      metadata: { deletedClass },
     });
   };
 }

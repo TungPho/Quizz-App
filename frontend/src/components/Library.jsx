@@ -1,54 +1,31 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import HomeNavBar from "./HomeNavBar";
-import NewSideBar from "./NewSideBar";
-import { Search } from "lucide-react";
-
-// Improved Library Search Bar component
-const LibrarySearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    // Add your search logic here
-  };
-
-  return (
-    <div className="relative w-full sm:w-64 md:w-72">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Search className="h-4 w-4 text-green-600" />
-      </div>
-      <input
-        type="text"
-        className="block w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white placeholder-green-500 text-green-800 text-sm"
-        placeholder="Search in library..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
-    </div>
-  );
-};
+import SideBar from "./SideBar";
+import LibrarySearchBar from "./LibrarySearchBar";
+import axios from "axios";
 
 const Library = () => {
   // State for tests/assessments
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   const [tests, setTests] = useState([]);
   const [activeTab, setActiveTab] = useState("assessments"); // Track active tab
   const [currentPage, setCurrentPage] = useState(1);
+  const role = localStorage.getItem("role");
   const itemsPerPage = 6; // Number of items per page
 
   // Fetch tests when component mounts
+  const fetchTest = async () => {
+    try {
+      const { data } = await axios.get(`${BACK_END_LOCAL_URL}/tests`);
+      setTests(data.metadata);
+    } catch (error) {
+      console.error("Error fetching tests:", error);
+    }
+  };
   useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        const test = await fetch("http://localhost:3000/api/v1/tests");
-        const res = await test.json();
-        setTests(res.metadata);
-      } catch (error) {
-        console.error("Error fetching tests:", error);
-      }
-    };
     fetchTest();
-  }, []);
+  }, [BACK_END_LOCAL_URL]);
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -61,12 +38,22 @@ const Library = () => {
     setCurrentPage(pageNumber);
   };
 
+  const handleDeleteTest = async (testId) => {
+    const deleteTestRequest = await fetch(
+      `${BACK_END_LOCAL_URL}/tests/${testId}`,
+      {
+        method: "DELETE",
+      }
+    );
+    console.log(await deleteTestRequest.json());
+    fetchTest();
+  };
   return (
     <div className="flex flex-col min-h-screen bg-green-100">
       <HomeNavBar />
 
       <div className="flex flex-1">
-        <NewSideBar />
+        <SideBar />
 
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="bg-white rounded-lg shadow-md p-6 max-w-6xl mx-auto">
@@ -103,90 +90,100 @@ const Library = () => {
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {currentItems.map((test, index) => (
-                <div
-                  key={index}
-                  className="border border-green-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="bg-green-400 p-3 border-b border-green-300 text-white">
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-white rounded">
-                      Assessment
-                    </span>
-                  </div>
+              {/* assessment */}
+              {activeTab === "assessments" && role === "teacher"
+                ? currentItems.map((test, index) => (
+                    <div
+                      key={index}
+                      className="border border-green-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="bg-green-400 p-3 border-b border-green-300 text-white">
+                        <span className="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-white rounded">
+                          Assessment
+                        </span>
+                      </div>
 
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2 text-green-800 line-clamp-2">
-                      {test.title}
-                    </h3>
-                    <p className="text-green-600 mb-4">{test.timeLimit} mins</p>
+                      <div className="p-4">
+                        <h3 className="font-bold text-lg mb-2 text-green-800 line-clamp-2">
+                          {test.title}
+                        </h3>
+                        <p className="text-green-600 mb-4">
+                          {test.timeLimit} mins
+                        </p>
 
-                    <div className="flex justify-between items-center text-sm text-green-600 mb-4">
-                      <span className="flex items-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                          />
-                        </svg>
-                        {test.questions.length} questions
-                      </span>
-                      <span className="px-2 py-1 bg-green-100 rounded text-xs font-medium text-green-800">
-                        Mathematics
-                      </span>
-                    </div>
+                        <div className="flex justify-between items-center text-sm text-green-600 mb-4">
+                          <span className="flex items-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                              />
+                            </svg>
+                            {test.questions.length} questions
+                          </span>
+                          <span className="px-2 py-1 bg-green-100 rounded text-xs font-medium text-green-800">
+                            Mathematics
+                          </span>
+                        </div>
 
-                    <div className="flex justify-between pt-3 border-t border-green-100">
-                      <div className="flex items-center">
-                        <Link
-                          to={`/tests/${test._id}`}
-                          className="p-1 text-white bg-[#31cd63] rounded mr-2 px-3 py-1 font-medium text-sm inline-flex items-center"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          Edit
-                        </Link>
-                        <button className="p-1 text-white bg-red-500 rounded px-3 py-1 font-medium text-sm inline-flex items-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          Delete
-                        </button>
+                        <div className="flex justify-between pt-3 border-t border-green-100">
+                          <div className="flex items-center">
+                            <Link
+                              to={`/tests/${test._id}`}
+                              className="p-1 text-white bg-[#31cd63] rounded mr-2 px-3 py-1 font-medium text-sm inline-flex items-center"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 mr-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => {
+                                handleDeleteTest(test._id);
+                              }}
+                              className="p-1 text-white bg-red-500 rounded px-3 py-1 font-medium text-sm inline-flex items-center"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 mr-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))
+                : "Documents"}
             </div>
 
             {/* Pagination */}
@@ -212,7 +209,10 @@ const Library = () => {
 
             {/* Create New Button */}
             <div className="mt-6 text-center">
-              <button className="bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center">
+              <Link
+                to={"/create-question"}
+                className="bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-2"
@@ -228,7 +228,8 @@ const Library = () => {
                   />
                 </svg>
                 Create New Assessment
-              </button>
+              </Link>
+              {/* Create upload documents */}
             </div>
           </div>
         </main>

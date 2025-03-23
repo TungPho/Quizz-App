@@ -1,29 +1,26 @@
-import React, { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MessageSquare, Users, Plus } from "lucide-react";
 import HomeNavBar from "../components/HomeNavBar";
-import NewSideBar from "../components/NewSideBar";
-
-// Assuming QuizzContext is already defined in your application
-// This is a placeholder to make the component work
-const QuizzContext = React.createContext({ collapsed: false });
+import { QuizzContext } from "../context/ContextProvider";
+import SideBar from "../components/SideBar";
+import { toast } from "react-toastify";
 
 const Explore = () => {
   const { collapsed } = useContext(QuizzContext);
+  // const userID = localStorage.getItem("userID");
 
   // Sample rooms data
   const rooms = [
     { id: 1, name: "Math Room", students: 24, active: true },
     { id: 2, name: "Science Lab", students: 18, active: true },
-    { id: 3, name: "Reading Circle", students: 20, active: false },
-    { id: 4, name: "Art Studio", students: 15, active: true },
-    { id: 5, name: "History Class", students: 22, active: true },
-    { id: 6, name: "Coding Club", students: 12, active: false },
   ];
+
+  // fetch ExamProgress when logged in
 
   return (
     <div>
       <HomeNavBar />
-      <NewSideBar />
+      <SideBar />
       <div
         className={`transition-all duration-300 ease-in-out p-6 ${
           collapsed ? "ml-16" : "ml-64"

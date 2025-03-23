@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     joinedStudentID[userId] = socket.id;
   }
 
-  socket.on("createRoom", (room, teacherID, testID) => {
+  socket.on("createRoom", (room, teacherID, testID, classId, testName) => {
     if (rooms[room]) {
       console.log("Room has exist");
       return;
@@ -40,15 +40,17 @@ io.on("connection", (socket) => {
     const className = room.slice(0, FILTER_LENGTH);
     rooms[room] = [];
     rooms[room].push({
-      teacher_socket_id: socket.id,
       teacher_id: teacherID,
       className: className,
       test_id: testID,
+      test_name: testName,
+      classId,
     });
     //
     const filteredRooms = Object.entries(rooms).filter(
       (r) => r[0].slice(0, FILTER_LENGTH) === className
     );
+    console.log(rooms[room]);
     io.to(socket.id).emit("roomList", filteredRooms);
   });
 
@@ -67,7 +69,6 @@ io.on("connection", (socket) => {
     const foundStudent = rooms[room].find(
       (user) => user.student_id_db === student.student_id_db
     );
-    console.log("FOUND", foundStudent);
     if (foundStudent) {
       console.log("You are already joined");
       return;
@@ -75,12 +76,18 @@ io.on("connection", (socket) => {
     }
     const studentSocketID = joinedStudentID[student.student_id_db];
     // 1.  find the teacher
-    const teacher = rooms[room].find((user) => user.teacher_socket_id);
+    const teacher = rooms[room].find((user) => user.teacher_id);
     // 2.  push the student to the room array
     rooms[room].push({
       examID: teacher.test_id,
+      testName: teacher.test_name,
+      state: "joined",
+      current_question: 0,
+      number_of_violates: 0,
+      status: "Not Submitted",
       ...student,
     });
+
     // 3.  send student data to the teacher's room
     io.to(teachersID[teacher.teacher_id]).emit("studentData", rooms[room]);
 
@@ -95,7 +102,10 @@ io.on("connection", (socket) => {
     io.to(studentSocketID).emit("sentTestID", testID);
     console.log(`Student ${student.name} joined room ${room}`);
   });
+
+  //////
   socket.on("getRoomById", (room) => {
+    console.log(rooms[room]);
     io.to(socket.id).emit("studentData", rooms[room]);
   });
   socket.on("studentInfo", (userID, room) => {
@@ -116,6 +126,33 @@ io.on("connection", (socket) => {
       foundStudent
     );
   });
+
+  socket.on(
+    "studentInteraction",
+    (room, studentId, { type, current_question }) => {
+      if (!room || !studentId) return;
+      const teacher = rooms[room].find((user) => user.teacher_id);
+
+      for (let i = 0; i < rooms[room].length; i++) {
+        if (rooms[room][i].student_id === studentId && type === "violates") {
+          rooms[room][i].state = "left";
+          rooms[room][i].number_of_violates += 1;
+        } else if (
+          rooms[room][i].student_id === studentId &&
+          type === "re-joined"
+        ) {
+          rooms[room][i].state = "joined";
+        } else if (
+          rooms[room][i].student_id === studentId &&
+          type === "change_question"
+        ) {
+          rooms[room][i].current_question = current_question;
+        }
+      }
+      io.to(teachersID[teacher.teacher_id]).emit("studentData", rooms[room]);
+    }
+  );
+
   // check room exist
   socket.on("checkRoomExist", (room) => {
     if (!rooms[room]) io.to(socket.id).emit("isRoomExist", false);

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [formStep, setFormStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -48,10 +50,14 @@ const SignUp = () => {
       },
       method: "POST",
     });
-    console.log(formData);
-    console.log(result);
+
     const res = await result.json();
-    console.log(res);
+    if (result.status !== 200) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success("Sign Up Success, Please login to continue!");
+    navigate("/login");
   };
 
   const handleChange = (e) => {
@@ -60,7 +66,6 @@ const SignUp = () => {
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     });
-    console.log(formData);
   };
 
   const togglePasswordVisibility = () => {
@@ -103,7 +108,7 @@ const SignUp = () => {
                   Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   id="email"
                   name="email"
                   value={formData.email}

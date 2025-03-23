@@ -55,7 +55,8 @@ class TestController {
     });
   };
   deleteTest = async (req, res, next) => {
-    const results = await TestService.deleteTest();
+    const { test_id } = req.params;
+    const results = await TestService.deleteTest(test_id);
     return res.status(200).json({
       message: "Delete a tests success",
       metadata: results,

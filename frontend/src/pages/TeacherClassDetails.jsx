@@ -6,7 +6,7 @@ import { IoReload } from "react-icons/io5";
 import { BsPeople, BsDoorOpen } from "react-icons/bs";
 import { RiTestTubeFill } from "react-icons/ri";
 
-const ClassDetails = () => {
+const TeacherClassDetails = () => {
   const { socket, setState } = useContext(QuizzContext);
   const { classId } = useParams();
   const userID = localStorage.getItem("userID");
@@ -20,6 +20,9 @@ const ClassDetails = () => {
   const [studentID, setStudentID] = useState("");
   const [selectedTest, setSelectedTest] = useState("");
   const [selectedTestName, setSelectedTestName] = useState("");
+
+  const [studentLength, setStudentLength] = useState(0);
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const navigate = useNavigate();
 
@@ -40,7 +43,14 @@ const ClassDetails = () => {
   };
 
   const createRoom = () => {
-    socket.emit("createRoom", roomCode, userID, selectedTest);
+    socket.emit(
+      "createRoom",
+      roomCode,
+      userID,
+      selectedTest,
+      classId,
+      selectedTestName
+    );
   };
 
   useEffect(() => {
@@ -50,6 +60,8 @@ const ClassDetails = () => {
       );
       const res = await req.json();
       setClass(res.metadata);
+
+      setStudentLength(res.metadata.students.length);
       setClassName(res.metadata.name);
     };
 
@@ -101,14 +113,13 @@ const ClassDetails = () => {
         }
       );
       const res = await req.json();
-      if (res.success) {
-        alert("Student added successfully!");
-        setStudentID("");
-      } else {
-        alert("Failed to add student. Please try again.");
+
+      console.log(res);
+      if (res.status !== "error") {
+        setStudentLength((l) => l + 1);
       }
     } catch (error) {
-      alert("An error occurred. Please try again.");
+      console.log(error);
     }
   };
 
@@ -127,6 +138,15 @@ const ClassDetails = () => {
     }
   };
 
+  const findTestById = (id) => {
+    console.log(tests);
+    for (let test of tests) {
+      if (test._id === id) {
+        return test.title;
+      }
+    }
+    return "Default Test Title";
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
       {/* Header */}
@@ -198,54 +218,57 @@ const ClassDetails = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeRooms.map((room, index) => (
-              <div
-                key={index}
-                onClick={() => {
-                  navigate(`/room/${room[0]}`, {
-                    state: { classID: classId },
-                  });
-                }}
-                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer overflow-hidden"
-              >
-                <div className="p-1 bg-green-400 text-white text-center text-xs font-semibold">
-                  ACTIVE
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-lg text-gray-800">
-                      {room[0]}
-                    </h3>
-                    <span className="flex items-center text-gray-600">
-                      <BsPeople className="mr-1" />
-                      <span className="font-semibold">
-                        {room[1].length - 1}
-                      </span>
-                    </span>
+            {activeRooms.map((room, index) => {
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    navigate(`/room/${room[0]}`, {
+                      state: { classID: classId },
+                    });
+                  }}
+                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer overflow-hidden"
+                >
+                  <div className="p-1 bg-green-400 text-white text-center text-xs font-semibold">
+                    ACTIVE
                   </div>
-
-                  <div className="flex flex-col text-gray-600 text-sm mb-4">
-                    <div className="flex items-center mb-1">
-                      <span className="font-semibold w-20">Class:</span>
-                      <span>{className}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="font-semibold w-20">Test:</span>
-                      <span className="flex items-center">
-                        <RiTestTubeFill className="mr-1 text-green-500" />
-                        {selectedTestName || "Selected Test"}
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-bold text-lg text-gray-800">
+                        {room[0]}
+                      </h3>
+                      <span className="flex items-center text-gray-600">
+                        <BsPeople className="mr-1" />
+                        <span className="font-semibold">
+                          {/* So luong sinh vien tham gia */}
+                          {room[1].length - 1}
+                        </span>
                       </span>
                     </div>
-                  </div>
 
-                  <div className="mt-4 flex justify-end">
-                    <button className="text-green-500 hover:text-green-600 text-sm font-semibold flex items-center">
-                      Enter Room →
-                    </button>
+                    <div className="flex flex-col text-gray-600 text-sm mb-4">
+                      <div className="flex items-center mb-1">
+                        <span className="font-semibold w-20">Class:</span>
+                        <span>{className}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-semibold w-20">Test:</span>
+                        <span className="flex items-center">
+                          <RiTestTubeFill className="mr-1 text-green-500" />
+                          {findTestById(room[1][0].test_id) || "Selected Test"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <button className="text-green-500 hover:text-green-600 text-sm font-semibold flex items-center">
+                        Enter Room →
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -435,7 +458,7 @@ const ClassDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-gray-500 text-sm mb-1">Total Students</div>
             <div className="text-2xl font-bold text-gray-800">
-              {classes && classes.students ? classes.students.length : 0}
+              {studentLength || 0}
             </div>
           </div>
         </div>
@@ -444,4 +467,4 @@ const ClassDetails = () => {
   );
 };
 
-export default ClassDetails;
+export default TeacherClassDetails;

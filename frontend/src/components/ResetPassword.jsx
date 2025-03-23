@@ -6,22 +6,20 @@ const ResetPassword = () => {
   const { id, token } = useParams();
   const [isVerify, setIsVerify] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // fetch to verify user then render this page else show 404
   useEffect(() => {
     const verifyUser = async () => {
-      const reqVerify = await fetch(
-        `http://localhost:3000/api/v1/users/verify`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: id,
-            token,
-          }),
-        }
-      );
+      const reqVerify = await fetch(`${BACK_END_LOCAL_URL}/users/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: id,
+          token,
+        }),
+      });
       if (reqVerify.status === 200) {
         setIsVerify(true);
       }

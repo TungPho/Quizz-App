@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 import { Link, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import { toast } from "react-toastify";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { setSocket } = useContext(QuizzContext);
@@ -28,7 +29,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     try {
       const result = await fetch("http://localhost:3000/api/v1/login", {
         headers: {
@@ -40,9 +40,7 @@ const Login = () => {
           password: formData.password,
         }),
       });
-      console.log(result);
       const res = await result.json();
-      console.log(res);
       const role = res.role;
       // Remember to set token
       localStorage.setItem("role", role);
@@ -53,9 +51,10 @@ const Login = () => {
         })
       );
       if (result.status !== 200) {
-        alert("Wrong email or password");
+        toast.error("Wrong email or password");
         return;
       }
+      toast.success(`Login Successful!`);
       navigate("/home/explore");
     } catch (error) {
       console.log(error);
@@ -68,7 +67,7 @@ const Login = () => {
       <div className="w-full md:w-1/2 p-4 sm:p-8 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
           <h1 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">
-            Welcome to Design Community
+            Welcome to <span className="text-green-400">Quizzes</span> Community
           </h1>
           <p className="mb-4 sm:mb-6 text-sm text-gray-600">
             Don't have an account?{" "}

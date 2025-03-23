@@ -1,20 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { QuizzContext } from "../context/ContextProvider";
 
 // eslint-disable-next-line react/prop-types
 const CountdownTimer = ({ minutes, setIsFinished }) => {
   const [timeLeft, setTimeLeft] = useState(minutes * 60); // Chuyển phút thành giây
+  const { setTimeRemaining } = useContext(QuizzContext);
   useEffect(() => {
     if (timeLeft <= 0) {
       setIsFinished(true);
       return;
     } // Nếu hết giờ thì dừng lại
-
+    setTimeRemaining(timeLeft);
     const interval = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(interval); // Cleanup khi component bị unmount
-  }, [setIsFinished, timeLeft]);
+  }, [setIsFinished, setTimeRemaining, timeLeft]);
 
   // Hàm chuyển đổi giây -> hh:mm:ss
   const formatTime = (seconds) => {

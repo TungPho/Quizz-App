@@ -1,22 +1,26 @@
-import { CiSearch } from "react-icons/ci";
+import { Search } from "lucide-react";
+import { useState } from "react";
 
 const LibrarySearchBar = () => {
-  return (
-    <div className="flex mt-3 justify-between border-solid border-gray-300 border-[1px] items-center w-2/3">
-      <div className="flex items-center">
-        <CiSearch className="ml-4 text-2xl" />
-        <input
-          className=" p-2 rounded-sm w-2/3 focus:outline-none"
-          type="text"
-          placeholder="Search in my library"
-        />
-      </div>
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    // Add your search logic here
+  };
 
-      <button className=" p-3 bg-green-400 text-white hover:bg-green-500">
-        Search
-      </button>
+  return (
+    <div className="relative w-full sm:w-64 md:w-72">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Search className="h-4 w-4 text-green-600" />
+      </div>
+      <input
+        type="text"
+        className="block w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white placeholder-green-500 text-green-800 text-sm"
+        placeholder="Search in library..."
+        value={searchTerm}
+        onChange={handleSearch}
+      />
     </div>
   );
 };
-
 export default LibrarySearchBar;
