@@ -6,6 +6,7 @@ import io from "socket.io-client";
 import RoomNotExist from "../components/RoomNotExist";
 import axios from "axios";
 import { Button, Modal, Progress } from "antd";
+import { toast } from "react-toastify";
 
 // TODO: khi ấn chọn câu trả lời, lưu vào doing test
 // khi submit xóa luôn!
@@ -22,20 +23,26 @@ const MainExam = () => {
   const role = localStorage.getItem("role");
   const { room } = useLocation().state || "";
 
-  const { socket, setSocket } = useContext(QuizzContext);
+  const { socket, setSocket, timeRemaining } = useContext(QuizzContext);
+  const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // student info
-  const [student, setStudent] = useState(sessionStorage.getItem("student"));
+  const [student, setStudent] = useState();
   const [examID, setExamID] = useState("");
   const [studentName, setStudentName] = useState("");
   const [studentID, setStudentID] = useState("");
+  const [testName, setTestName] = useState("");
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [numberOfViolates, setNumberOfViolates] = useState(0);
   // room
   const [isRoomExist, setIsRoomExist] = useState(true);
 
   //Modal Submit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpenSubmit, setIsOpenSubmit] = useState(false);
+  const [isSubmitedTest, setIsSubmitTest] = useState(false);
+  // ExamProgress from the database
 
   // Final Result:
   const [finalResult, setFinalResult] = useState({
@@ -44,20 +51,16 @@ const MainExam = () => {
   });
 
   useEffect(() => {
-    // document.addEventListener("visibilitychange", (event) => {
-    //   if (document.visibilityState == "hidden") {
-    //     console.log("tab is inactive");
-    //   }
-    // });
     const handleWindowChange = () => {
-      console.log("User switched to another application");
-      socket.emit("studentInteraction", room, studentID);
+      toast.error(`You just switch tab 1 more time`);
+      setNumberOfViolates((n) => n + 1);
+      socket.emit("studentInteraction", room, studentID, { type: "violates" });
     };
     window.addEventListener("blur", handleWindowChange);
 
-    // window.addEventListener("focus", () => {
-    //   console.log("User is back to the website");
-    // });
+    window.addEventListener("focus", () => {
+      socket.emit("studentInteraction", room, studentID, { type: "re-joined" });
+    });
     return () => {
       window.removeEventListener("blur", handleWindowChange);
       socket.off("studentInteraction");
@@ -73,6 +76,17 @@ const MainExam = () => {
   };
 
   useEffect(() => {
+    const fetchExamProgress = async () => {
+      const getExamReq = await fetch(
+        `http://localhost:3000/api/v1/exam_progress/${userID}`
+      );
+      const res = await getExamReq.json();
+      console.log(res.metadata[0]);
+      setExamProgress(res.metadata[0]);
+    };
+    fetchExamProgress();
+  }, [setExamProgress, userID]);
+  useEffect(() => {
     setSocket(
       io("ws://localhost:3000", {
         query: { userId: userID, role },
@@ -83,13 +97,6 @@ const MainExam = () => {
   useEffect(() => {
     socket.emit("studentInfo", userID, room);
     socket.emit("checkRoomExist", room);
-
-    const objStudent = JSON.parse(student);
-    if (objStudent) {
-      setExamID(objStudent.examID);
-      setStudentName(objStudent.name);
-      setStudentID(objStudent.student_id);
-    }
   }, [examID, room, socket, student, userID]);
 
   useEffect(() => {
@@ -98,6 +105,8 @@ const MainExam = () => {
       setExamID(inputStudent.examID);
       setStudentName(inputStudent.name);
       setStudentID(inputStudent.student_id);
+      setTestName(inputStudent.testName);
+      setNumberOfViolates(inputStudent.number_of_violates);
     });
 
     socket.on("isRoomExist", (roomExist) => {
@@ -129,15 +138,22 @@ const MainExam = () => {
         const filteredQuestions = allQuestions.filter((q) => q);
 
         // Có thể get exam từ localStorage
-        const initialExam = {};
-        filteredQuestions.forEach((q, index) => {
-          initialExam[index] = {
-            optionSelected: "none",
-            isSelected: false,
-            isCorrect: false,
-          };
-        });
+        let initialExam = {};
+        if (!examProgress) {
+          console.log("INIT 1");
+          filteredQuestions.forEach((q, index) => {
+            initialExam[index] = {
+              optionSelected: "none",
+              isSelected: false,
+              isCorrect: false,
+            };
+          });
+        } else {
+          console.log("INIT 2", examProgress.answers);
 
+          initialExam = examProgress.answers;
+        }
+        console.log("INIT", initialExam);
         setMainExam(initialExam);
         setQuestions(filteredQuestions);
         // setTime ở đây
@@ -148,7 +164,7 @@ const MainExam = () => {
     };
 
     fetchTest();
-  }, [BACK_END_LOCAL_URL, examID]);
+  }, [BACK_END_LOCAL_URL, examID, examProgress]);
 
   useEffect(() => {
     if (isFinished) {
@@ -157,8 +173,51 @@ const MainExam = () => {
   }, [isFinished]);
 
   const onChangeQuestionHandler = (index) => {
+    console.log(index);
+    socket.emit("studentInteraction", room, studentID, {
+      type: "change_question",
+      current_question: index + 1,
+    });
     setCurrentQuestion(index);
   };
+
+  // Gửi dữ liệu mỗi khi `mainExam` thay đổi
+  useEffect(() => {
+    if (Object.keys(mainExam).length === 0) return; // Chỉ gửi khi có dữ liệu
+
+    const examData = {
+      studentID: studentID,
+      roomId: room,
+      examId: examID, // Thay bằng dữ liệu thực tế
+      examName: testName,
+      startTime: "2025-03-22T10:00:00Z",
+      endTime: "2025-03-22T11:00:00Z",
+      remainingTime: timeRemaining,
+      answers: mainExam, // Đồng bộ toàn bộ mainExam
+      status: "in_progress",
+    };
+
+    const syncExamProgress = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/v1/exam_progress/${userID}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(examData),
+          }
+        );
+
+        if (!response.ok) throw new Error("Gửi dữ liệu thất bại");
+      } catch (error) {
+        toast.error("Lỗi khi đồng bộ bài thi:", error);
+      }
+    };
+
+    syncExamProgress();
+  }, [mainExam]); // useEffect theo dõi mainExam
 
   const handleSelectAnswer = (index) => {
     setMainExam((prev) => ({
@@ -169,6 +228,7 @@ const MainExam = () => {
         isCorrect: questions[currentQuestion].options[index].isCorrect,
       },
     }));
+    //
   };
 
   const calculateScore = () => {
@@ -203,26 +263,39 @@ const MainExam = () => {
     setStudent(null);
     //gửi dữ liệu cho submissions:
     try {
-      const req = await axios.post(
-        `${BACK_END_LOCAL_URL}/submissions`,
-        {
+      // 1. submit test
+      const submitRequest = await fetch(`${BACK_END_LOCAL_URL}/submissions`, {
+        method: "POST",
+        body: JSON.stringify({
           testId: examID,
           userId: userID,
           roomId: room,
           answers: mainExam,
           score: result.score,
-          number_of_correct_options: result.numberOfCorrectOptions,
           number_of_wrong_options: result.numberOfWrongOptions,
           submitted_at: new Date().toLocaleTimeString(),
+          number_of_correct_options: result.numberOfCorrectAnswers,
+        }),
+        headers: {
+          "Content-Type": "application/json",
         },
+      });
+      console.log(await submitRequest.json());
+      console.log(submitRequest.data);
+      // 2. Xóa progress:
+      const deleteRequest = await fetch(
+        `${BACK_END_LOCAL_URL}/exam_progress/${userID}`,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          method: "DELETE",
         }
       );
-      console.log(req.data);
+      console.log(deleteRequest);
+      console.log(await deleteRequest.json());
+      if (deleteRequest.status === 200 && submitRequest.status === 200) {
+        toast.success("Submit success!");
+      }
     } catch (error) {
+      toast.error("Error submitting test:", error);
       console.error("Error submitting test:", error);
     }
   };
@@ -339,7 +412,7 @@ const MainExam = () => {
           Quizzes
         </div>
         <div className="hidden sm:block bg-green-100 px-4 py-2 rounded-full">
-          <span className="font-medium">Room: {room}</span>
+          <span className="font-medium">Test: {testName}</span>
         </div>
       </nav>
 
@@ -446,7 +519,7 @@ const MainExam = () => {
               <div className="bg-green-100 p-2 rounded-full mr-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-green-500"
+                  className="h-6 w-6 text-red-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -460,8 +533,10 @@ const MainExam = () => {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Student</p>
-                <h3 className="font-bold">{studentName || "Loading..."}</h3>
+                <p className="text-sm text-gray-500">Violates</p>
+                <h3 className="font-bold">
+                  {numberOfViolates + " Times" || "Loading..."}
+                </h3>
               </div>
             </div>
 

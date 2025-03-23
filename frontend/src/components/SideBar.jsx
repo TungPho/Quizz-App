@@ -168,7 +168,11 @@ const SideBar = () => {
             </NavLink>
 
             <NavLink
-              to={"/home/test_history"}
+              to={
+                role === "student"
+                  ? "/home/my_submission"
+                  : "/home/test_history"
+              }
               className={({ isActive }) =>
                 `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
                   isActive

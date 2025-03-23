@@ -1,21 +1,21 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MessageSquare, Users, Plus } from "lucide-react";
 import HomeNavBar from "../components/HomeNavBar";
 import { QuizzContext } from "../context/ContextProvider";
 import SideBar from "../components/SideBar";
+import { toast } from "react-toastify";
 
 const Explore = () => {
   const { collapsed } = useContext(QuizzContext);
+  // const userID = localStorage.getItem("userID");
 
   // Sample rooms data
   const rooms = [
     { id: 1, name: "Math Room", students: 24, active: true },
     { id: 2, name: "Science Lab", students: 18, active: true },
-    { id: 3, name: "Reading Circle", students: 20, active: false },
-    { id: 4, name: "Art Studio", students: 15, active: true },
-    { id: 5, name: "History Class", students: 22, active: true },
-    { id: 6, name: "Coding Club", students: 12, active: false },
   ];
+
+  // fetch ExamProgress when logged in
 
   return (
     <div>

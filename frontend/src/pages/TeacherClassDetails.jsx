@@ -43,7 +43,14 @@ const TeacherClassDetails = () => {
   };
 
   const createRoom = () => {
-    socket.emit("createRoom", roomCode, userID, selectedTest, classId);
+    socket.emit(
+      "createRoom",
+      roomCode,
+      userID,
+      selectedTest,
+      classId,
+      selectedTestName
+    );
   };
 
   useEffect(() => {
@@ -78,7 +85,6 @@ const TeacherClassDetails = () => {
   useEffect(() => {
     // Event triggered when server sends back rooms
     socket.on("roomList", (rooms) => {
-      console.log("ROOM", rooms);
       setActiveRooms(rooms);
     });
 

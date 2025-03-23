@@ -44,7 +44,6 @@ const SubmissionSchema = Schema(
     },
     number_of_correct_options: {
       type: Number,
-      default: 0,
       required: true,
     },
     number_of_wrong_options: {

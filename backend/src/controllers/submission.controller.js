@@ -6,10 +6,10 @@ class SubmissionController {
   // : Dùng cho test history của giáo viên, xem kết quả của học sinh
   // : Gvien xem được: số câu sai, số câu đúng, vị trí sai và đúng, điểm.... và lập thống kê cả lớp
   getAllSubmisionByUserId = async (req, res, next) => {
-    const { userId } = req.params;
-    const results = await SubmissionService.getAllSubmisionByUserId(userId);
+    const { id } = req.params;
+    const results = await SubmissionService.getAllSubmisionByUserId(id);
     return res.status(200).json({
-      metatdata: { results },
+      metadata: results,
       mesage: "Get all user's submission successfully",
     });
   };

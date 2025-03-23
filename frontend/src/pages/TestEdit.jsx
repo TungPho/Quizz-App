@@ -8,6 +8,7 @@ import { CiSearch, CiEdit, CiTrash } from "react-icons/ci";
 import { IoIosMove } from "react-icons/io";
 import { GoCheck } from "react-icons/go";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const TestEdit = () => {
   const { testId } = useParams();
@@ -49,8 +50,6 @@ const TestEdit = () => {
   }, [testId, questionLength]);
 
   const handleSaveTest = async () => {
-    console.log(timeLimit);
-    console.log(newTitle);
     const req = await fetch(`http://localhost:3000/api/v1/tests/${testId}`, {
       method: "PUT",
       headers: {
@@ -58,8 +57,13 @@ const TestEdit = () => {
       },
       body: JSON.stringify({ timeLimit, title: newTitle }),
     });
+    console.log(req.status);
+    if (req.status !== 200) {
+      toast.error("Error saving test!");
+      return;
+    }
     const res = await req.json();
-    console.log(res);
+    toast.success(res.message);
   };
 
   const handleDeleteQuestion = async (id) => {

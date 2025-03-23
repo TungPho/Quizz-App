@@ -9,8 +9,12 @@ classRoute.get(
   catchAsync(classControllers.getClassByTeacherId)
 );
 classRoute.get(
+  "/student_get_classes/:student_id",
+  catchAsync(classControllers.getAllClassesByStudentId)
+);
+classRoute.get(
   "/get_all_students/:classId",
-  catchAsync(classControllers.getAllStudentsById)
+  catchAsync(classControllers.getAllStudentsByClassId)
 );
 
 classRoute.post("/classes/:id", catchAsync(classControllers.addStudentToClass));

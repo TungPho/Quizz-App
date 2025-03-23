@@ -19,10 +19,13 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import SideBar from "./components/SideBar";
 import StudentClassDetails from "./pages/StudentClassDetails";
+import { ToastContainer, toast } from "react-toastify";
+import MySubmission from "./pages/MySubmission";
 
 const App = () => {
   return (
     <div>
+      <ToastContainer />
       <ScrollToTop />
       <Routes>
         {/* Routes không cần đăng nhập */}
@@ -36,6 +39,8 @@ const App = () => {
           <Route path="/home/library" element={<Library />} />
           <Route path="/home/my_classes" element={<MyClasses />} />
           <Route path="/home/test_history" element={<TestHistory />} />
+          <Route path="/home/my_submission" element={<MySubmission />} />
+
           <Route path="/home/explore" element={<Explore />} />
           <Route path="/tests/:testId" element={<TestEdit />} />
           <Route

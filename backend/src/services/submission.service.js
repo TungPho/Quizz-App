@@ -1,13 +1,13 @@
+const { Types } = require("mongoose");
 const submissonModel = require("../models/submisson.model");
 const testModel = require("../models/test.model");
-const { userModel } = require("../models/user.model");
+const { userModel, studentModel } = require("../models/user.model");
 class SubmissionService {
   static getAllSubmisionByUserId = async (userId) => {
-    const foundUser = await userModel.findById(userId);
+    const foundUser = await studentModel.findById(new Types.ObjectId(userId));
     if (!foundUser) throw new Error("Can't find this user id");
     const submissions = await submissonModel.find({ userId: userId });
-    console.log(submissions);
-    return { submissions };
+    return submissions;
   };
   static createSubmission = async ({
     testId,
@@ -38,6 +38,7 @@ class SubmissionService {
       number_of_wrong_options,
       roomId,
     });
+    console.log(newSubmision);
     return newSubmision;
   };
 }

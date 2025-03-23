@@ -13,6 +13,10 @@ class ClassService {
   };
   static createClass = async (inputClass) => {
     console.log(inputClass);
+    const foundClass = await classModel.find({
+      name: inputClass.name,
+    });
+    if (foundClass.length > 0) throw new Error("Class name already exist!");
     const newClass = await classModel.create(inputClass);
     return newClass;
   };
@@ -31,6 +35,17 @@ class ClassService {
     return classes;
   };
 
+  static getAllClassesByStudentId = async (studentId) => {
+    const foundStudent = await studentModel.findById(studentId);
+    if (!foundStudent) throw new Error("Can't find this student's id");
+    console.log(foundStudent.classes);
+    let classes = [];
+    for (let c of foundStudent.classes) {
+      const resClass = await classModel.findById(c);
+      classes.push(resClass);
+    }
+    return classes;
+  };
   static updateClassById = async (classId, className) => {
     if (!className) {
       throw new Error("className không được để trống");
@@ -62,10 +77,10 @@ class ClassService {
     if (!student) throw new Error("Can't find this student");
 
     // find if this student already in the class
-    const isStudentInTheClass = studentModel.find({ classes: id });
-    if (isStudentInTheClass)
+    const isStudentInTheClass = await studentModel.find({ classes: id });
+    console.log(isStudentInTheClass.length);
+    if (isStudentInTheClass >= 1)
       throw new Error("This Student already in the class");
-    console.log(student._id);
     // 1. tìm class và add student đó vào:
     foundClass.students.push(student._id);
     foundClass.save();

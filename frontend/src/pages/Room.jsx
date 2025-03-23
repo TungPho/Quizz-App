@@ -20,25 +20,37 @@ const Room = () => {
   const { classID } = useLocation().state;
   const [isRoomExist, setIsRoomExist] = useState(true);
   const navigate = useNavigate();
+  const [studentList, setStudentList] = useState([]);
 
-  // const intitializeStudentList = async () => {
-  //   const fetchStudentsReq = await fetch(
-  //     `http://localhost:3000/api/v1/get_all_students/${classID}`
-  //   );
-  //   console.log(await fetchStudentsReq.json());
-  // };
+  useEffect(() => {
+    const fetchStudentList = async () => {
+      const req = await fetch(
+        `http://localhost:3000/api/v1/get_all_students/${classID}`
+      );
+      console.log(req);
+      const res = await req.json();
+      sessionStorage.setItem("student_list", JSON.stringify(res.metadata));
+      setStudentList(res.metadata);
+    };
+    const sessionList = JSON.parse(sessionStorage.getItem("student_list"));
+    if (sessionList) {
+      console.log("Session", sessionList);
+      setStudentList(sessionList);
+    } else {
+      fetchStudentList();
+    }
+  }, [classID]);
 
-  // Dùng để lấy thông tin sinh viên
   useEffect(() => {
     // emit an event to get students in the room
+
     socket.emit("getRoomById", roomID);
     socket.emit("checkRoomExist", roomID);
-    // intitializeStudentList();
 
     // if the server returns data, take it
-    socket.on("studentData", (data) => {
-      console.log("Data", data);
-      setData(data);
+    socket.on("studentData", (studentData) => {
+      console.log("data", studentData);
+      setData(studentData);
     });
     //
     socket.on("isRoomExist", (roomExist) => {
@@ -70,7 +82,12 @@ const Room = () => {
         >
           <IoIosArrowRoundBack />
         </button>
-        <div>Room: {roomID}</div>
+        <div className="flex flex-col">
+          <div>Room: {roomID}</div>
+          <div>
+            {data.length - 1} / {studentList.length}
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-center">

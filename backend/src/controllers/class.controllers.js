@@ -22,7 +22,16 @@ class ClassController {
     });
   };
 
-  getAllStudentsById = async (req, res, next) => {
+  getAllClassesByStudentId = async (req, res, next) => {
+    const { student_id } = req.params;
+    const classes = await ClassService.getAllClassesByStudentId(student_id);
+    res.status(200).json({
+      messaege: "Get class success",
+      metadata: classes,
+    });
+  };
+
+  getAllStudentsByClassId = async (req, res, next) => {
     const { classId } = req.params;
     const foundStudents = await studentModel.find({ classes: classId });
     res.status(200).json({
