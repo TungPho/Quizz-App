@@ -11,6 +11,7 @@ class SubmissionService {
   };
   static createSubmission = async ({
     testId,
+    testName,
     userId,
     answers,
     score,
@@ -30,6 +31,7 @@ class SubmissionService {
       throw new Error("You already submitted this quiz!");
     const newSubmision = await submissonModel.create({
       testId,
+      testName,
       userId,
       answers,
       score,

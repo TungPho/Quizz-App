@@ -7,7 +7,7 @@ class ExamProgressService {
     const foundStudent = await studentModel.findById(userId);
     if (!foundStudent) throw new Error("");
     const updatedExamProgress = await examProgressModel.findOneAndUpdate(
-      { userId, roomId }, // Điều kiện tìm kiếm
+      { userId }, // Điều kiện tìm kiếm
       { $set: data }, // Dữ liệu cần cập nhật
       { upsert: true, new: true } // Tạo mới nếu không có, trả về bản ghi mới sau khi cập nhật
     );

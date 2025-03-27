@@ -9,6 +9,7 @@ import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaExclamation } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { toast } from "react-toastify";
 
 const HomeNavBar = () => {
   const role = localStorage.getItem("role");
@@ -17,16 +18,52 @@ const HomeNavBar = () => {
   const [studentName, setStudentName] = useState("");
   const [studentID, setStudentID] = useState("");
   const userID = localStorage.getItem("userID");
-  const { socket, collapsed } = useContext(QuizzContext);
+  const { socket, collapsed, examProgress, setExamProgress } =
+    useContext(QuizzContext);
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
   const [isOpenYesNoMenu, setIsOpenYesNoMenu] = useState(false);
+  const [isPermit, setIsPermit] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log("socket");
+    socket.on("permit", (permission) => {
+      if (permission.permit) {
+        toast.success(permission.message);
+        console.log("PERMIT 2", permission.permit);
+        setIsPermit(true); // true
+      } else {
+        toast.error(permission.message);
+      }
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    const fetchExamProgress = async () => {
+      const getExamReq = await fetch(
+        `http://localhost:3000/api/v1/exam_progress/${userID}`
+      );
+      const res = await getExamReq.json();
+      console.log(res.metadata[0]);
+      setExamProgress(res.metadata[0]);
+    };
+    fetchExamProgress();
+  }, [setExamProgress, userID]);
+
   const handleJoinRoom = () => {
+    if (!isPermit) {
+      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "");
+      return;
+    }
     socket.emit("joinRoom", roomCode, {
       name: studentName,
       student_id_db: userID,
       student_id: studentID,
+    });
+    navigate(`/main_exam`, {
+      state: {
+        room: roomCode,
+      },
     });
   };
 
@@ -245,15 +282,10 @@ const HomeNavBar = () => {
             <button
               onClick={() => {
                 handleJoinRoom();
-                navigate(`/main_exam`, {
-                  state: {
-                    room: roomCode,
-                  },
-                });
               }}
               className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2"
             >
-              Request to join room
+              {isPermit ? "Join now!" : "Request to join room"}
             </button>
           </div>
         </div>

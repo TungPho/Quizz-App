@@ -92,7 +92,7 @@ const MySubmission = () => {
                   {/* Quiz name repeated here with a different style */}
                   <div className="mb-3 bg-gray-100 px-3 py-2 rounded-lg w-full">
                     <p className="font-medium text-green-700 truncate">
-                      {submission.quizName}
+                      {submission.testName}
                     </p>
                   </div>
 
@@ -100,9 +100,7 @@ const MySubmission = () => {
                     <span className="font-medium text-gray-700">
                       Thời gian nộp:
                     </span>
-                    <p className="text-gray-600">
-                      {formatDate(submission.submittedAt)}
-                    </p>
+                    <p className="text-gray-600">{submission.submitted_at}</p>
                   </div>
                 </div>
 
@@ -110,7 +108,7 @@ const MySubmission = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleViewDetails(submission.id);
+                      handleViewDetails(submission._id);
                     }}
                     className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full group-hover:shadow-md"
                   >

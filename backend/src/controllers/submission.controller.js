@@ -19,6 +19,7 @@ class SubmissionController {
   createSumission = async (req, res, next) => {
     const {
       testId,
+      testName,
       userId,
       answers,
       score,
@@ -30,6 +31,7 @@ class SubmissionController {
     console.log(req.body);
     const newSubmisson = await SubmissionService.createSubmission({
       testId,
+      testName,
       userId,
       answers,
       score,

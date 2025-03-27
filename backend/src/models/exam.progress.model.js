@@ -24,7 +24,7 @@ const ExamProgressSchema = Schema(
       type: String,
       required: true,
     },
-    validation_number: {
+    violation_number: {
       type: Number,
       required: true,
     },

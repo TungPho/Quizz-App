@@ -15,12 +15,13 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ProtectedLayout from "./utils/ProtectedLayout";
 import ResetPassword from "./components/ResetPassword";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
 import SideBar from "./components/SideBar";
 import StudentClassDetails from "./pages/StudentClassDetails";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import MySubmission from "./pages/MySubmission";
+import SignUp from "./pages/Auth/SignUp";
+import Login from "./pages/Auth/Login";
+import SubmissionDetails from "./pages/SubmissionDetails";
 
 const App = () => {
   return (
@@ -40,7 +41,6 @@ const App = () => {
           <Route path="/home/my_classes" element={<MyClasses />} />
           <Route path="/home/test_history" element={<TestHistory />} />
           <Route path="/home/my_submission" element={<MySubmission />} />
-
           <Route path="/home/explore" element={<Explore />} />
           <Route path="/tests/:testId" element={<TestEdit />} />
           <Route
@@ -60,6 +60,11 @@ const App = () => {
           <Route
             path="/update-question/:questionId/:testId"
             element={<CreateQuestion />}
+          />
+          {/* Submissions */}
+          <Route
+            path="/submission-details/:submissionId"
+            element={<SubmissionDetails />}
           />
         </Route>
       </Routes>
