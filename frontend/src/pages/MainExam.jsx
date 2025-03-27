@@ -63,8 +63,8 @@ const MainExam = () => {
 
     // Cảnh báo thoát trang ?
     window.addEventListener("beforeunload", function (event) {
-      event.preventDefault(); // Một số trình duyệt yêu cầu phải có dòng này
-      event.returnValue = "Are you sure you want to quit?"; // Hiển thị cảnh báo (tùy trình duyệt)
+      event.preventDefault();
+      event.returnValue = "Are you sure you want to quit?";
     });
     // event khi thoát trang
     window.addEventListener("unload", function () {

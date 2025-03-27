@@ -28,10 +28,10 @@ const MySubmission = () => {
     navigate(`/submission-details/${submissionId}`);
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
+  // const formatDate = (dateString) => {
+  //   const date = new Date(dateString);
+  //   return date.toLocaleString();
+  // };
 
   return (
     <div className="bg-white min-h-screen">
