@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { QuizzContext } from "../../context/ContextProvider";
 import { Link, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
