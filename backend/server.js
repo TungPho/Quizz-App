@@ -61,11 +61,45 @@ io.on("connection", (socket) => {
     io.to(socket.id).emit("roomList", filteredRooms);
   });
 
+  // 1. request to join room
+  socket.on("requestToJoinRoom", (room, testId = "") => {
+    if (!rooms[room]) {
+      socket.emit("permit", {
+        permit: false,
+        message: "This room does not exist!",
+      });
+      return;
+    }
+
+    if (!testId) {
+      socket.emit("permit", {
+        permit: true,
+        message: "Permitted",
+      });
+      return;
+    }
+    const teacher = rooms[room].find((user) => user.teacher_id);
+    console.log("TEACHER", teacher);
+    const testID = teacher.test_id;
+    if (testId !== testID) {
+      socket.emit("permit", {
+        permit: false,
+        message: "You must finish the other test!",
+      });
+      return;
+    }
+    socket.emit("permit", {
+      permit: true,
+      message: "Permitted!",
+    });
+  });
+
   socket.on("joinRoom", (room, student) => {
     if (!rooms[room]) {
       console.log("Room not found");
       return;
     }
+    // testid truyền vào, check nếu trùng thì cho vào, không thì thôi
     const foundStudent = rooms[room].find(
       (user) => user.student_id_db === student.student_id_db
     );
@@ -74,12 +108,14 @@ io.on("connection", (socket) => {
       return;
       //TODO: remember to emit an event to show that you're alread
     }
-    const studentSocketID = joinedStudentID[student.student_id_db];
+    // const studentSocketID = joinedStudentID[student.student_id_db];
     // 1.  find the teacher
     const teacher = rooms[room].find((user) => user.teacher_id);
     // 2.  push the student to the room array
+    const testID = teacher.test_id;
+
     rooms[room].push({
-      examID: teacher.test_id,
+      examID: testID,
       testName: teacher.test_name,
       state: "joined",
       current_question: 0,
@@ -98,8 +134,7 @@ io.on("connection", (socket) => {
     io.to(teachersID[teacher.teacher_id]).emit("roomList", filteredRooms);
 
     // gửi id bài test cho student's socket.id
-    const testID = teacher.test_id;
-    io.to(studentSocketID).emit("sentTestID", testID);
+    // io.to(studentSocketID).emit("sentTestID", testID);
     console.log(`Student ${student.name} joined room ${room}`);
   });
 
@@ -129,14 +164,19 @@ io.on("connection", (socket) => {
 
   socket.on(
     "studentInteraction",
-    (room, studentId, { type, current_question }) => {
-      if (!room || !studentId) return;
+    (room, studentId, { type, current_question, violateNums }) => {
+      // if (!room || !studentId || !type || !current_question) return;
+      if (!rooms[room]) {
+        console.log("Room not found 1");
+        return;
+      }
+
       const teacher = rooms[room].find((user) => user.teacher_id);
 
       for (let i = 0; i < rooms[room].length; i++) {
         if (rooms[room][i].student_id === studentId && type === "violates") {
           rooms[room][i].state = "left";
-          rooms[room][i].number_of_violates += 1;
+          rooms[room][i].number_of_violates = violateNums;
         } else if (
           rooms[room][i].student_id === studentId &&
           type === "re-joined"

@@ -54,9 +54,25 @@ const MainExam = () => {
     const handleWindowChange = () => {
       toast.error(`You just switch tab 1 more time`);
       setNumberOfViolates((n) => n + 1);
-      socket.emit("studentInteraction", room, studentID, { type: "violates" });
+      socket.emit("studentInteraction", room, studentID, {
+        type: "violates",
+        violateNums: numberOfViolates,
+      });
     };
     window.addEventListener("blur", handleWindowChange);
+
+    // Cảnh báo thoát trang ?
+    window.addEventListener("beforeunload", function (event) {
+      event.preventDefault(); // Một số trình duyệt yêu cầu phải có dòng này
+      event.returnValue = "Are you sure you want to quit?"; // Hiển thị cảnh báo (tùy trình duyệt)
+    });
+    // event khi thoát trang
+    window.addEventListener("unload", function () {
+      socket.emit("studentInteraction", room, studentID, {
+        type: "violates",
+        violateNums: numberOfViolates,
+      });
+    });
 
     window.addEventListener("focus", () => {
       socket.emit("studentInteraction", room, studentID, { type: "re-joined" });
@@ -86,6 +102,8 @@ const MainExam = () => {
     };
     fetchExamProgress();
   }, [setExamProgress, userID]);
+
+  /////
   useEffect(() => {
     setSocket(
       io("ws://localhost:3000", {
@@ -220,12 +238,15 @@ const MainExam = () => {
   }, [mainExam]); // useEffect theo dõi mainExam
 
   const handleSelectAnswer = (index) => {
+    socket.emit("checkRoomExist", room);
     setMainExam((prev) => ({
       ...prev,
       [currentQuestion]: {
         optionSelected: index,
         isSelected: true,
         isCorrect: questions[currentQuestion].options[index].isCorrect,
+        questionText: questions[currentQuestion].text,
+        options: questions[currentQuestion].options,
       },
     }));
     //
@@ -255,7 +276,6 @@ const MainExam = () => {
     setIsOpenSubmit(false);
     setIsModalOpen(true);
     const result = calculateScore();
-    console.log("RESULT", result);
     setFinalResult({
       score: result.score,
       timeSubmited: new Date().toLocaleTimeString(),
@@ -268,6 +288,7 @@ const MainExam = () => {
         method: "POST",
         body: JSON.stringify({
           testId: examID,
+          testName: testName,
           userId: userID,
           roomId: room,
           answers: mainExam,
@@ -628,7 +649,7 @@ const MainExam = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Time Remaining</p>
-                <h3 className="font-bold font-mono">
+                <div className="font-bold font-mono">
                   {timeLimit ? (
                     <CountdownTimer
                       minutes={timeLimit}
@@ -637,7 +658,7 @@ const MainExam = () => {
                   ) : (
                     "N/A"
                   )}
-                </h3>
+                </div>
               </div>
             </div>
 

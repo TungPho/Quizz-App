@@ -71,7 +71,7 @@ const Library = () => {
                   activeTab === "assessments"
                     ? "border-green-400 text-green-700"
                     : "border-transparent text-gray-500 hover:text-green-700"
-                }`}
+                } ${role === "student" ? "hidden" : ""} `}
                 onClick={() => setActiveTab("assessments")}
               >
                 Assessments
@@ -211,7 +211,9 @@ const Library = () => {
             <div className="mt-6 text-center">
               <Link
                 to={"/create-question"}
-                className="bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center"
+                className={`${
+                  role === "student" ? "hidden" : ""
+                } bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

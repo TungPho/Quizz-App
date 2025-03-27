@@ -25,6 +25,10 @@ const SubmissionSchema = Schema(
       type: String,
       required: true,
     },
+    testName: {
+      type: String,
+      required: true,
+    },
     userId: {
       type: String,
       required: true,
