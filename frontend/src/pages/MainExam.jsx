@@ -7,6 +7,7 @@ import RoomNotExist from "../components/RoomNotExist";
 import axios from "axios";
 import { Button, Modal, Progress } from "antd";
 import { toast } from "react-toastify";
+import TestWaitingRoom from "../components/TestWaitingRoom";
 
 // TODO: khi ấn chọn câu trả lời, lưu vào doing test
 // khi submit xóa luôn!
@@ -49,9 +50,11 @@ const MainExam = () => {
     score: 0,
     timeSubmited: new Date(),
   });
+  const [isStartExam, setIsStartExam] = useState(false);
 
   useEffect(() => {
     const handleWindowChange = () => {
+      if (isSubmitedTest) return;
       toast.error(`You just switch tab 1 more time`);
       setNumberOfViolates((n) => n + 1);
       socket.emit("studentInteraction", room, studentID, {
@@ -131,9 +134,14 @@ const MainExam = () => {
       setIsRoomExist(roomExist);
     });
 
+    socket.on("forceSubmit", () => {
+      console.log("You were force to submit the test");
+      hanldeSubmitTest();
+    });
     return () => {
       socket.off("sentStudentInfo");
       socket.off("isRoomExist");
+      socket.off("startExamForStudent");
     };
   }, [socket]);
 
@@ -264,7 +272,6 @@ const MainExam = () => {
     }
 
     const score = numberOfCorrectAnswers * pointsPerQuestion;
-
     return {
       score,
       numberOfCorrectAnswers,
@@ -275,12 +282,14 @@ const MainExam = () => {
   const hanldeSubmitTest = async () => {
     setIsOpenSubmit(false);
     setIsModalOpen(true);
+    setIsSubmitTest(true);
     const result = calculateScore();
     setFinalResult({
-      score: result.score,
+      score: result.score || 0,
       timeSubmited: new Date().toLocaleTimeString(),
     });
     setStudent(null);
+    socket.emit("studentInteraction", room, studentID, { type: "submit" });
     //gửi dữ liệu cho submissions:
     try {
       // 1. submit test
@@ -292,7 +301,7 @@ const MainExam = () => {
           userId: userID,
           roomId: room,
           answers: mainExam,
-          score: result.score,
+          score: result.score || 0,
           number_of_wrong_options: result.numberOfWrongOptions,
           submitted_at: new Date().toLocaleTimeString(),
           number_of_correct_options: result.numberOfCorrectAnswers,
@@ -313,6 +322,7 @@ const MainExam = () => {
       console.log(deleteRequest);
       console.log(await deleteRequest.json());
       if (deleteRequest.status === 200 && submitRequest.status === 200) {
+        console.log(submitRequest);
         toast.success("Submit success!");
       }
     } catch (error) {
@@ -337,7 +347,7 @@ const MainExam = () => {
     return <RoomNotExist />;
   }
 
-  return (
+  return isStartExam ? (
     <div className="min-h-screen bg-gradient-to-b from-green-300 to-green-100">
       {/* Final Submit Modal */}
       <Modal
@@ -724,6 +734,14 @@ const MainExam = () => {
         </div>
       </div>
     </div>
+  ) : (
+    <TestWaitingRoom
+      setIsStartExam={setIsStartExam}
+      studentName={studentName}
+      studentID={studentID}
+      testName={testName}
+      roomId={room}
+    />
   );
 };
 

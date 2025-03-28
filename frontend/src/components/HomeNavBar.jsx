@@ -55,11 +55,13 @@ const HomeNavBar = () => {
       socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "");
       return;
     }
+    // emit an event ro join room
     socket.emit("joinRoom", roomCode, {
       name: studentName,
       student_id_db: userID,
       student_id: studentID,
     });
+    // actually enter the exam
     navigate(`/main_exam`, {
       state: {
         room: roomCode,

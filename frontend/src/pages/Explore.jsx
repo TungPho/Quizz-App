@@ -1,9 +1,8 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { MessageSquare, Users, Plus } from "lucide-react";
 import HomeNavBar from "../components/HomeNavBar";
 import { QuizzContext } from "../context/ContextProvider";
 import SideBar from "../components/SideBar";
-import { toast } from "react-toastify";
 
 const Explore = () => {
   const { collapsed } = useContext(QuizzContext);

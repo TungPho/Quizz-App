@@ -24,11 +24,7 @@ class SubmissionService {
     if (!foundTest) throw new Error("Can't find this test to add");
     const foundUser = userModel.findById(userId);
     if (!foundUser) throw new Error("Can't find this user");
-    const foundQuizSubmission = await submissonModel.find({
-      testId,
-    });
-    if (foundQuizSubmission.length !== 0)
-      throw new Error("You already submitted this quiz!");
+
     const newSubmision = await submissonModel.create({
       testId,
       testName,

@@ -21,6 +21,9 @@ const Room = () => {
   const [isRoomExist, setIsRoomExist] = useState(true);
   const navigate = useNavigate();
   const [studentList, setStudentList] = useState([]);
+  // test info
+  const [testName, setTestname] = useState("");
+  const [testDuration, setTestDuration] = useState(0);
 
   useEffect(() => {
     const fetchStudentList = async () => {
@@ -34,7 +37,6 @@ const Room = () => {
     };
     const sessionList = JSON.parse(sessionStorage.getItem("student_list"));
     if (sessionList) {
-      console.log("Session", sessionList);
       setStudentList(sessionList);
     } else {
       fetchStudentList();
@@ -50,6 +52,8 @@ const Room = () => {
     // if the server returns data, take it
     socket.on("studentData", (studentData) => {
       console.log("data", studentData);
+      setTestDuration(studentData[0].duration);
+      setTestname(studentData[0].test_name);
       setData(studentData);
     });
     //
@@ -71,6 +75,15 @@ const Room = () => {
       })
     );
   }, [role, setSocket, userID]);
+
+  const handleForceSubmit = (studentId) => {
+    socket.emit("requestForceSubmit", studentId);
+  };
+
+  const handleStartExam = () => {
+    socket.emit("requestStartExam", roomID);
+  };
+
   return isRoomExist ? (
     <div className="bg-slate-100 min-h-screen">
       <div className="flex items-center">
@@ -87,11 +100,21 @@ const Room = () => {
           <div>
             {data.length - 1} / {studentList.length}
           </div>
+          <div>Testname: {testName}</div>
+          <div>Duration: {testDuration} minutes</div>
+          <button
+            onClick={() => {
+              handleStartExam();
+            }}
+            className="text-start bg-green-500 flex justify-center text-white"
+          >
+            Start Exam
+          </button>
         </div>
       </div>
 
       <div className="flex justify-center">
-        <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border bg-white font-semibold text-center p-3 rounded-t-md w-2/3">
+        <div className="grid grid-cols-7  border-r-black border-t-black border-l-black border bg-white font-semibold text-center p-3 rounded-t-md w-2/3">
           <div className="col-span-1">Student Name</div>
           <div className="col-span-1">Student ID</div>
           <div className="col-span-1">State</div>
@@ -99,8 +122,8 @@ const Room = () => {
           <div className="col-span-1 flex justify-center">
             Number of Violates
           </div>
-
           <div className="col-span-1 flex justify-center">Status</div>
+          <div className="col-span-1 flex justify-center">Menu</div>
         </div>
       </div>
       {data.map((student, index) => {
@@ -108,7 +131,7 @@ const Room = () => {
         if (student.teacher_id) return;
         return (
           <div key={index} className="flex justify-center">
-            <div className="grid grid-cols-6  border-r-black border-t-black border-l-black border-b-black border bg-white font-semibold text-center p-3  w-2/3">
+            <div className="grid grid-cols-7  border-r-black border-t-black border-l-black border-b-black border bg-white font-semibold text-center p-3  w-2/3">
               <div className="col-span-1">{student.name}</div>
               <div className="col-span-1">{student.student_id}</div>
               <div
@@ -133,6 +156,14 @@ const Room = () => {
               >
                 {student.status}
               </div>
+              <button
+                onClick={() => {
+                  handleForceSubmit(student.student_id_db);
+                }}
+                className={` col-span-1 flex justify-center bg-red-500 text-white`}
+              >
+                Force Submit
+              </button>
             </div>
           </div>
         );

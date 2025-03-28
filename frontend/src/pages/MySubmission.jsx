@@ -53,8 +53,8 @@ const MySubmission = () => {
             {submissions.map((submission, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col aspect-square border border-gray-200 group"
-                onClick={() => handleViewDetails(submission.id)}
+                className="bg-white cursor-pointer rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col aspect-square border border-gray-200 group"
+                onClick={() => handleViewDetails(submission._id)}
               >
                 {/* Header with quiz name prominently displayed */}
                 <div className="bg-green-500 text-white p-4 relative">

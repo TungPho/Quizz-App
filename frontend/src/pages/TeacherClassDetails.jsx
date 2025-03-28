@@ -19,7 +19,9 @@ const TeacherClassDetails = () => {
   const [activeRooms, setActiveRooms] = useState([]);
   const [studentID, setStudentID] = useState("");
   const [selectedTest, setSelectedTest] = useState("");
+
   const [selectedTestName, setSelectedTestName] = useState("");
+  const [selectedTestDurtaion, setSelectedTestDurtaion] = useState(0);
 
   const [studentLength, setStudentLength] = useState(0);
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
@@ -49,7 +51,8 @@ const TeacherClassDetails = () => {
       userID,
       selectedTest,
       classId,
-      selectedTestName
+      selectedTestName,
+      selectedTestDurtaion
     );
   };
 
@@ -134,6 +137,7 @@ const TeacherClassDetails = () => {
     // Find the test name for displaying in the UI
     const selectedTestObj = tests.find((test) => test._id === testId);
     if (selectedTestObj) {
+      setSelectedTestDurtaion(selectedTestObj.timeLimit);
       setSelectedTestName(selectedTestObj.title);
     }
   };
@@ -222,11 +226,6 @@ const TeacherClassDetails = () => {
               return (
                 <div
                   key={index}
-                  onClick={() => {
-                    navigate(`/room/${room[0]}`, {
-                      state: { classID: classId },
-                    });
-                  }}
                   className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer overflow-hidden"
                 >
                   <div className="p-1 bg-green-400 text-white text-center text-xs font-semibold">
@@ -260,9 +259,24 @@ const TeacherClassDetails = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex justify-end">
-                      <button className="text-green-500 hover:text-green-600 text-sm font-semibold flex items-center">
+                    <div className="mt-4 flex justify-between">
+                      <button
+                        onClick={() => {
+                          navigate(`/room/${room[0]}`, {
+                            state: { classID: classId },
+                          });
+                        }}
+                        className="text-green-500 hover:text-green-600 text-sm font-semibold flex items-center"
+                      >
                         Enter Room →
+                      </button>
+                      <button
+                        onClick={() => {
+                          socket.emit("deleteRoom", room[0]);
+                        }}
+                        className="text-red-500 hover:text-green-600 text-sm font-semibold flex items-center"
+                      >
+                        Delete Room
                       </button>
                     </div>
                   </div>

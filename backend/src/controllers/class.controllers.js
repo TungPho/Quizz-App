@@ -14,7 +14,6 @@ class ClassController {
   // get class by the id of the class
   getClassById = async (req, res, next) => {
     const { id } = req.params;
-    console.log(id);
     const results = await ClassService.getClassById(id);
     res.status(200).json({
       messaege: "Get class success",
@@ -44,7 +43,6 @@ class ClassController {
   // get class by teacherId
   getClassByTeacherId = async (req, res, next) => {
     const { teacher_id } = req.params;
-    console.log(req.params);
     const results = await ClassService.getClassByTeacherId(teacher_id);
     res.status(200).json({
       messaege: "Get class for teacher success",
