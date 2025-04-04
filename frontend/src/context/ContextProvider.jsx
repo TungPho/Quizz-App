@@ -14,6 +14,8 @@ const ContextProvider = (props) => {
   const [collapsed, setCollapsed] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [examProgress, setExamProgress] = useState(null);
+  const [isStartPermit, setIsStartPermit] = useState(false);
+
   const value = {
     role,
     setRole,
@@ -29,6 +31,8 @@ const ContextProvider = (props) => {
     timeRemaining,
     examProgress,
     setExamProgress,
+    isStartPermit,
+    setIsStartPermit,
   };
   return (
     <QuizzContext.Provider value={value}>

@@ -1,16 +1,13 @@
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import HomeNavBar from "../components/HomeNavBar";
 import SideBar from "../components/SideBar";
-import { QuizzContext } from "../context/ContextProvider";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const SubmissionDetails = () => {
-  const navigate = useNavigate();
-  const { collapsed } = useContext(QuizzContext);
   const [submissionData, setSubmissionData] = useState({});
   const [answersArray, setAnswerArray] = useState([]);
   // Data from MongoDB with correct structure
@@ -130,7 +127,7 @@ const SubmissionDetails = () => {
               Question Details
             </h2>
 
-            {answersArray.map((answer, index) => (
+            {answersArray?.map((answer, index) => (
               <div
                 key={index}
                 className={`mb-6 p-4 rounded-lg border ${
@@ -153,9 +150,9 @@ const SubmissionDetails = () => {
                     {answer.isCorrect ? "Correct" : "Incorrect"}
                   </span>
                 </div>
-
+                {console.log(answer)}
                 <div className="space-y-2 mt-3">
-                  {answer.options.map((option, optIndex) => {
+                  {answer.options?.map((option, optIndex) => {
                     let optionStyle = "p-2 rounded border";
                     if (option.isCorrect) {
                       optionStyle +=

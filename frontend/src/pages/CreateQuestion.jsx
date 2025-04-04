@@ -7,7 +7,7 @@ import { IoMdAdd } from "react-icons/io";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { QuizzContext } from "../context/ContextProvider";
-
+import { toast } from "react-toastify";
 const CreateQuestion = () => {
   const [question, setQuestion] = useState("");
   let { testId, questionId } = useParams();
@@ -62,7 +62,12 @@ const CreateQuestion = () => {
       console.log("think again");
       return;
     }
-
+    const correctAnswer = answers.filter((a) => a.isCorrect);
+    console.log(correctAnswer);
+    if (correctAnswer.length === 0) {
+      toast.error("You must set at least 1 correct answer");
+      return;
+    }
     // 1. Create the test first
     if (!testId) {
       const req = await fetch("http://localhost:3000/api/v1/tests", {
@@ -109,6 +114,11 @@ const CreateQuestion = () => {
 
   const updateQuestion = async () => {
     if (!questionId) return;
+    const correctAnswer = answers.filter((a) => a.isCorrect);
+    if (!correctAnswer) {
+      toast.error("You must set at least 1 correct answer");
+      return;
+    }
     const req = await fetch(
       `http://localhost:3000/api/v1/questions/${questionId}`,
       {

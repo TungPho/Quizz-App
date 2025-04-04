@@ -1,6 +1,6 @@
 const express = require("express");
 const catchAsync = require("../../handlers/asyncHandlers");
-const submissionController = require("../../controllers/submission.controller");
+const submissionController = require("../../controllers/submission.controllers");
 const submissionRoute = express.Router();
 
 submissionRoute.get(

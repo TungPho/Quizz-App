@@ -38,7 +38,6 @@ class ClassService {
   static getAllClassesByStudentId = async (studentId) => {
     const foundStudent = await studentModel.findById(studentId);
     if (!foundStudent) throw new Error("Can't find this student's id");
-    console.log(foundStudent.classes);
     let classes = [];
     for (let c of foundStudent.classes) {
       const resClass = await classModel.findById(c);
@@ -78,7 +77,6 @@ class ClassService {
 
     // find if this student already in the class
     const isStudentInTheClass = await studentModel.find({ classes: id });
-    console.log(isStudentInTheClass.length);
     if (isStudentInTheClass >= 1)
       throw new Error("This Student already in the class");
     // 1. tìm class và add student đó vào:

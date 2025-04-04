@@ -240,7 +240,9 @@ const MyClasses = () => {
 
                     <div className="relative">
                       <button
-                        className="p-2 rounded-full hover:bg-gray-100 transition kebab-menu"
+                        className={`p-2 rounded-full hover:bg-gray-100 transition kebab-menu ${
+                          role === "student" ? "hidden" : ""
+                        }`}
                         onClick={() => handleOpenMenu(index)}
                         aria-label="Menu"
                       >

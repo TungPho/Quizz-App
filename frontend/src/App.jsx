@@ -22,6 +22,7 @@ import MySubmission from "./pages/MySubmission";
 import SignUp from "./pages/Auth/SignUp";
 import Login from "./pages/Auth/Login";
 import SubmissionDetails from "./pages/SubmissionDetails";
+import TestWaitingRoom from "./components/TestWaitingRoom";
 
 const App = () => {
   return (
@@ -54,6 +55,8 @@ const App = () => {
           <Route path="/room/:roomID" element={<Room />} />
           <Route path="/my_profile" element={<Profile />} />
           <Route path="/setting" element={<Settings />} />
+          {/* Join room */}
+          <Route path="/waiting_room" element={<TestWaitingRoom />} />
           <Route path="/main_exam" element={<MainExam />} />
           <Route path="/create-question" element={<CreateQuestion />} />
           <Route path="/create-question/:testId" element={<CreateQuestion />} />

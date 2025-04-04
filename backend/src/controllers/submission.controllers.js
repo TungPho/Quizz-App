@@ -28,7 +28,6 @@ class SubmissionController {
       number_of_wrong_options,
       roomId,
     } = req.body;
-    console.log(req.body);
     const newSubmisson = await SubmissionService.createSubmission({
       testId,
       testName,
