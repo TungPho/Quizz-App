@@ -127,7 +127,7 @@ const SubmissionDetails = () => {
               Question Details
             </h2>
 
-            {answersArray.map((answer, index) => (
+            {answersArray?.map((answer, index) => (
               <div
                 key={index}
                 className={`mb-6 p-4 rounded-lg border ${
@@ -150,9 +150,9 @@ const SubmissionDetails = () => {
                     {answer.isCorrect ? "Correct" : "Incorrect"}
                   </span>
                 </div>
-
+                {console.log(answer)}
                 <div className="space-y-2 mt-3">
-                  {answer.options.map((option, optIndex) => {
+                  {answer.options?.map((option, optIndex) => {
                     let optionStyle = "p-2 rounded border";
                     if (option.isCorrect) {
                       optionStyle +=

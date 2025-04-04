@@ -14,7 +14,6 @@ const TestWaitingRoom = ({
   useEffect(() => {
     // ** recieves event to start the test from the teacher
     socket.on("startExamForStudent", (startExam) => {
-      console.log("Start", startExam);
       setIsStartPermit(startExam);
     });
   }, [setIsStartExam, setIsStartPermit, socket]);
@@ -22,6 +21,7 @@ const TestWaitingRoom = ({
   const handleStartTest = () => {
     if (isStartPermit) {
       setIsStartExam(true);
+      sessionStorage.setItem("isStartExam", true);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import CountdownTimer from "../utils/CountDownTimer";
@@ -13,6 +13,8 @@ import TestWaitingRoom from "../components/TestWaitingRoom";
 // khi submit xóa luôn!
 
 const MainExam = () => {
+  const tempSubmitBtn = useRef(null);
+  const mainSubmitBtn = useRef(null);
   const navigate = useNavigate();
   // This is the main exam
   const [mainExam, setMainExam] = useState({});
@@ -42,15 +44,19 @@ const MainExam = () => {
   //Modal Submit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpenSubmit, setIsOpenSubmit] = useState(false);
-  const [isSubmitedTest, setIsSubmitTest] = useState(false);
+  const [isSubmitedTest, setIsSubmitTest] = useState();
   // ExamProgress from the database
+
+  //submit btn
 
   // Final Result:
   const [finalResult, setFinalResult] = useState({
     score: 0,
     timeSubmited: new Date(),
   });
-  const [isStartExam, setIsStartExam] = useState(false);
+  const [isStartExam, setIsStartExam] = useState(
+    sessionStorage.getItem("isStartExam")
+  );
 
   useEffect(() => {
     const handleWindowChange = () => {
@@ -82,6 +88,8 @@ const MainExam = () => {
     });
     return () => {
       window.removeEventListener("blur", handleWindowChange);
+      window.removeEventListener("beforeunload", handleWindowChange);
+
       socket.off("studentInteraction");
     };
   });
@@ -100,7 +108,6 @@ const MainExam = () => {
         `http://localhost:3000/api/v1/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
-      console.log(res.metadata[0]);
       setExamProgress(res.metadata[0]);
     };
     fetchExamProgress();
@@ -136,7 +143,10 @@ const MainExam = () => {
 
     socket.on("forceSubmit", () => {
       console.log("You were force to submit the test");
-      hanldeSubmitTest();
+      tempSubmitBtn.current.click();
+      setTimeout(() => {
+        mainSubmitBtn.current.click();
+      }, 0);
     });
     return () => {
       socket.off("sentStudentInfo");
@@ -166,7 +176,6 @@ const MainExam = () => {
         // Có thể get exam từ localStorage
         let initialExam = {};
         if (!examProgress) {
-          console.log("INIT 1");
           filteredQuestions.forEach((q, index) => {
             initialExam[index] = {
               optionSelected: "none",
@@ -175,11 +184,8 @@ const MainExam = () => {
             };
           });
         } else {
-          console.log("INIT 2", examProgress.answers);
-
           initialExam = examProgress.answers;
         }
-        console.log("INIT", initialExam);
         setMainExam(initialExam);
         setQuestions(filteredQuestions);
         // setTime ở đây
@@ -199,7 +205,6 @@ const MainExam = () => {
   }, [isFinished]);
 
   const onChangeQuestionHandler = (index) => {
-    console.log(index);
     socket.emit("studentInteraction", room, studentID, {
       type: "change_question",
       current_question: index + 1,
@@ -207,19 +212,18 @@ const MainExam = () => {
     setCurrentQuestion(index);
   };
 
-  // Gửi dữ liệu mỗi khi `mainExam` thay đổi
   useEffect(() => {
     if (Object.keys(mainExam).length === 0) return; // Chỉ gửi khi có dữ liệu
 
     const examData = {
       studentID: studentID,
       roomId: room,
-      examId: examID, // Thay bằng dữ liệu thực tế
+      examId: examID,
       examName: testName,
       startTime: "2025-03-22T10:00:00Z",
       endTime: "2025-03-22T11:00:00Z",
       remainingTime: timeRemaining,
-      answers: mainExam, // Đồng bộ toàn bộ mainExam
+      answers: mainExam,
       status: "in_progress",
     };
 
@@ -246,6 +250,7 @@ const MainExam = () => {
   }, [mainExam]); // useEffect theo dõi mainExam
 
   const handleSelectAnswer = (index) => {
+    console.log("mainExam 1", mainExam);
     socket.emit("checkRoomExist", room);
     setMainExam((prev) => ({
       ...prev,
@@ -257,7 +262,6 @@ const MainExam = () => {
         options: questions[currentQuestion].options,
       },
     }));
-    //
   };
 
   const calculateScore = () => {
@@ -279,7 +283,8 @@ const MainExam = () => {
     };
   };
 
-  const hanldeSubmitTest = async () => {
+  const handleSubmitTest = async () => {
+    console.log("MAIN FINAL", mainExam);
     setIsOpenSubmit(false);
     setIsModalOpen(true);
     setIsSubmitTest(true);
@@ -290,27 +295,29 @@ const MainExam = () => {
     });
     setStudent(null);
     socket.emit("studentInteraction", room, studentID, { type: "submit" });
+
     //gửi dữ liệu cho submissions:
+    const bodyExam = {
+      testId: examID,
+      testName: testName,
+      userId: userID,
+      roomId: room,
+      answers: mainExam,
+      score: result.score,
+      number_of_wrong_options: result.numberOfWrongOptions,
+      submitted_at: new Date().toLocaleTimeString(),
+      number_of_correct_options: result.numberOfCorrectAnswers,
+    };
+
     try {
       // 1. submit test
       const submitRequest = await fetch(`${BACK_END_LOCAL_URL}/submissions`, {
         method: "POST",
-        body: JSON.stringify({
-          testId: examID,
-          testName: testName,
-          userId: userID,
-          roomId: room,
-          answers: mainExam,
-          score: result.score || 0,
-          number_of_wrong_options: result.numberOfWrongOptions,
-          submitted_at: new Date().toLocaleTimeString(),
-          number_of_correct_options: result.numberOfCorrectAnswers,
-        }),
+        body: JSON.stringify(bodyExam),
         headers: {
           "Content-Type": "application/json",
         },
       });
-      console.log(await submitRequest.json());
       console.log(submitRequest.data);
       // 2. Xóa progress:
       const deleteRequest = await fetch(
@@ -319,10 +326,8 @@ const MainExam = () => {
           method: "DELETE",
         }
       );
-      console.log(deleteRequest);
-      console.log(await deleteRequest.json());
+
       if (deleteRequest.status === 200 && submitRequest.status === 200) {
-        console.log(submitRequest);
         toast.success("Submit success!");
       }
     } catch (error) {
@@ -402,7 +407,6 @@ const MainExam = () => {
         onCancel={() => {
           setIsOpenSubmit(false);
         }}
-        bodyStyle={{ padding: "2rem" }}
         footer={[
           <Button
             className="h-10"
@@ -414,12 +418,13 @@ const MainExam = () => {
             Cancel
           </Button>,
           <Button
+            ref={mainSubmitBtn}
             className="h-10"
             key="ok"
             type="primary"
             style={{ backgroundColor: "#31cd63", borderColor: "#31cd63" }}
             onClick={() => {
-              hanldeSubmitTest();
+              handleSubmitTest();
             }}
           >
             Submit
@@ -711,6 +716,7 @@ const MainExam = () => {
 
           <div className="p-4 border-t">
             <button
+              ref={tempSubmitBtn}
               onClick={() => setIsOpenSubmit(true)}
               className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors flex items-center justify-center gap-2"
             >

@@ -26,11 +26,9 @@ const HomeNavBar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("socket");
     socket.on("permit", (permission) => {
       if (permission.permit) {
         toast.success(permission.message);
-        console.log("PERMIT 2", permission.permit);
         setIsPermit(true); // true
       } else {
         toast.error(permission.message);
@@ -44,7 +42,6 @@ const HomeNavBar = () => {
         `http://localhost:3000/api/v1/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
-      console.log(res.metadata[0]);
       setExamProgress(res.metadata[0]);
     };
     fetchExamProgress();

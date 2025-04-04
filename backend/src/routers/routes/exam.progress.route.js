@@ -1,6 +1,6 @@
 const express = require("express");
 const catchAsync = require("../../handlers/asyncHandlers");
-const examProgressController = require("../../controllers/exam.progress.controller");
+const examProgressController = require("../../controllers/exam.progress.controllers");
 
 const examProgressRoute = express.Router();
 
