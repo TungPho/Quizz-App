@@ -6,6 +6,7 @@ const classRoute = require("./routes/class.route");
 const submissionRoute = require("./routes/submission.route");
 const examProgressRoute = require("./routes/exam.progress.route");
 const documentRoute = require("./routes/document.routes");
+const AIRoute = require("./routes/ai.route");
 
 const mainRouter = express.Router();
 mainRouter.use("/api/v1", userRoute);
@@ -15,5 +16,6 @@ mainRouter.use("/api/v1", classRoute);
 mainRouter.use("/api/v1", submissionRoute);
 mainRouter.use("/api/v1", examProgressRoute);
 mainRouter.use("/api/v1", documentRoute);
+mainRouter.use("/api/v1", AIRoute);
 
 module.exports = mainRouter;

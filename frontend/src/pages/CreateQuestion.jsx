@@ -269,8 +269,6 @@ const CreateQuestion = () => {
           </div>
         </div>
       </div>
-
-      {/* Custom CSS to hide scrollbar but keep functionality */}
     </div>
   );
 };
