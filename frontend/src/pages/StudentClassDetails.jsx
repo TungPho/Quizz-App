@@ -68,7 +68,6 @@ const StudentClassDetails = () => {
     socket.emit("getRoomList", className);
     if (socket) {
       socket.on("roomList", (updatedRooms) => {
-        console.log(updatedRooms);
         setActiveRooms(updatedRooms);
       });
 
@@ -93,7 +92,6 @@ const StudentClassDetails = () => {
   return (
     <div className="bg-green-100 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        {/* Back button */}
         <button
           onClick={() => navigate("/home/my_classes")}
           className="flex items-center mb-6 text-green-600 hover:text-green-800 transition-colors font-medium"
@@ -177,9 +175,7 @@ const StudentClassDetails = () => {
             </div>
           )}
         </div>
-        {/* Two-column layout for larger screens, single column for mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Documents section - 1 column on mobile, 1 column on larger screens */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">

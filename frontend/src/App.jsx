@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
-import CreateQuestion from "./pages/CreateQuestion";
 import TestEdit from "./pages/TestEdit";
 import TeacherClassDetails from "./pages/TeacherClassDetails";
 import ScrollToTop from "./utils/ScrollToTop";
@@ -23,6 +22,7 @@ import SignUp from "./pages/Auth/SignUp";
 import Login from "./pages/Auth/Login";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import TestWaitingRoom from "./components/TestWaitingRoom";
+import CreateQuestion from "./pages/CreateQuestion";
 
 const App = () => {
   return (
