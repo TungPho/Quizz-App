@@ -101,7 +101,35 @@ const StudentClassDetails = () => {
         </button>
 
         <h1 className="text-3xl font-bold text-gray-800 mb-6">{className}</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Active Rooms with Refresh Button */}
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2 text-green-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+              </svg>
+              Active Rooms
+            </h2>
+
+            {/* Refresh button */}
+            <button
+              onClick={refreshRooms}
+              className="flex items-center text-green-600 hover:text-green-800 transition-colors px-3 py-1 rounded-md border border-green-400 hover:bg-green-50"
+              disabled={isRefreshing}
+            >
+              <FiRefreshCw
+                className={`mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              Refresh Rooms
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {activeRooms.map((room, index) => {
             return (
               <div
@@ -282,35 +310,6 @@ const StudentClassDetails = () => {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Active Rooms with Refresh Button */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2 text-green-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-              Active Rooms
-            </h2>
-
-            {/* Refresh button */}
-            <button
-              onClick={refreshRooms}
-              className="flex items-center text-green-600 hover:text-green-800 transition-colors px-3 py-1 rounded-md border border-green-400 hover:bg-green-50"
-              disabled={isRefreshing}
-            >
-              <FiRefreshCw
-                className={`mr-2 ${isRefreshing ? "animate-spin" : ""}`}
-              />
-              Refresh Rooms
-            </button>
           </div>
         </div>
       </div>

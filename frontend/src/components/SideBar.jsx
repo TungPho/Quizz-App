@@ -271,7 +271,7 @@ const SideBar = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
                   onClick={() => {
-                    navigate("/create-question");
+                    navigate("/question_type_choosing");
                     closeModal();
                   }}
                   className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"

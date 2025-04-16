@@ -1,6 +1,7 @@
 const { Types } = require("mongoose");
 const testModel = require("../models/test.model");
 const QuestionService = require("../services/question.services");
+const questionModel = require("../models/question.model");
 
 class QuestionController {
   // admin functions
@@ -36,6 +37,46 @@ class QuestionController {
       message: "Create a question success",
       metadata: result,
     });
+  };
+
+  generateQuestionsAI = async (req, res, next) => {
+    try {
+      const { questions, teacherId, title } = req.body;
+
+      // Create the test first
+      const newTest = await testModel.create({
+        teacherId,
+        title,
+      });
+
+      if (!newTest) throw new Error("Error creating test");
+      console.log(newTest._id);
+
+      // Use Promise.all to wait for all question creations to complete
+      const questionsPromises = questions.map(async (q) => {
+        q.quizId = newTest._id;
+        const newQuestion = await questionModel.create(q);
+        console.log("ID", newQuestion._id);
+        return newQuestion._id; // Return the ID from each promise
+      });
+
+      // Wait for all questions to be created and get their IDs
+      const questionsID = await Promise.all(questionsPromises);
+
+      console.log(questions);
+      console.log(questionsID);
+
+      // Save the question IDs to the test
+      newTest.questions = questionsID;
+      await newTest.save();
+
+      return res.status(200).json({
+        message: "Generate questions successfully!",
+        metadata: newTest,
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   updateQuestion = async (req, res, next) => {

@@ -24,6 +24,7 @@ const Room = () => {
 
   // Exam timing states
   const [examStarted, setExamStarted] = useState();
+  const [examEnded, setExamEnded] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [remainingTime, setRemainingTime] = useState(null);
@@ -54,6 +55,7 @@ const Room = () => {
       setTestDuration(studentData[0].duration);
       setTestname(studentData[0].test_name);
       setData(studentData);
+      console.log(studentData);
     });
 
     socket.on("isRoomExist", (roomExist) => {
@@ -114,6 +116,19 @@ const Room = () => {
     socket.emit("requestStartExam", roomID, now.toISOString());
   };
 
+  // END EXAM
+  const handleEndExam = () => {
+    const confirm = window.confirm("Are you sure you want to end the exam ? ");
+    // loop through every students to force submit
+    if (!confirm) return;
+    data.forEach((d) => {
+      if (d.student_id_db) {
+        handleForceSubmit(d.student_id_db);
+      }
+    });
+    // create test history here
+  };
+
   // Function to format date to display time
   const formatTime = (date) => {
     return date
@@ -170,6 +185,14 @@ const Room = () => {
                 </div>
               </div>
             )}
+            <button
+              onClick={() => {
+                handleEndExam();
+              }}
+              className="mt-2 bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md transition-colors font-medium"
+            >
+              End Exam
+            </button>
           </div>
         </div>
       </div>

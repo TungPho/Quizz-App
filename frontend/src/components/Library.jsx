@@ -16,6 +16,8 @@ const Library = () => {
   const role = localStorage.getItem("role");
   const itemsPerPage = 6; // Number of items per page
 
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Fetch tests when component mounts
   const fetchTest = async () => {
     try {
@@ -32,7 +34,15 @@ const Library = () => {
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = tests.slice(indexOfFirstItem, indexOfLastItem);
+  // pagination
+  let currentItems = tests.slice(indexOfFirstItem, indexOfLastItem);
+  // search items
+  if (searchTerm) {
+    currentItems = tests.filter((item) => {
+      return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  }
+
   const totalPages = Math.ceil(tests.length / itemsPerPage);
 
   // Handle page change
@@ -62,7 +72,10 @@ const Library = () => {
               <h1 className="text-2xl font-bold text-green-800 mb-4 sm:mb-0">
                 My Library
               </h1>
-              <LibrarySearchBar />
+              <LibrarySearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
             </div>
 
             {/* Tabs */}
@@ -218,7 +231,7 @@ const Library = () => {
               }`}
             >
               <Link
-                to={"/create-question"}
+                to={"/question_type_choosing"}
                 className={`${
                   role === "student" ? "hidden" : ""
                 } bg-green-400 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center`}

@@ -8,6 +8,11 @@ questionRoute.get(
   catchAsync(questionController.findQuestionById)
 );
 questionRoute.post("/questions", catchAsync(questionController.createQuestion));
+questionRoute.post(
+  "/generate_questions",
+  catchAsync(questionController.generateQuestionsAI)
+);
+
 questionRoute.put(
   "/questions/:id",
   catchAsync(questionController.updateQuestion)

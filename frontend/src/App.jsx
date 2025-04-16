@@ -23,6 +23,8 @@ import Login from "./pages/Auth/Login";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import TestWaitingRoom from "./components/TestWaitingRoom";
 import CreateQuestion from "./pages/CreateQuestion";
+import QuestionTypeChoosing from "./components/QuestionTypeChoosing";
+import GenerateQuestionsAI from "./components/GenerateQuestionsAI";
 
 const App = () => {
   return (
@@ -58,6 +60,11 @@ const App = () => {
           {/* Join room */}
           <Route path="/waiting_room" element={<TestWaitingRoom />} />
           <Route path="/main_exam" element={<MainExam />} />
+          <Route
+            path="/question_type_choosing"
+            element={<QuestionTypeChoosing />}
+          />
+          <Route path="/generate-question" element={<GenerateQuestionsAI />} />
           <Route path="/create-question" element={<CreateQuestion />} />
           <Route path="/create-question/:testId" element={<CreateQuestion />} />
           <Route

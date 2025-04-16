@@ -1,11 +1,11 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 
-const LibrarySearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+// eslint-disable-next-line react/prop-types
+const LibrarySearchBar = ({ searchTerm, setSearchTerm }) => {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    // Add your search logic here
+    console.log(searchTerm);
   };
 
   return (
