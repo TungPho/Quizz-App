@@ -4,9 +4,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FaClock } from "react-icons/fa";
-
+import axios from "axios";
 import io from "socket.io-client";
 import RoomNotExist from "../components/RoomNotExist";
+import { toast } from "react-toastify";
 
 const Room = () => {
   const { roomID } = useParams();
@@ -19,15 +20,20 @@ const Room = () => {
   const navigate = useNavigate();
   const [studentList, setStudentList] = useState([]);
   // test info
+  const [teacherId, setTeacherId] = useState("");
   const [testName, setTestname] = useState("");
   const [testDuration, setTestDuration] = useState(0);
-
+  const [className, setClassName] = useState("");
   // Exam timing states
   const [examStarted, setExamStarted] = useState();
   const [examEnded, setExamEnded] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [remainingTime, setRemainingTime] = useState(null);
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchStudentList = async () => {
@@ -55,6 +61,8 @@ const Room = () => {
       setTestDuration(studentData[0].duration);
       setTestname(studentData[0].test_name);
       setData(studentData);
+      setTeacherId(studentData[0].teacher_id);
+      setClassName(studentData[0].className);
       console.log(studentData);
     });
 
@@ -101,6 +109,13 @@ const Room = () => {
     );
   }, [role, setSocket, userID]);
 
+  // Show modal when exam ended
+  useEffect(() => {
+    if (examEnded) {
+      setShowModal(true);
+    }
+  }, [examEnded]);
+
   const handleForceSubmit = (studentId) => {
     socket.emit("requestForceSubmit", studentId);
   };
@@ -117,16 +132,54 @@ const Room = () => {
   };
 
   // END EXAM
-  const handleEndExam = () => {
+  const handleEndExam = async () => {
+    if (!examStarted) {
+      toast.error("The Test Has'nt started yet!");
+      return;
+    }
     const confirm = window.confirm("Are you sure you want to end the exam ? ");
     // loop through every students to force submit
     if (!confirm) return;
+
+    setIsLoading(true);
+
     data.forEach((d) => {
       if (d.student_id_db) {
         handleForceSubmit(d.student_id_db);
       }
     });
     // create test history here
+    const newTestHistory = {
+      testName: testName,
+      className: className,
+      classId: classID,
+      roomId: roomID,
+      teacherId: teacherId,
+      startTime: startTime,
+      endTime: endTime,
+    };
+    //
+    setTimeout(async () => {
+      try {
+        const req = await axios.post(
+          "http://localhost:3000/api/v1/test_history",
+          JSON.stringify(newTestHistory),
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log(req.data);
+        setIsLoading(false);
+        setExamEnded(true);
+        socket.emit("deleteRoom", roomID);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        toast.error("Failed to save test history");
+      }
+    }, 1000);
   };
 
   // Function to format date to display time
@@ -134,6 +187,10 @@ const Room = () => {
     return date
       ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       : "";
+  };
+
+  const handleNavigateToHistory = () => {
+    navigate("/home/test_history");
   };
 
   return isRoomExist ? (
@@ -152,6 +209,8 @@ const Room = () => {
             </button>
             <div>
               <h1 className="text-xl font-bold">Room: {roomID}</h1>
+              <h1 className="text-xl font-bold">Test: {testName}</h1>
+
               <p className="text-gray-600">
                 {data.length - 1} / {studentList.length} Students
               </p>
@@ -159,9 +218,6 @@ const Room = () => {
           </div>
 
           <div className="flex flex-col md:items-end">
-            <p className="font-medium">
-              Test: <span className="font-bold">{testName}</span>
-            </p>
             <p className="font-medium">
               Duration:{" "}
               <span className="font-bold">{testDuration} minutes</span>
@@ -189,9 +245,36 @@ const Room = () => {
               onClick={() => {
                 handleEndExam();
               }}
-              className="mt-2 bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md transition-colors font-medium"
+              disabled={isLoading}
+              className="mt-2 bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md transition-colors font-medium flex items-center justify-center"
             >
-              End Exam
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : (
+                "End Exam"
+              )}
             </button>
           </div>
         </div>
@@ -264,6 +347,27 @@ const Room = () => {
           )}
         </div>
       </div>
+
+      {/* Modal when exam ended */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Exam Completed</h2>
+            <p className="mb-6">
+              The exam has been ended successfully and all responses have been
+              recorded.
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={handleNavigateToHistory}
+                className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors font-medium"
+              >
+                View Test History
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   ) : (
     <RoomNotExist />

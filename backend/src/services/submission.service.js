@@ -9,10 +9,20 @@ class SubmissionService {
     const submissions = await submissonModel.find({ userId: userId });
     return submissions;
   };
+
+  static getSubmissionByRoomID = async (roomId) => {
+    const submissions = await submissonModel.find({
+      roomId,
+    });
+    return submissions;
+  };
+
   static createSubmission = async ({
     testId,
     testName,
     userId,
+    studentId,
+    userName,
     answers,
     score,
     submitted_at = new Date(),
@@ -29,6 +39,8 @@ class SubmissionService {
       testId,
       testName,
       userId,
+      studentId,
+      userName,
       answers,
       score,
       submitted_at,

@@ -13,6 +13,16 @@ class SubmissionController {
       mesage: "Get all user's submission successfully",
     });
   };
+
+  getSubmissionByRoomID = async (req, res, next) => {
+    const { roomId } = req.params;
+    const result = await SubmissionService.getSubmissionByRoomID(roomId);
+    return res.status(200).json({
+      metadata: result,
+      message: "Get submission by roomId successfully",
+    });
+  };
+
   // TODO: check nếu user đã submit, trả về thông báo bạn đã submit bài này rồi!
   // ghi lại số phòng khi submit, thời điểm khi submit
   // chỉ cần check trong csdl đã có submission cho quizID này chưa, nếu có rồi thì thôi!
@@ -21,6 +31,8 @@ class SubmissionController {
       testId,
       testName,
       userId,
+      studentId,
+      userName,
       answers,
       score,
       submitted_at,
@@ -32,6 +44,8 @@ class SubmissionController {
       testId,
       testName,
       userId,
+      studentId,
+      userName,
       answers,
       score,
       submitted_at,

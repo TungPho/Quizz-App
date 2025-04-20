@@ -25,6 +25,7 @@ import TestWaitingRoom from "./components/TestWaitingRoom";
 import CreateQuestion from "./pages/CreateQuestion";
 import QuestionTypeChoosing from "./components/QuestionTypeChoosing";
 import GenerateQuestionsAI from "./components/GenerateQuestionsAI";
+import TestHistoryDetails from "./pages/TestHistoryDetails";
 
 const App = () => {
   return (
@@ -43,6 +44,11 @@ const App = () => {
           <Route path="/home/library" element={<Library />} />
           <Route path="/home/my_classes" element={<MyClasses />} />
           <Route path="/home/test_history" element={<TestHistory />} />
+          <Route
+            path="/home/test_history/:testHistoryId"
+            element={<TestHistoryDetails />}
+          />
+
           <Route path="/home/my_submission" element={<MySubmission />} />
           <Route path="/home/explore" element={<Explore />} />
           <Route path="/tests/:testId" element={<TestEdit />} />
