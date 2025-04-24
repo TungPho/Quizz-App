@@ -2,6 +2,7 @@ const socketIO = require("socket.io");
 const http = require("http");
 
 const app = require("./src/app");
+const notificationModel = require("./src/models/notification.model");
 
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
@@ -84,8 +85,25 @@ io.on("connection", (socket) => {
     io.to(socket.id).emit("roomList", filteredRooms);
   });
 
+  socket.on("notificationResponse", (notifitcation, accepted) => {
+    console.log(notifitcation, accepted);
+    console.log(joinedStudentID[notifitcation.sendTo]);
+    if (!accepted) {
+      io.to(joinedStudentID[notifitcation.sendTo]).emit("permit", {
+        permit: false,
+        message: "You have been rejected to join the room",
+      });
+      return;
+    }
+    // send to student_id_db in sockets
+    io.to(joinedStudentID[notifitcation.sendTo]).emit("permit", {
+      permit: true,
+      message: "You have been accepted to join the room",
+    });
+  });
+
   // 1. request to join room
-  socket.on("requestToJoinRoom", (room, testId = "") => {
+  socket.on("requestToJoinRoom", async (room, testId = "", student = {}) => {
     if (!rooms[room]) {
       socket.emit("permit", {
         permit: false,
@@ -93,27 +111,43 @@ io.on("connection", (socket) => {
       });
       return;
     }
-    if (!testId) {
-      socket.emit("permit", {
-        permit: true,
-        message: "Permitted",
-      });
-      return;
-    }
+    // if (!testId) {
+    //   socket.emit("permit", {
+    //     permit: true,
+    //     message: "Permitted",
+    //   });
+    //   return;
+    // }
+    // nhan vao student's db id,
     const teacher = rooms[room].find((user) => user.teacher_id);
-    console.log("TEACHER", teacher);
+    const data = {
+      content: `${student.studentName} has requested to join room ${room}`,
+      userId: teacher.teacher_id,
+      sendTo: student.student_id_db,
+      typeNotifi: "request",
+      isAccepted: null,
+      createdAt: new Date(Date.now() - 86400000), // 1 day ago
+      expireAt: new Date(Date.now() + 172800000), // expires in 48 hours
+    };
+    const newNotification = await notificationModel.create(data);
+    console.log("new", newNotification);
+    io.to(teachersID[teacher.teacher_id]).emit(
+      "newNotification",
+      newNotification
+    );
     const testID = teacher.test_id;
-    if (testId !== testID) {
-      socket.emit("permit", {
-        permit: false,
-        message: "You must finish the other test!",
-      });
-      return;
-    }
-    socket.emit("permit", {
-      permit: true,
-      message: "Permitted!",
-    });
+    // if (testId !== testID) {
+    //   socket.emit("permit", {
+    //     permit: false,
+    //     message: "You must finish the other test!",
+    //   });
+    //   return;
+    // }
+    // socket.emit("permit", {
+    //   permit: true,
+    //   message: "Permitted!",
+    // });
+    // console.log("teacher_id", teachersID);
   });
 
   socket.on("joinRoom", (room, student) => {

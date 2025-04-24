@@ -285,7 +285,7 @@ const MainExam = () => {
   };
 
   const handleSubmitTest = async () => {
-    console.log("MAIN FINAL", mainExam);
+    if (isSubmitedTest) return;
     setIsOpenSubmit(false);
     setIsModalOpen(true);
     setIsSubmitTest(true);
@@ -423,6 +423,7 @@ const MainExam = () => {
             Cancel
           </Button>,
           <Button
+            disabled={isSubmitedTest}
             ref={mainSubmitBtn}
             className="h-10"
             key="ok"
