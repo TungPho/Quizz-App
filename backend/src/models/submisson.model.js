@@ -29,7 +29,12 @@ const SubmissionSchema = Schema(
       type: String,
       required: true,
     },
+    userName: { type: String, required: true },
     userId: {
+      type: String,
+      required: true,
+    },
+    studentId: {
       type: String,
       required: true,
     },

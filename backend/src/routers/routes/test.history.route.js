@@ -9,4 +9,8 @@ testHistoryRoute.get(
   testHistoryController.getAllTestHistoryByTeacherId
 );
 
+testHistoryRoute.get(
+  "/get_test_history_by_id/:testHistoryId",
+  testHistoryController.getTestHistoryById
+);
 module.exports = testHistoryRoute;

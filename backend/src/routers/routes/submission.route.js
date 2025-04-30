@@ -8,6 +8,10 @@ submissionRoute.get(
   catchAsync(submissionController.getAllSubmisionByUserId)
 );
 //
+submissionRoute.get(
+  "/get_submissions_by_roomId/:roomId",
+  catchAsync(submissionController.getSubmissionByRoomID)
+);
 submissionRoute.post(
   "/submissions",
   catchAsync(submissionController.createSumission)

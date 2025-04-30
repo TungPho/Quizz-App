@@ -45,6 +45,10 @@ const Login = () => {
       // Remember to set token
       localStorage.setItem("role", role);
       localStorage.setItem("userID", res.id);
+      localStorage.setItem("userEmail", res.email);
+      localStorage.setItem("userName", res.username);
+      localStorage.setItem("studentId", res.student_id);
+
       setSocket(
         io("ws://localhost:3000", {
           query: { userId: res.id, role }, // Gửi userId và role khi kết nối

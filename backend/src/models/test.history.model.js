@@ -17,6 +17,10 @@ const testHistorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    roomId: {
+      type: String,
+      required: true,
+    },
     teacherId: {
       type: String,
       required: true,

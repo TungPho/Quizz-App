@@ -2,7 +2,11 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const UserService = require("../services/user.services");
-const { userModel, studentModel } = require("../models/user.model");
+const {
+  userModel,
+  studentModel,
+  teacherModel,
+} = require("../models/user.model");
 const { generateToken, verifyToken } = require("../utils/tokenHandlers");
 const UserServiceFactory = require("../services/user.service.levelxx");
 
@@ -70,6 +74,9 @@ class UserController {
   loginUser = async (req, res, next) => {
     const { email, password } = req.body;
     const foundUser = await userModel.findOne({ email });
+
+    // find userName
+
     const comparePassword = await bcrypt.compare(password, foundUser.password);
     if (!comparePassword) throw new Error("Wrong password");
     //TODO: every login time, give the user a new pair of tokens
@@ -79,6 +86,9 @@ class UserController {
       AT: accessToken,
       role: foundUser.role,
       id: foundUser._id,
+      email: foundUser.email,
+      username: foundUser.user_attributes.name,
+      student_id: foundUser.user_attributes.student_id,
     });
   };
 

@@ -26,7 +26,8 @@ const MainExam = () => {
   const role = localStorage.getItem("role");
   const { room } = useLocation().state || "";
 
-  const { socket, setSocket, timeRemaining } = useContext(QuizzContext);
+  const { socket, setSocket, timeRemaining, setIsStartPermit } =
+    useContext(QuizzContext);
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // student info
@@ -284,7 +285,7 @@ const MainExam = () => {
   };
 
   const handleSubmitTest = async () => {
-    console.log("MAIN FINAL", mainExam);
+    if (isSubmitedTest) return;
     setIsOpenSubmit(false);
     setIsModalOpen(true);
     setIsSubmitTest(true);
@@ -301,6 +302,8 @@ const MainExam = () => {
       testId: examID,
       testName: testName,
       userId: userID,
+      studentId: studentID,
+      userName: studentName,
       roomId: room,
       answers: mainExam,
       score: result.score,
@@ -329,6 +332,8 @@ const MainExam = () => {
 
       if (deleteRequest.status === 200 && submitRequest.status === 200) {
         toast.success("Submit success!");
+        sessionStorage.removeItem("isStartExam");
+        setIsStartPermit(false);
       }
     } catch (error) {
       toast.error("Error submitting test:", error);
@@ -418,6 +423,7 @@ const MainExam = () => {
             Cancel
           </Button>,
           <Button
+            disabled={isSubmitedTest}
             ref={mainSubmitBtn}
             className="h-10"
             key="ok"

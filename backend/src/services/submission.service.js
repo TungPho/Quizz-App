@@ -9,10 +9,20 @@ class SubmissionService {
     const submissions = await submissonModel.find({ userId: userId });
     return submissions;
   };
+
+  static getSubmissionByRoomID = async (roomId) => {
+    const submissions = await submissonModel.find({
+      roomId,
+    });
+    return submissions;
+  };
+
   static createSubmission = async ({
     testId,
     testName,
     userId,
+    studentId,
+    userName,
     answers,
     score,
     submitted_at = new Date(),
@@ -24,11 +34,18 @@ class SubmissionService {
     if (!foundTest) throw new Error("Can't find this test to add");
     const foundUser = userModel.findById(userId);
     if (!foundUser) throw new Error("Can't find this user");
+    const foundSubmission = await submissonModel.findOne({
+      roomId,
+    });
+    if (foundSubmission)
+      throw new Error("Can't submit again, please ask for another test");
 
     const newSubmision = await submissonModel.create({
       testId,
       testName,
       userId,
+      studentId,
+      userName,
       answers,
       score,
       submitted_at,

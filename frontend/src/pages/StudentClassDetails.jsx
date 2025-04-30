@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { FiRefreshCw } from "react-icons/fi";
 import { QuizzContext } from "../context/ContextProvider";
+import { toast } from "react-toastify";
 
 // Set up pdf.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -22,8 +23,37 @@ const StudentClassDetails = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { classId } = useParams();
   const [className, setClassName] = useState("");
-  const { socket } = useContext(QuizzContext);
+  const { socket, examProgress, setExamProgress } = useContext(QuizzContext);
+  const [isPermit, setIsPermit] = useState(false);
+  const userID = localStorage.getItem("userID");
+
   const navigate = useNavigate();
+
+  // request permission and recieved
+  useEffect(() => {
+    socket.on("permit", (permission) => {
+      if (permission.permit) {
+        console.log(permission);
+        toast.success(permission.message);
+        setIsPermit(true); // true
+      } else {
+        toast.error(permission.message);
+      }
+    });
+  }, [socket]);
+
+  // get exam progress
+  useEffect(() => {
+    const fetchExamProgress = async () => {
+      const getExamReq = await fetch(
+        `http://localhost:3000/api/v1/exam_progress/${userID}`
+      );
+      const res = await getExamReq.json();
+      console.log(res);
+      setExamProgress(res.metadata[0]);
+    };
+    fetchExamProgress();
+  }, [setExamProgress, userID]);
 
   // Function to load rooms
   const loadRooms = () => {
@@ -50,7 +80,6 @@ const StudentClassDetails = () => {
       const res = await req.json();
       setClassName(res.metadata.name);
     };
-    //http://localhost:3000/api/v1/class_documents/67dd2abcdc5a85ac87135730
 
     const fetchDocuments = async () => {
       const req = await fetch(
@@ -88,6 +117,25 @@ const StudentClassDetails = () => {
 
   const previousPage = () => changePage(-1);
   const nextPage = () => changePage(1);
+
+  const handleJoinRoom = (roomCode) => {
+    if (!isPermit) {
+      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "");
+      return;
+    }
+    // emit an event ro join room
+    socket.emit("joinRoom", roomCode, {
+      name: "Pho Duc Tung ",
+      student_id_db: userID,
+      student_id: "211210244",
+    });
+    // actually enter the exam
+    navigate(`/main_exam`, {
+      state: {
+        room: roomCode,
+      },
+    });
+  };
 
   return (
     <div className="bg-green-100 min-h-screen">
@@ -169,13 +217,11 @@ const StudentClassDetails = () => {
                   <div className="mt-4 flex justify-end">
                     <button
                       onClick={() => {
-                        navigate(`/room/${room[0]}`, {
-                          state: { classID: className },
-                        });
+                        handleJoinRoom(room[0]);
                       }}
                       className="text-green-500 hover:text-green-600 text-sm font-semibold flex items-center"
                     >
-                      Enter Room →
+                      {isPermit ? "Enter Room →" : "Request To Join Room →"}
                     </button>
                   </div>
                 </div>

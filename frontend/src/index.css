@@ -1,11 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-* {
+/* * {
   margin: 0;
   padding: 0;
   font-family: "General Sans", sans-serif;
-}
+} */
 
 .pick-question-btn {
   color: black;
