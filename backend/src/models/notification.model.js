@@ -18,6 +18,10 @@ const notificationSchema = new Schema(
       type: String,
       default: "normal",
     },
+    action: {
+      type: String,
+      default: "normal",
+    },
     sendTo: {
       type: String,
     },

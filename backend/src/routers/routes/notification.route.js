@@ -9,4 +9,8 @@ notificationRoute.post(
   "/notification",
   NotificationController.createNotification
 );
+notificationRoute.patch(
+  "/notification/:notificationId",
+  NotificationController.updateStateNotification
+);
 module.exports = notificationRoute;

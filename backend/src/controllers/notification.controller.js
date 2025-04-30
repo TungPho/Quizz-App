@@ -28,5 +28,21 @@ class NotificationController {
       newNotification,
     });
   };
+
+  updateStateNotification = async (req, res, next) => {
+    const { notificationId } = req.params;
+    const { isAccepted } = req.body;
+    console.log(notificationId, isAccepted);
+    const result = await notificationModel.findOneAndUpdate(
+      {
+        _id: notificationId,
+      },
+      { isAccepted }
+    );
+    return res.status(200).json({
+      message: "Update State Notification Successful",
+      metadata: result,
+    });
+  };
 }
 module.exports = new NotificationController();
