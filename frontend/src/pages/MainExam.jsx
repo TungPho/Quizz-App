@@ -19,15 +19,25 @@ const MainExam = () => {
   // This is the main exam
   const [mainExam, setMainExam] = useState({});
   ///////////////////////////////////
-  const [timeLimit, setTimeLimit] = useState(0);
+
   const [questions, setQuestions] = useState([]);
   const [isFinished, setIsFinished] = useState(false);
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("role");
   const { room } = useLocation().state || "";
 
-  const { socket, setSocket, timeRemaining, setIsStartPermit } =
-    useContext(QuizzContext);
+  // timeLimit ban dau lay tu localStorage
+  const [timeLimit, setTimeLimit] = useState(
+    localStorage.getItem(room + "," + userID)
+  );
+  console.log("hell", localStorage.getItem(room + "," + userID));
+  const {
+    socket,
+    setSocket,
+    timeRemaining,
+    setTimeRemaining,
+    setIsStartPermit,
+  } = useContext(QuizzContext);
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // student info
@@ -48,8 +58,6 @@ const MainExam = () => {
   const [isSubmitedTest, setIsSubmitTest] = useState();
   // ExamProgress from the database
 
-  //submit btn
-
   // Final Result:
   const [finalResult, setFinalResult] = useState({
     score: 0,
@@ -58,6 +66,10 @@ const MainExam = () => {
   const [isStartExam, setIsStartExam] = useState(
     sessionStorage.getItem("isStartExam")
   );
+
+  useEffect(() => {
+    localStorage.setItem(room + "," + userID, timeRemaining);
+  }, [examID, room, timeRemaining, userID]);
 
   useEffect(() => {
     const handleWindowChange = () => {
@@ -131,7 +143,7 @@ const MainExam = () => {
 
   useEffect(() => {
     socket.on("sentStudentInfo", (inputStudent) => {
-      sessionStorage.setItem("student", JSON.stringify(inputStudent));
+      // sessionStorage.setItem("student", JSON.stringify(inputStudent));
       setExamID(inputStudent.examID);
       setStudentName(inputStudent.name);
       setStudentID(inputStudent.student_id);
@@ -196,15 +208,31 @@ const MainExam = () => {
         }
         setMainExam(initialExam);
         setQuestions(filteredQuestions);
-        // setTime ở đây
-        setTimeLimit(testFound.metadata.timeLimit);
+        // setTime ở đây || localStorage.set
+        console.log(localStorage.getItem(room + "," + userID));
+        if (!localStorage.getItem(room + "," + userID)) {
+          console.log("OK");
+          localStorage.setItem(
+            room + "," + userID,
+            testFound.metadata.timeLimit * 60
+          );
+          setTimeLimit(testFound.metadata.timeLimit * 60);
+          setTimeRemaining(testFound.metadata.timeLimit * 60);
+        }
       } catch (error) {
         console.error("Error fetching test:", error);
       }
     };
 
     fetchTest();
-  }, [BACK_END_LOCAL_URL, examID, examProgress]);
+  }, [
+    BACK_END_LOCAL_URL,
+    examID,
+    examProgress,
+    room,
+    setTimeRemaining,
+    userID,
+  ]);
 
   useEffect(() => {
     if (isFinished) {
@@ -258,7 +286,6 @@ const MainExam = () => {
   }, [mainExam]); // useEffect theo dõi mainExam
 
   const handleSelectAnswer = (index) => {
-    console.log("mainExam 1", mainExam);
     socket.emit("checkRoomExist", room);
     setMainExam((prev) => ({
       ...prev,
@@ -480,7 +507,7 @@ const MainExam = () => {
                   <span className="text-sm">Time Remaining:</span>
                   <span className="font-mono font-bold">
                     <CountdownTimer
-                      minutes={timeLimit}
+                      seconds={timeLimit}
                       setIsFinished={setIsFinished}
                     />
                   </span>

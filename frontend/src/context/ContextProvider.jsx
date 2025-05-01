@@ -19,7 +19,6 @@ const ContextProvider = (props) => {
   const userID = localStorage.getItem("userID");
 
   const [notifications, setNotifications] = useState([]);
-  const [timeLimit, setTimeLimit] = useState(0);
 
   useEffect(() => {
     const fetchNotifications = async () => {
