@@ -33,7 +33,6 @@ io.on("connection", (socket) => {
   if (role === "student" && userId) {
     joinedStudentID[userId] = socket.id;
   }
-  console.log(teachersID);
   //create room event
   socket.on(
     "createRoom",
@@ -46,6 +45,7 @@ io.on("connection", (socket) => {
       rooms[room] = [];
       rooms[room].push({
         teacher_id: teacherID,
+        is_test_started: false,
         className: className,
         test_id: testID,
         test_name: testName,
@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
   );
 
   socket.on("requestStartExam", (room) => {
+    rooms[room][0].is_test_started = true;
     rooms[room].forEach((s) => {
       if (s.student_id_db) {
         console.log(joinedStudentID[s.student_id_db]);
@@ -71,6 +72,9 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("checkIfTestStarted", (room) => {
+    io.to(socket.id).emit("returnTestState", rooms[room][0].is_test_started);
+  });
   socket.on("deleteRoom", (room) => {
     const className = room.slice(0, FILTER_LENGTH);
     delete rooms[room];

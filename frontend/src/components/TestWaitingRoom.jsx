@@ -11,6 +11,17 @@ const TestWaitingRoom = ({
   // Sample student and test information
   const { socket } = useContext(QuizzContext);
   const { isStartPermit, setIsStartPermit } = useContext(QuizzContext);
+
+  // check teststat e on server
+  useEffect(() => {
+    socket.emit("checkIfTestStarted", roomId);
+    socket.on("returnTestState", (testState) => {
+      setIsStartPermit(testState);
+    });
+    return () => {
+      socket.off("checkIfTestStarted");
+    };
+  }, [roomId, setIsStartPermit, socket]);
   useEffect(() => {
     // ** recieves event to start the test from the teacher
     socket.on("startExamForStudent", (startExam) => {

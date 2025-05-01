@@ -21,11 +21,10 @@ const NotificationComponent = () => {
     };
   }, [setNotifications, socket]);
 
-  const handleNotificationAction = (notificationId, accepted) => {
+  const handleNotificationAction = async (notificationId, accepted) => {
     const currentNotification = notifications.find(
       (noti) => noti._id === notificationId
     );
-    console.log("CURRENT", currentNotification);
     setNotifications(
       notifications.map((notif) =>
         notif._id === notificationId
@@ -33,7 +32,19 @@ const NotificationComponent = () => {
           : notif
       )
     );
-
+    // update notifications
+    const reqUpdateState = fetch(
+      `http://localhost:3000/api/v1/notification/${currentNotification._id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          isAccepted: true,
+        }),
+      }
+    );
     socket.emit("notificationResponse", currentNotification, accepted);
 
     // Show toast based on action

@@ -112,7 +112,9 @@ const SideBar = () => {
           )}
 
           {/* Create/Join Button */}
-          <div className="px-4 mb-6 mt-2">
+          <div
+            className={`${role === "student" ? "hidden" : ""} px-4 mb-6 mt-2`}
+          >
             <button
               onClick={showModal}
               className={`flex justify-center items-center bg-[#31cd63] rounded-lg text-white py-2 px-4 w-full hover:bg-green-500 shadow-sm transition-all duration-200 ${
@@ -123,11 +125,7 @@ const SideBar = () => {
                 className={collapsed && !isMobile ? "" : "mr-2"}
                 size={collapsed && !isMobile ? 16 : 14}
               />
-              {collapsed && !isMobile
-                ? ""
-                : role === "student"
-                ? "Join Class"
-                : "Create"}
+              Create
             </button>
           </div>
 
@@ -225,82 +223,54 @@ const SideBar = () => {
 
       {/* Modal */}
       <div ref={modal} className="flex justify-center z-50">
-        {role === "student" ? (
-          <div
-            className={`${
-              isOpen ? "block" : "hidden"
-            } fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50`}
-          >
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl animate-fade-in">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Join Class</h3>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <IoMdClose size={24} />
-                </button>
-              </div>
-              <input
-                className="w-full border border-gray-300 rounded-lg mb-4 p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                type="text"
-                placeholder="Enter class name"
-              />
-              <button className="w-full bg-[#31cd63] text-white py-3 rounded-lg hover:bg-green-500 transition-colors duration-200">
-                Send Request to Join
+        <div
+          className={`${
+            isOpen ? "flex" : "hidden"
+          } fixed inset-0 z-50 bg-black bg-opacity-50 items-center justify-center`}
+        >
+          <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 animate-fade-in">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Create</h3>
+              <button
+                className="text-gray-500 hover:text-gray-700"
+                onClick={closeModal}
+              >
+                <IoMdClose size={24} />
               </button>
             </div>
-          </div>
-        ) : (
-          <div
-            className={`${
-              isOpen ? "flex" : "hidden"
-            } fixed inset-0 z-50 bg-black bg-opacity-50 items-center justify-center`}
-          >
-            <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 animate-fade-in">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold">Create</h3>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={closeModal}
-                >
-                  <IoMdClose size={24} />
-                </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div
+                onClick={() => {
+                  navigate("/question_type_choosing");
+                  closeModal();
+                }}
+                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
+                <span>Create Assessments</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div
-                  onClick={() => {
-                    navigate("/question_type_choosing");
-                    closeModal();
-                  }}
-                  className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
-                >
-                  <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                  <span>Create Assessments</span>
-                </div>
+              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
+                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
+                <span>Create Lessons</span>
+              </div>
 
-                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                  <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                  <span>Create Lessons</span>
-                </div>
+              <div
+                onClick={() => {}}
+                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
+                <span>Create Classes</span>
+              </div>
 
-                <div
-                  onClick={() => {}}
-                  className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
-                >
-                  <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                  <span>Create Classes</span>
-                </div>
-
-                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                  <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                  <span>Comprehension</span>
-                </div>
+              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
+                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
+                <span>Comprehension</span>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content padding when sidebar is open */}
