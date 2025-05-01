@@ -5,14 +5,20 @@ import { IoIosArrowRoundBack, IoMdClose } from "react-icons/io";
 import { IoReload } from "react-icons/io5";
 import { BsPeople, BsDoorOpen } from "react-icons/bs";
 import { RiTestTubeFill } from "react-icons/ri";
+import NotificationComponent from "../components/NotificationComponent";
+import io from "socket.io-client";
 
+import axios from "axios";
+import { toast } from "react-toastify";
 const TeacherClassDetails = () => {
-  const { socket, setState } = useContext(QuizzContext);
+  const { socket, setState, setSocket } = useContext(QuizzContext);
   const { classId } = useParams();
   const userID = localStorage.getItem("userID");
+  const role = localStorage.getItem("role");
+
   const [isOpenCreateRoom, setIsOpenCreateRoom] = useState(false);
   const [isOpenAddStudent, setIsOpenAddStudent] = useState(false);
-  const [roomCode, setRoomCode] = useState("");
+  const [roomCode, setRoomCode] = useState();
   const [classes, setClass] = useState(null);
   const [className, setClassName] = useState("");
   const [tests, setTests] = useState([]);
@@ -28,6 +34,19 @@ const TeacherClassDetails = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    socket.on("acepted", () => {
+      toast.success("Student accepted to join class");
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    setSocket(
+      io("ws://localhost:3000", {
+        query: { userId: userID, role }, // Gửi userId và role khi kết nối
+      })
+    );
+  }, [role, setSocket, userID]);
   // Generate className + 6 digits code
   const generateRoomCode = () => {
     const characters = "abcdefghijklmnopqrstuvwxyz";
@@ -43,7 +62,6 @@ const TeacherClassDetails = () => {
     }
     setRoomCode(classes.name + "-" + result);
   };
-
   const createRoom = () => {
     socket.emit(
       "createRoom",
@@ -101,29 +119,31 @@ const TeacherClassDetails = () => {
       alert("Please enter a valid student ID");
       return;
     }
+    // find Student first
+    // const foundStudent = await axios.get("");
+    // try {
+    //   const req = await fetch(
+    //     `http://localhost:3000/api/v1/classes/${classId}`,
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({
+    //         studentID: studentID,
+    //       }),
+    //     }
+    //   );
+    //   const res = await req.json();
 
-    try {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/classes/${classId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            studentID: studentID,
-          }),
-        }
-      );
-      const res = await req.json();
-
-      console.log(res);
-      if (res.status !== "error") {
-        setStudentLength((l) => l + 1);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    //   console.log(res);
+    //   if (res.status !== "error") {
+    //     setStudentLength((l) => l + 1);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    socket.emit("requestToJoinClass", classes, studentID);
   };
 
   const refreshRooms = () => {
@@ -173,6 +193,7 @@ const TeacherClassDetails = () => {
           </div>
         </div>
         <div className="flex gap-3">
+          <NotificationComponent />
           <button
             onClick={() => setIsOpenCreateRoom(true)}
             className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-md shadow hover:shadow-lg transition-all font-medium flex items-center"

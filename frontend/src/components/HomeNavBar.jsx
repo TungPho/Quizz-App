@@ -30,7 +30,6 @@ const HomeNavBar = () => {
   const userName = localStorage.getItem("userName");
   const userEmail = localStorage.getItem("userEmail");
   const studentId = localStorage.getItem("studentId");
-  console.log(userName, userEmail, studentId);
   //setSocket
   useEffect(() => {
     setSocket(

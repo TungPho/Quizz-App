@@ -96,6 +96,7 @@ const MainExam = () => {
   });
   // Progress calculation
   const getProgressPercentage = () => {
+    if (!mainExam) return;
     if (!questions.length) return 0;
     const answeredQuestions = Object.values(mainExam).filter(
       (q) => q.isSelected
@@ -144,10 +145,16 @@ const MainExam = () => {
 
     socket.on("forceSubmit", () => {
       console.log("You were force to submit the test");
-      tempSubmitBtn.current.click();
-      setTimeout(() => {
-        mainSubmitBtn.current.click();
-      }, 0);
+      if (!isSubmitedTest) {
+        // Only proceed if not already submitted
+        setIsSubmitTest(true); // Set this flag immediately to prevent further submissions
+        tempSubmitBtn.current.click();
+        setTimeout(() => {
+          mainSubmitBtn.current.click();
+        }, 0);
+      } else {
+        console.log("Test already submitted, ignoring force submit");
+      }
     });
     return () => {
       socket.off("sentStudentInfo");
@@ -285,7 +292,7 @@ const MainExam = () => {
   };
 
   const handleSubmitTest = async () => {
-    if (isSubmitedTest) return;
+    // if (isSubmitedTest) return; => errror
     setIsOpenSubmit(false);
     setIsModalOpen(true);
     setIsSubmitTest(true);
@@ -423,14 +430,16 @@ const MainExam = () => {
             Cancel
           </Button>,
           <Button
-            disabled={isSubmitedTest}
             ref={mainSubmitBtn}
             className="h-10"
             key="ok"
             type="primary"
             style={{ backgroundColor: "#31cd63", borderColor: "#31cd63" }}
             onClick={() => {
-              handleSubmitTest();
+              setIsSubmitTest(true);
+              setTimeout(() => {
+                handleSubmitTest();
+              });
             }}
           >
             Submit
@@ -724,7 +733,11 @@ const MainExam = () => {
             <button
               ref={tempSubmitBtn}
               onClick={() => setIsOpenSubmit(true)}
-              className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors flex items-center justify-center gap-2"
+              className={`w-full py-3 rounded-lg ${
+                isSubmitedTest
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              } text-white font-medium transition-colors flex items-center justify-center gap-2`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -740,7 +753,7 @@ const MainExam = () => {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              Submit Exam
+              {isSubmitedTest ? "Test Submitted" : "Submit Exam"}
             </button>
           </div>
         </div>

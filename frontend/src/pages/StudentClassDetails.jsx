@@ -7,6 +7,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { FiRefreshCw } from "react-icons/fi";
 import { QuizzContext } from "../context/ContextProvider";
 import { toast } from "react-toastify";
+import io from "socket.io-client";
 
 // Set up pdf.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -23,13 +24,25 @@ const StudentClassDetails = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { classId } = useParams();
   const [className, setClassName] = useState("");
-  const { socket, examProgress, setExamProgress } = useContext(QuizzContext);
+  const { socket, setSocket, examProgress, setExamProgress } =
+    useContext(QuizzContext);
   const [isPermit, setIsPermit] = useState(false);
   const userID = localStorage.getItem("userID");
+  const role = localStorage.getItem("role");
+
+  const userName = localStorage.getItem("userName");
 
   const navigate = useNavigate();
 
   // request permission and recieved
+  useEffect(() => {
+    setSocket(
+      io("ws://localhost:3000", {
+        query: { userId: userID, role }, // Gửi userId và role khi kết nối
+      })
+    );
+  }, [role, setSocket, userID]);
+
   useEffect(() => {
     socket.on("permit", (permission) => {
       if (permission.permit) {
@@ -120,7 +133,10 @@ const StudentClassDetails = () => {
 
   const handleJoinRoom = (roomCode) => {
     if (!isPermit) {
-      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "");
+      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "", {
+        studentName: userName,
+        student_id_db: userID,
+      });
       return;
     }
     // emit an event ro join room

@@ -8,6 +8,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import RoomNotExist from "../components/RoomNotExist";
 import { toast } from "react-toastify";
+import NotificationComponent from "../components/NotificationComponent";
 
 const Room = () => {
   const { roomID } = useParams();
@@ -29,11 +30,11 @@ const Room = () => {
   const [examEnded, setExamEnded] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(null);
   // Loading state
   const [isLoading, setIsLoading] = useState(false);
   // Modal state
   const [showModal, setShowModal] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(null);
 
   useEffect(() => {
     const fetchStudentList = async () => {
@@ -63,7 +64,6 @@ const Room = () => {
       setData(studentData);
       setTeacherId(studentData[0].teacher_id);
       setClassName(studentData[0].className);
-      console.log(studentData);
     });
 
     socket.on("isRoomExist", (roomExist) => {
@@ -91,6 +91,7 @@ const Room = () => {
         } else {
           const minutes = Math.floor(remaining / 60000);
           const seconds = Math.floor((remaining % 60000) / 1000);
+
           setRemainingTime(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
         }
       }, 1000);
@@ -116,8 +117,8 @@ const Room = () => {
     }
   }, [examEnded]);
 
-  const handleForceSubmit = (studentId) => {
-    socket.emit("requestForceSubmit", studentId);
+  const handleForceSubmit = (studentId, roomID) => {
+    socket.emit("requestForceSubmit", studentId, roomID);
   };
 
   const handleStartExam = () => {
@@ -132,7 +133,7 @@ const Room = () => {
   };
 
   // END EXAM
-  const handleEndExam = async () => {
+  const handleEndExam = () => {
     if (!examStarted) {
       toast.error("The Test Has'nt started yet!");
       return;
@@ -142,10 +143,9 @@ const Room = () => {
     if (!confirm) return;
 
     setIsLoading(true);
-
     data.forEach((d) => {
       if (d.student_id_db) {
-        handleForceSubmit(d.student_id_db);
+        handleForceSubmit(d.student_id_db, roomID);
       }
     });
     // create test history here
@@ -175,8 +175,9 @@ const Room = () => {
         setExamEnded(true);
         socket.emit("deleteRoom", roomID);
       } catch (error) {
-        console.error(error);
+        console.log(error);
         setIsLoading(false);
+        console.log(error);
         toast.error("Failed to save test history");
       }
     }, 1000);
@@ -218,6 +219,7 @@ const Room = () => {
           </div>
 
           <div className="flex flex-col md:items-end">
+            <NotificationComponent />
             <p className="font-medium">
               Duration:{" "}
               <span className="font-bold">{testDuration} minutes</span>
@@ -329,7 +331,9 @@ const Room = () => {
                 </div>
                 <div className="col-span-1">
                   <button
-                    onClick={() => handleForceSubmit(student.student_id_db)}
+                    onClick={() =>
+                      handleForceSubmit(student.student_id_db, roomID)
+                    }
                     className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm transition-colors"
                   >
                     Force Submit
