@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import io from "socket.io-client";
 const s = io(`ws://localhost:3000`);
@@ -15,7 +15,23 @@ const ContextProvider = (props) => {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [examProgress, setExamProgress] = useState(null);
   const [isStartPermit, setIsStartPermit] = useState(false);
+  // fetch notifications here
+  const userID = localStorage.getItem("userID");
 
+  const [notifications, setNotifications] = useState([]);
+  const [timeLimit, setTimeLimit] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const reqNotifi = await fetch(
+        `http://localhost:3000/api/v1/notification/${userID}`
+      );
+      const res = await reqNotifi.json();
+      console.log(res.metadata);
+      setNotifications(res.metadata);
+    };
+    fetchNotifications();
+  }, [userID]);
   const value = {
     role,
     setRole,
@@ -33,6 +49,8 @@ const ContextProvider = (props) => {
     setExamProgress,
     isStartPermit,
     setIsStartPermit,
+    notifications,
+    setNotifications,
   };
   return (
     <QuizzContext.Provider value={value}>

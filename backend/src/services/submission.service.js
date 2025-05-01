@@ -34,6 +34,11 @@ class SubmissionService {
     if (!foundTest) throw new Error("Can't find this test to add");
     const foundUser = userModel.findById(userId);
     if (!foundUser) throw new Error("Can't find this user");
+    const foundSubmission = await submissonModel.findOne({
+      roomId,
+    });
+    if (foundSubmission)
+      throw new Error("Can't submit again, please ask for another test");
 
     const newSubmision = await submissonModel.create({
       testId,

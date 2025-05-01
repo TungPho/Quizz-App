@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { CiBellOn } from "react-icons/ci";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import { QuizzContext } from "../context/ContextProvider";
@@ -10,20 +9,35 @@ import { CiSettings } from "react-icons/ci";
 import { FaExclamation } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { toast } from "react-toastify";
+import NotificationComponent from "./NotificationComponent"; // Import the new component
+import io from "socket.io-client";
 
 const HomeNavBar = () => {
   const role = localStorage.getItem("role");
+  const userID = localStorage.getItem("userID");
+
   const [isOpenEnterCode, setIsOpenEnterCode] = useState(false);
   const [roomCode, setRoomCode] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [studentID, setStudentID] = useState("");
-  const userID = localStorage.getItem("userID");
-  const { socket, collapsed, examProgress, setExamProgress } =
+  const { socket, setSocket, collapsed, examProgress, setExamProgress } =
     useContext(QuizzContext);
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
   const [isOpenYesNoMenu, setIsOpenYesNoMenu] = useState(false);
   const [isPermit, setIsPermit] = useState(false);
+
   const navigate = useNavigate();
+
+  // userInfo
+  const userName = localStorage.getItem("userName");
+  const userEmail = localStorage.getItem("userEmail");
+  const studentId = localStorage.getItem("studentId");
+  //setSocket
+  useEffect(() => {
+    setSocket(
+      io("ws://localhost:3000", {
+        query: { userId: userID, role }, // Gửi userId và role khi kết nối
+      })
+    );
+  }, [role, setSocket, userID]);
 
   useEffect(() => {
     socket.on("permit", (permission) => {
@@ -42,6 +56,7 @@ const HomeNavBar = () => {
         `http://localhost:3000/api/v1/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
+
       setExamProgress(res.metadata[0]);
     };
     fetchExamProgress();
@@ -49,14 +64,18 @@ const HomeNavBar = () => {
 
   const handleJoinRoom = () => {
     if (!isPermit) {
-      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "");
+      console.log("progress", examProgress);
+      socket.emit("requestToJoinRoom", roomCode, examProgress?.examId || "", {
+        studentName: userName,
+        student_id_db: userID,
+      });
       return;
     }
     // emit an event ro join room
     socket.emit("joinRoom", roomCode, {
-      name: studentName,
+      name: userName,
       student_id_db: userID,
-      student_id: studentID,
+      student_id: studentId,
     });
     // actually enter the exam
     navigate(`/main_exam`, {
@@ -129,12 +148,8 @@ const HomeNavBar = () => {
         }`}
       >
         <div className="flex items-center space-x-3 mr-6">
-          {/* Notification Bell */}
-          <div className="relative">
-            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300">
-              <CiBellOn className="text-xl text-gray-600" />
-            </button>
-          </div>
+          {/* Notification Bell - Replace the old bell with our new component */}
+          <NotificationComponent />
 
           {/* Enter Code Button - Only for students */}
           {role !== "teacher" && (
@@ -176,8 +191,8 @@ const HomeNavBar = () => {
                     alt="Profile"
                   />
                   <div>
-                    <p className="font-medium text-gray-800">Tung Pho</p>
-                    <p className="text-sm text-gray-500">tungpho6@gmail.com</p>
+                    <p className="font-medium text-gray-800">{userName}</p>
+                    <p className="text-sm text-gray-500">{userEmail}</p>
                   </div>
                 </div>
               </div>
@@ -254,10 +269,11 @@ const HomeNavBar = () => {
                 Student ID
               </label>
               <input
+                disabled={true}
                 id="student_id"
                 type="text"
                 placeholder="Ex: 211210244"
-                onChange={(e) => setStudentID(e.target.value)}
+                value={studentId}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -273,7 +289,8 @@ const HomeNavBar = () => {
                 id="student_name"
                 type="text"
                 placeholder="Enter your name"
-                onChange={(e) => setStudentName(e.target.value)}
+                disabled={true}
+                value={userName}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
