@@ -1,33 +1,49 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaHome, FaPlus } from "react-icons/fa";
+import { FaHome, FaPlus, FaUsers } from "react-icons/fa";
 import { IoLibrary } from "react-icons/io5";
 import { TbReportSearch } from "react-icons/tb";
-import { MdClass } from "react-icons/md";
+import { MdClass, MdPerson, MdSchool } from "react-icons/md";
 import { GoChecklist } from "react-icons/go";
 import { RiMenuFoldLine, RiMenuUnfoldLine } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
+import { FiLogOut } from "react-icons/fi"; // Added logout icon
 import { useContext, useEffect, useRef, useState } from "react";
-import { QuizzContext } from "../context/ContextProvider";
+import { AdminContext } from "../context/AdminContext";
 
 const SideBar = () => {
-  const role = localStorage.getItem("role");
-  const modal = useRef(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const { collapsed, setCollapsed } = useContext(QuizzContext);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  //TODO: phân route cho role tại đây
-  const showModal = () => {
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { isMobile, setIsMobile, collapsed, setCollapsed } =
+    useContext(AdminContext);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
+  };
+
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    // Add your logout logic here
+    // For example:
+    // 1. Clear tokens/sessions from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // 2. Clear any app state that contains user data
+    // If you're using a context for user authentication, you might want to update it here
+
+    // 3. Redirect to login page
+    navigate("/login");
+
+    // 4. Close the modal
+    setShowLogoutModal(false);
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   useEffect(() => {
@@ -107,56 +123,15 @@ const SideBar = () => {
           {/* University Name */}
           {!collapsed && (
             <div className="mx-4 my-4 p-2 border border-gray-300 rounded-lg text-xs text-center bg-gray-50 shadow-sm">
-              University Of Transport And Communication
+              Admin Panel
             </div>
           )}
 
-          {/* Create/Join Button */}
-          <div
-            className={`${role === "student" ? "hidden" : ""} px-4 mb-6 mt-2`}
-          >
-            <button
-              onClick={showModal}
-              className={`flex justify-center items-center bg-[#31cd63] rounded-lg text-white py-2 px-4 w-full hover:bg-green-500 shadow-sm transition-all duration-200 ${
-                collapsed && !isMobile ? "p-2" : ""
-              }`}
-            >
-              <FaPlus
-                className={collapsed && !isMobile ? "" : "mr-2"}
-                size={collapsed && !isMobile ? 16 : 14}
-              />
-              Create
-            </button>
-          </div>
-
-          {/* Nav Links */}
           <nav className="flex-1 px-2">
             {/*để kiểm tra giao diện mobile hay không ? có thì ẩn chữ, còn không thì hiện*/}
-            <NavLink
-              to={"/home/library"}
-              className={({ isActive }) =>
-                `${
-                  role === "student" ? "hidden" : ""
-                } flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
-                  isActive
-                    ? "text-[#31cd63] bg-green-50 font-medium shadow-sm"
-                    : "hover:bg-gray-100"
-                } ${collapsed && !isMobile ? "justify-center" : ""}`
-              }
-            >
-              <IoLibrary
-                className={`${collapsed && !isMobile ? "" : "mr-3"}`}
-                size={18}
-              />
-              {collapsed && !isMobile ? "" : "Library"}
-            </NavLink>
 
             <NavLink
-              to={
-                role === "student"
-                  ? "/home/my_submission"
-                  : "/home/test_history"
-              }
+              to={"/users"}
               className={({ isActive }) =>
                 `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
                   isActive
@@ -165,19 +140,14 @@ const SideBar = () => {
                 } ${collapsed && !isMobile ? "justify-center" : ""}`
               }
             >
-              <TbReportSearch
+              <FaUsers
                 className={`${collapsed && !isMobile ? "" : "mr-3"}`}
                 size={18}
               />
-              {collapsed && !isMobile
-                ? ""
-                : role === "student"
-                ? "My Submission"
-                : "Test History"}
+              {collapsed && !isMobile ? "" : "All Users"}
             </NavLink>
-
             <NavLink
-              to={"/home/my_classes"}
+              to={"/students"}
               className={({ isActive }) =>
                 `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
                   isActive
@@ -186,15 +156,84 @@ const SideBar = () => {
                 } ${collapsed && !isMobile ? "justify-center" : ""}`
               }
             >
-              <MdClass
+              <MdSchool
                 className={`${collapsed && !isMobile ? "" : "mr-3"}`}
                 size={18}
               />
-              {collapsed && !isMobile ? "" : "My Classes"}
+              {collapsed && !isMobile ? "" : "All Students"}
+            </NavLink>
+            <NavLink
+              to={"/teachers"}
+              className={({ isActive }) =>
+                `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
+                  isActive
+                    ? "text-[#31cd63] bg-green-50 font-medium shadow-sm"
+                    : "hover:bg-gray-100"
+                } ${collapsed && !isMobile ? "justify-center" : ""}`
+              }
+            >
+              <MdPerson
+                className={`${collapsed && !isMobile ? "" : "mr-3"}`}
+                size={18}
+              />
+              {collapsed && !isMobile ? "" : "All Teachers"}
             </NavLink>
           </nav>
+
+          {/* Logout button at the bottom */}
+          <div className="border-t border-gray-200 p-2 mt-auto">
+            <button
+              onClick={handleLogout}
+              className={`flex items-center py-3 px-4 w-full rounded-lg transition-colors duration-200 text-red-500 hover:bg-red-50 ${
+                collapsed && !isMobile ? "justify-center" : ""
+              }`}
+            >
+              <FiLogOut
+                className={`${collapsed && !isMobile ? "" : "mr-3"}`}
+                size={18}
+              />
+              {collapsed && !isMobile ? "" : "Logout"}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <>
+          {/* Modal Overlay */}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            {/* Modal Content */}
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 animate-fadeIn">
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                  <FiLogOut className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Confirm Logout
+                </h3>
+                <p className="text-sm text-gray-500 mb-5">
+                  Are you sure you want to log out of your account?
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={cancelLogout}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 font-medium"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Overlay for mobile when sidebar is open */}
       {!collapsed && isMobile && (
@@ -203,58 +242,6 @@ const SideBar = () => {
           onClick={toggleSidebar}
         ></div>
       )}
-
-      {/* Modal */}
-      <div ref={modal} className="flex justify-center z-50">
-        <div
-          className={`${
-            isOpen ? "flex" : "hidden"
-          } fixed inset-0 z-50 bg-black bg-opacity-50 items-center justify-center`}
-        >
-          <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Create</h3>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={closeModal}
-              >
-                <IoMdClose size={24} />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div
-                onClick={() => {
-                  navigate("/question_type_choosing");
-                  closeModal();
-                }}
-                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
-              >
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Assessments</span>
-              </div>
-
-              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Lessons</span>
-              </div>
-
-              <div
-                onClick={() => {}}
-                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
-              >
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Classes</span>
-              </div>
-
-              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Comprehension</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Content padding when sidebar is open */}
       <div

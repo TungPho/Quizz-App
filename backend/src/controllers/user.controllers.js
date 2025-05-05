@@ -1,12 +1,7 @@
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
-const UserService = require("../services/user.services");
-const {
-  userModel,
-  studentModel,
-  teacherModel,
-} = require("../models/user.model");
+const { userModel, studentModel } = require("../models/user.model");
 const { generateToken, verifyToken } = require("../utils/tokenHandlers");
 const UserServiceFactory = require("../services/user.service.levelxx");
 
@@ -19,12 +14,29 @@ class UserController {
   // x-authorization: access token
   // x-api-key
   getAllUsers = async (req, res, next) => {
-    const result = await UserService.getAllUser();
+    const result = await UserServiceFactory.getAllUser();
     res.status(200).json({
       metadata: result,
       message: "Get all Users Success",
     });
   };
+
+  getAllStudents = async (req, res, next) => {
+    const result = await UserServiceFactory.getAllStudents();
+    res.status(200).json({
+      metadata: result,
+      message: "Get all Students Success",
+    });
+  };
+
+  getAllTeachers = async (req, res, next) => {
+    const result = await UserServiceFactory.getAllTeachers();
+    res.status(200).json({
+      metadata: result,
+      message: "Get all Teachers Success",
+    });
+  };
+
   // TODO
   // password 0-8 characters
   // 1 speacial Characters
@@ -39,13 +51,15 @@ class UserController {
     if (password.length < 8) {
       throw new Error("Password Length must be > 8 ");
     }
-    const foundStudent = await studentModel.find({
+    const foundStudent = await studentModel.findOne({
       student_id,
     });
+    if (foundStudent) throw new Error("Student Id already exist");
     // console.log(student_id.length, foundStudent.length);
-    // if (student_id.length < 9 || foundStudent.length > 0) {
-    //   throw new Error("Student ID not valid ");
-    // }
+    if (role === "student") {
+      if (student_id.length <= 0 || student_id.length > 9)
+        throw new Error("Student ID not valid ");
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -89,6 +103,19 @@ class UserController {
       email: foundUser.email,
       username: foundUser.user_attributes.name,
       student_id: foundUser.user_attributes.student_id,
+    });
+  };
+
+  loginAdmin = async (req, res, next) => {
+    const { email, password } = req.body;
+    console.log(email, password);
+    if (email !== "admin@gmail.com" || password !== "ductung05")
+      throw new Error("Not Authorized");
+    const token = await generateToken({ email, role: "admin" });
+    return res.status(200).json({
+      message: "Login Admin Success",
+      adminToken: token,
+      adminEmail: email,
     });
   };
 

@@ -31,6 +31,11 @@ const MainExam = () => {
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // student info
+  const timerKey = room + "," + userID;
+  if (!isNaN(timeRemaining) && timeRemaining !== 0) {
+    console.log(timeRemaining);
+    localStorage.setItem(timerKey, timeRemaining);
+  }
   const [student, setStudent] = useState();
   const [examID, setExamID] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -47,8 +52,6 @@ const MainExam = () => {
   const [isOpenSubmit, setIsOpenSubmit] = useState(false);
   const [isSubmitedTest, setIsSubmitTest] = useState();
   // ExamProgress from the database
-
-  //submit btn
 
   // Final Result:
   const [finalResult, setFinalResult] = useState({
@@ -106,6 +109,7 @@ const MainExam = () => {
 
   useEffect(() => {
     const fetchExamProgress = async () => {
+      console.log("fe");
       const getExamReq = await fetch(
         `http://localhost:3000/api/v1/exam_progress/${userID}`
       );
@@ -193,11 +197,15 @@ const MainExam = () => {
           });
         } else {
           initialExam = examProgress.answers;
+          setTimeLimit(Number(localStorage.getItem(timerKey)));
+        }
+        if (!timeLimit && !localStorage.getItem(timerKey)) {
+          console.log("OK");
+          setTimeLimit(Number(testFound.metadata.timeLimit * 60));
         }
         setMainExam(initialExam);
         setQuestions(filteredQuestions);
-        // setTime ở đây
-        setTimeLimit(testFound.metadata.timeLimit);
+        // setTime ở đây ||
       } catch (error) {
         console.error("Error fetching test:", error);
       }
@@ -258,7 +266,6 @@ const MainExam = () => {
   }, [mainExam]); // useEffect theo dõi mainExam
 
   const handleSelectAnswer = (index) => {
-    console.log("mainExam 1", mainExam);
     socket.emit("checkRoomExist", room);
     setMainExam((prev) => ({
       ...prev,
@@ -404,7 +411,7 @@ const MainExam = () => {
             type="primary"
             style={{ backgroundColor: "#31cd63", borderColor: "#31cd63" }}
             onClick={() => {
-              navigate("/home/explore");
+              navigate("/home/library");
             }}
           >
             Return To Home
@@ -480,7 +487,7 @@ const MainExam = () => {
                   <span className="text-sm">Time Remaining:</span>
                   <span className="font-mono font-bold">
                     <CountdownTimer
-                      minutes={timeLimit}
+                      seconds={timeLimit}
                       setIsFinished={setIsFinished}
                     />
                   </span>

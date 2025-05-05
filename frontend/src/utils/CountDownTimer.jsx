@@ -2,14 +2,16 @@ import { useState, useEffect, useContext } from "react";
 import { QuizzContext } from "../context/ContextProvider";
 
 // eslint-disable-next-line react/prop-types
-const CountdownTimer = ({ minutes, setIsFinished }) => {
-  const [timeLeft, setTimeLeft] = useState(minutes * 60); // Chuyển phút thành giây
+const CountdownTimer = ({ seconds, setIsFinished }) => {
+  const [timeLeft, setTimeLeft] = useState(seconds); // Sử dụng trực tiếp số giây
   const { setTimeRemaining } = useContext(QuizzContext);
+
   useEffect(() => {
     if (timeLeft <= 0) {
       setIsFinished(true);
       return;
     } // Nếu hết giờ thì dừng lại
+
     setTimeRemaining(timeLeft);
     const interval = setInterval(() => {
       setTimeLeft((prev) => prev - 1);

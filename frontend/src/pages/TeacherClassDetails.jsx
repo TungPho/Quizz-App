@@ -7,8 +7,6 @@ import { BsPeople, BsDoorOpen } from "react-icons/bs";
 import { RiTestTubeFill } from "react-icons/ri";
 import NotificationComponent from "../components/NotificationComponent";
 import io from "socket.io-client";
-
-import axios from "axios";
 import { toast } from "react-toastify";
 const TeacherClassDetails = () => {
   const { socket, setState, setSocket } = useContext(QuizzContext);
@@ -30,7 +28,7 @@ const TeacherClassDetails = () => {
   const [selectedTestDurtaion, setSelectedTestDurtaion] = useState(0);
 
   const [studentLength, setStudentLength] = useState(0);
-  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  // const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const navigate = useNavigate();
 

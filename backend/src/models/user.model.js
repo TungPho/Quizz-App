@@ -57,7 +57,6 @@ const StudentSchema = new Schema(
       type: String,
       required: true,
     },
-    // xem xet cai nay
     classes: {
       type: [Types.ObjectId],
       default: [],

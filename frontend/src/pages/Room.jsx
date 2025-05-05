@@ -26,7 +26,7 @@ const Room = () => {
   const [testDuration, setTestDuration] = useState(0);
   const [className, setClassName] = useState("");
   // Exam timing states
-  const [examStarted, setExamStarted] = useState();
+  const [examStarted, setExamStarted] = useState(false);
   const [examEnded, setExamEnded] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -35,6 +35,27 @@ const Room = () => {
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
+
+  // Hàm helper để lưu trạng thái vào localStorage
+  const saveExamState = (started, startTimeValue, endTimeValue) => {
+    const examState = {
+      examStarted: started,
+      startTime: startTimeValue ? startTimeValue.toISOString() : null,
+      endTime: endTimeValue ? endTimeValue.toISOString() : null,
+    };
+    localStorage.setItem(`exam_state_${roomID}`, JSON.stringify(examState));
+  };
+
+  // Hàm helper để lấy trạng thái từ localStorage
+  const loadExamState = () => {
+    const savedState = localStorage.getItem(`exam_state_${roomID}`);
+    if (savedState) {
+      const { examStarted, startTime, endTime } = JSON.parse(savedState);
+      setExamStarted(examStarted);
+      setStartTime(startTime ? new Date(startTime) : null);
+      setEndTime(endTime ? new Date(endTime) : null);
+    }
+  };
 
   useEffect(() => {
     const fetchStudentList = async () => {
@@ -55,6 +76,9 @@ const Room = () => {
   }, [classID]);
 
   useEffect(() => {
+    // Khôi phục trạng thái bài kiểm tra từ localStorage
+    loadExamState();
+
     socket.emit("getRoomById", roomID);
     socket.emit("checkRoomExist", roomID);
 
@@ -88,6 +112,10 @@ const Room = () => {
         if (remaining <= 0) {
           setRemainingTime("Exam ended");
           clearInterval(interval);
+          // Kiểm tra nếu đã hết thời gian mà chưa kết thúc bài kiểm tra
+          if (!examEnded) {
+            toast.warning("Exam time is up!");
+          }
         } else {
           const minutes = Math.floor(remaining / 60000);
           const seconds = Math.floor((remaining % 60000) / 1000);
@@ -100,7 +128,7 @@ const Room = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [examStarted, endTime]);
+  }, [examStarted, endTime, examEnded]);
 
   useEffect(() => {
     setSocket(
@@ -114,8 +142,10 @@ const Room = () => {
   useEffect(() => {
     if (examEnded) {
       setShowModal(true);
+      // Xóa trạng thái bài kiểm tra khỏi localStorage khi bài kiểm tra kết thúc
+      localStorage.removeItem(`exam_state_${roomID}`);
     }
-  }, [examEnded]);
+  }, [examEnded, roomID]);
 
   const handleForceSubmit = (studentId, roomID) => {
     socket.emit("requestForceSubmit", studentId, roomID);
@@ -123,10 +153,15 @@ const Room = () => {
 
   const handleStartExam = () => {
     const now = new Date();
+    const newEndTime = new Date(now.getTime() + testDuration * 60000);
+
+    // Cập nhật state
     setStartTime(now);
-    setEndTime(new Date(now.getTime() + testDuration * 60000));
+    setEndTime(newEndTime);
     setExamStarted(true);
-    sessionStorage.setItem("examStarted", true);
+
+    // Lưu trạng thái vào localStorage
+    saveExamState(true, now, newEndTime);
 
     // Emit the start exam event with the current time
     socket.emit("requestStartExam", roomID, now.toISOString());
@@ -174,6 +209,9 @@ const Room = () => {
         setIsLoading(false);
         setExamEnded(true);
         socket.emit("deleteRoom", roomID);
+
+        // Xóa trạng thái bài kiểm tra khỏi localStorage khi bài kiểm tra kết thúc
+        localStorage.removeItem(`exam_state_${roomID}`);
       } catch (error) {
         console.log(error);
         setIsLoading(false);
