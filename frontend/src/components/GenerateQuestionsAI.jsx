@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const GenerateQuestionsAI = () => {
   const [topic, setTopic] = useState("");
@@ -9,10 +8,7 @@ const GenerateQuestionsAI = () => {
   const [numQuestions, setNumQuestions] = useState(5);
 
   const [isGenerating, setIsGenerating] = useState(false);
-
-  const [isGenerated, setIsGenerated] = useState(false);
   const [questions, setQuestions] = useState([]);
-  const [isCreatingExam, setIsGeneratingExam] = useState(false);
   const userID = localStorage.getItem("userID");
 
   const navigate = useNavigate();
@@ -39,8 +35,8 @@ const GenerateQuestionsAI = () => {
     const genQuestions = response.metadata;
     if (genQuestions) {
       setIsGenerating(false);
-      setIsGenerated(true);
     }
+
     // filtered questions
     let filteredQuestions = genQuestions.trim();
     if (filteredQuestions.startsWith("```json")) {
@@ -53,31 +49,36 @@ const GenerateQuestionsAI = () => {
         .substring(0, filteredQuestions.length - "```".length)
         .trimEnd();
     }
-    console.log(JSON.parse(filteredQuestions));
-    setQuestions(JSON.parse(filteredQuestions));
-  };
 
-  const handleCreateExam = async () => {
-    setIsGeneratingExam(true);
-    const reqCreateExamAI = await fetch(
-      `http://localhost:3000/api/v1/generate_questions`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          questions,
-          teacherId: userID,
-          title: topic,
-        }),
+    console.log(JSON.parse(filteredQuestions));
+    const parsedQuestions = JSON.parse(filteredQuestions);
+    setQuestions(parsedQuestions);
+
+    // Automatically create exam after questions are generated
+    try {
+      const reqCreateExamAI = await fetch(
+        `http://localhost:3000/api/v1/generate_questions`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            questions: parsedQuestions,
+            teacherId: userID,
+            title: topic,
+          }),
+        }
+      );
+      const res = await reqCreateExamAI.json();
+      console.log(res);
+      const examID = res.metadata._id;
+      if (examID) {
+        navigate(`/tests/${examID}`);
       }
-    );
-    const res = await reqCreateExamAI.json();
-    console.log(res);
-    const examID = res.metadata._id;
-    if (examID) {
-      navigate(`/tests/${examID}`);
+    } catch (error) {
+      console.error("Error creating exam:", error);
+      setIsGenerating(false);
     }
   };
 
@@ -174,34 +175,16 @@ const GenerateQuestionsAI = () => {
                 {isGenerating ? (
                   <>
                     <Loader2 className="animate-spin" size={20} />
-                    Generating Questions...
+                    Generating and Creating Exam...
                   </>
                 ) : (
                   <>
                     <Sparkles size={20} />
-                    Generate Questions
+                    Generate Questions & Create Exam
                   </>
                 )}
               </button>
             </div>
-
-            {/* Take Quiz Button - Only shown after generation */}
-            {isGenerated && (
-              <div className="pt-4 border-t border-gray-200 mt-6">
-                <div className="text-center text-green-600 mb-4">
-                  <p>✓ Successfully generated {numQuestions} questions</p>
-                </div>
-                <button
-                  onClick={() => {
-                    handleCreateExam();
-                  }}
-                  className="w-full py-3 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium flex items-center justify-center gap-2"
-                >
-                  <Loader2 className="animate-spin hidden" size={20} />
-                  Create Exam
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>

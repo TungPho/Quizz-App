@@ -9,7 +9,6 @@ import MainExam from "./pages/MainExam";
 import Library from "./components/Library";
 import MyClasses from "./pages/MyClasses";
 import TestHistory from "./pages/TestHistory";
-import Explore from "./pages/Explore";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ProtectedLayout from "./utils/ProtectedLayout";
@@ -50,7 +49,6 @@ const App = () => {
           />
 
           <Route path="/home/my_submission" element={<MySubmission />} />
-          <Route path="/home/explore" element={<Explore />} />
           <Route path="/tests/:testId" element={<TestEdit />} />
           <Route
             path="/teacher_class/:classId"

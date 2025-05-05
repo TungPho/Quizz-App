@@ -19,28 +19,23 @@ const MainExam = () => {
   // This is the main exam
   const [mainExam, setMainExam] = useState({});
   ///////////////////////////////////
-
+  const [timeLimit, setTimeLimit] = useState(0);
   const [questions, setQuestions] = useState([]);
   const [isFinished, setIsFinished] = useState(false);
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("role");
   const { room } = useLocation().state || "";
 
-  // timeLimit ban dau lay tu localStorage
-  const [timeLimit, setTimeLimit] = useState(
-    localStorage.getItem(room + "," + userID)
-  );
-  console.log("hell", localStorage.getItem(room + "," + userID));
-  const {
-    socket,
-    setSocket,
-    timeRemaining,
-    setTimeRemaining,
-    setIsStartPermit,
-  } = useContext(QuizzContext);
+  const { socket, setSocket, timeRemaining, setIsStartPermit } =
+    useContext(QuizzContext);
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   // student info
+  const timerKey = room + "," + userID;
+  if (!isNaN(timeRemaining) && timeRemaining !== 0) {
+    console.log(timeRemaining);
+    localStorage.setItem(timerKey, timeRemaining);
+  }
   const [student, setStudent] = useState();
   const [examID, setExamID] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -66,10 +61,6 @@ const MainExam = () => {
   const [isStartExam, setIsStartExam] = useState(
     sessionStorage.getItem("isStartExam")
   );
-
-  useEffect(() => {
-    localStorage.setItem(room + "," + userID, timeRemaining);
-  }, [examID, room, timeRemaining, userID]);
 
   useEffect(() => {
     const handleWindowChange = () => {
@@ -118,6 +109,7 @@ const MainExam = () => {
 
   useEffect(() => {
     const fetchExamProgress = async () => {
+      console.log("fe");
       const getExamReq = await fetch(
         `http://localhost:3000/api/v1/exam_progress/${userID}`
       );
@@ -143,7 +135,7 @@ const MainExam = () => {
 
   useEffect(() => {
     socket.on("sentStudentInfo", (inputStudent) => {
-      // sessionStorage.setItem("student", JSON.stringify(inputStudent));
+      sessionStorage.setItem("student", JSON.stringify(inputStudent));
       setExamID(inputStudent.examID);
       setStudentName(inputStudent.name);
       setStudentID(inputStudent.student_id);
@@ -205,34 +197,22 @@ const MainExam = () => {
           });
         } else {
           initialExam = examProgress.answers;
+          setTimeLimit(Number(localStorage.getItem(timerKey)));
+        }
+        if (!timeLimit && !localStorage.getItem(timerKey)) {
+          console.log("OK");
+          setTimeLimit(Number(testFound.metadata.timeLimit * 60));
         }
         setMainExam(initialExam);
         setQuestions(filteredQuestions);
-        // setTime ở đây || localStorage.set
-        console.log(localStorage.getItem(room + "," + userID));
-        if (!localStorage.getItem(room + "," + userID)) {
-          console.log("OK");
-          localStorage.setItem(
-            room + "," + userID,
-            testFound.metadata.timeLimit * 60
-          );
-          setTimeLimit(testFound.metadata.timeLimit * 60);
-          setTimeRemaining(testFound.metadata.timeLimit * 60);
-        }
+        // setTime ở đây ||
       } catch (error) {
         console.error("Error fetching test:", error);
       }
     };
 
     fetchTest();
-  }, [
-    BACK_END_LOCAL_URL,
-    examID,
-    examProgress,
-    room,
-    setTimeRemaining,
-    userID,
-  ]);
+  }, [BACK_END_LOCAL_URL, examID, examProgress]);
 
   useEffect(() => {
     if (isFinished) {
@@ -431,7 +411,7 @@ const MainExam = () => {
             type="primary"
             style={{ backgroundColor: "#31cd63", borderColor: "#31cd63" }}
             onClick={() => {
-              navigate("/home/explore");
+              navigate("/home/library");
             }}
           >
             Return To Home

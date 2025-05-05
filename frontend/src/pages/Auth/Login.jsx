@@ -62,7 +62,7 @@ const Login = () => {
         return;
       }
       toast.success(`Login Successful!`);
-      navigate("/home/explore");
+      navigate("/home/library");
     } catch (error) {
       console.log(error);
     }

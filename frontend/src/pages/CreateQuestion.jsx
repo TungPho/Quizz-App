@@ -147,7 +147,7 @@ const CreateQuestion = () => {
                 setState("normal");
                 testId
                   ? navigate(`/tests/${testId}`)
-                  : navigate(`/home/explore`);
+                  : navigate(`/home/library`);
               }}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Go back"
