@@ -3,7 +3,7 @@ import { QuizzContext } from "../../context/ContextProvider";
 import { Link, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
-
+import axios from "axios";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { setSocket } = useContext(QuizzContext);
@@ -33,18 +33,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("http://localhost:3000/api/v1/login", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+      const response = await axios.post("http://localhost:3000/api/v1/login", {
+        email: formData.email,
+        password: formData.password,
       });
-      const res = await result.json();
+
+      const res = response.data;
       const role = res.role;
+
       // Remember to set token
       localStorage.setItem("role", role);
       localStorage.setItem("userID", res.id);
@@ -57,14 +53,14 @@ const Login = () => {
           query: { userId: res.id, role }, // Gửi userId và role khi kết nối
         })
       );
-      if (result.status !== 200) {
-        toast.error("Wrong email or password");
-        return;
-      }
+
       toast.success(`Login Successful!`);
-      navigate("/home/explore");
+      role === "student"
+        ? navigate("/home/my_submission")
+        : navigate("/home/library");
     } catch (error) {
       console.log(error);
+      toast.error("Error Login");
     }
   };
 

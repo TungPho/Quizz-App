@@ -15,14 +15,17 @@ const Library = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const role = localStorage.getItem("role");
   const itemsPerPage = 6; // Number of items per page
-
+  const userID = localStorage.getItem("userID");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch tests when component mounts
   const fetchTest = async () => {
     try {
-      const { data } = await axios.get(`${BACK_END_LOCAL_URL}/tests`);
-      setTests(data.metadata);
+      const { data } = await axios.get(
+        `http://localhost:3000/api/v1/tests-find/${userID}`
+      );
+      console.log(data);
+      setTests(data.metadata.foundTests);
     } catch (error) {
       console.error("Error fetching tests:", error);
     }
@@ -45,21 +48,39 @@ const Library = () => {
 
   const totalPages = Math.ceil(tests.length / itemsPerPage);
 
+  // Check if current page is valid after data changes
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [tests, currentPage, totalPages]);
+
   // Handle page change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const handleDeleteTest = async (testId) => {
-    const deleteTestRequest = await fetch(
-      `${BACK_END_LOCAL_URL}/tests/${testId}`,
-      {
-        method: "DELETE",
-      }
-    );
-    console.log(await deleteTestRequest.json());
-    fetchTest();
+  // Handle tab change - reset to page 1 when changing tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
   };
+
+  const handleDeleteTest = async (testId) => {
+    try {
+      const deleteTestRequest = await fetch(
+        `${BACK_END_LOCAL_URL}/tests/${testId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      console.log(await deleteTestRequest.json());
+      fetchTest();
+    } catch (error) {
+      console.error("Error deleting test:", error);
+    }
+  };
+
   return role === "teacher" ? (
     <div className="flex flex-col min-h-screen bg-green-100">
       <HomeNavBar />
@@ -86,7 +107,7 @@ const Library = () => {
                     ? "border-green-400 text-green-700"
                     : "border-transparent text-gray-500 hover:text-green-700"
                 } ${role === "student" ? "hidden" : ""} `}
-                onClick={() => setActiveTab("assessments")}
+                onClick={() => handleTabChange("assessments")}
               >
                 Assessments
               </button>
@@ -96,7 +117,7 @@ const Library = () => {
                     ? "border-green-400 text-green-700"
                     : "border-transparent text-gray-500 hover:text-green-700"
                 }`}
-                onClick={() => setActiveTab("documents")}
+                onClick={() => handleTabChange("documents")}
               >
                 Documents
               </button>
@@ -203,8 +224,8 @@ const Library = () => {
               </div>
             )}
 
-            {/* Pagination */}
-            {totalPages > 1 && (
+            {/* Pagination - only show when on assessments tab and there are multiple pages */}
+            {activeTab === "assessments" && totalPages > 1 && (
               <div className="flex justify-center mt-8">
                 <nav className="flex items-center">
                   {Array.from({ length: totalPages }).map((_, index) => (

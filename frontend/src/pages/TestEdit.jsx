@@ -1,9 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoArrowBackSharp, IoTimeOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
-import { SiGoogleforms } from "react-icons/si";
-import { LuFileSpreadsheet } from "react-icons/lu";
-import { FaGreaterThan } from "react-icons/fa6";
+
 import { CiSearch, CiEdit, CiTrash } from "react-icons/ci";
 import { IoIosMove } from "react-icons/io";
 import { GoCheck } from "react-icons/go";
@@ -20,6 +18,7 @@ const TestEdit = () => {
   const [questions, setQuestions] = useState([]);
   const [questionLength, setQuestionLength] = useState(0);
   const [timeLimit, setTimeLimit] = useState(0);
+  // State for managing modals
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -126,27 +125,6 @@ const TestEdit = () => {
               <option value="90">90 minutes</option>
               <option value="150">150 minutes</option>
             </select>
-          </div>
-
-          {/* Import options */}
-          <div className="bg-green-500 text-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-4 font-medium text-center border-b border-green-400">
-              Import from
-            </div>
-            <div className="flex items-center justify-between hover:bg-green-600 transition-colors p-4 cursor-pointer">
-              <div className="flex items-center">
-                <SiGoogleforms className="mr-2 text-lg" />
-                Google forms
-              </div>
-              <FaGreaterThan className="text-sm text-green-200" />
-            </div>
-            <div className="flex items-center justify-between hover:bg-green-600 transition-colors p-4 cursor-pointer">
-              <div className="flex items-center">
-                <LuFileSpreadsheet className="mr-2 text-lg" />
-                Spreadsheet
-              </div>
-              <FaGreaterThan className="text-sm text-green-200" />
-            </div>
           </div>
         </div>
 

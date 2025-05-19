@@ -19,6 +19,11 @@ const UserSchema = Schema(
     user_attributes: {
       type: Object,
     },
+    is_active: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -57,7 +62,6 @@ const StudentSchema = new Schema(
       type: String,
       required: true,
     },
-    // xem xet cai nay
     classes: {
       type: [Types.ObjectId],
       default: [],

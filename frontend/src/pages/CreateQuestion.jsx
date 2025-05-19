@@ -63,7 +63,6 @@ const CreateQuestion = () => {
       return;
     }
     const correctAnswer = answers.filter((a) => a.isCorrect);
-    console.log(correctAnswer);
     if (correctAnswer.length === 0) {
       toast.error("You must set at least 1 correct answer");
       return;
@@ -147,7 +146,7 @@ const CreateQuestion = () => {
                 setState("normal");
                 testId
                   ? navigate(`/tests/${testId}`)
-                  : navigate(`/home/explore`);
+                  : navigate(`/home/library`);
               }}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Go back"

@@ -111,9 +111,13 @@ io.on("connection", (socket) => {
     }
     // join class request
     if (notifitcation.action === "joinClassRequest") {
-      console.log("class");
-      console.log(teachersID);
-      io.to(teachersID[notifitcation.sendTo]).emit("acepted");
+      if (accepted) {
+        console.log(notifitcation.userId);
+        io.to(teachersID[notifitcation.sendTo]).emit(
+          "aceptedStudentJoinClass",
+          { studentId: notifitcation.userId }
+        );
+      }
     }
   });
 

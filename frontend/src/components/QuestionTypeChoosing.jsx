@@ -9,7 +9,7 @@ const QuestionTypeChoosing = () => {
       {/* Back Button - positioned at the left edge of screen */}
       <button
         onClick={() => {
-          navigate("/home/explore");
+          navigate("/home/library");
         }}
         className="absolute top-6 left-6 bg-white p-2 rounded-full shadow-md hover:bg-green-50 transition-colors"
       >

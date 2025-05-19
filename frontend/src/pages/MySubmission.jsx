@@ -3,11 +3,14 @@ import HomeNavBar from "../components/HomeNavBar";
 import SideBar from "../components/SideBar";
 import { QuizzContext } from "../context/ContextProvider";
 import { useNavigate } from "react-router-dom";
+import RoomNotExist from "../components/RoomNotExist";
 
 const MySubmission = () => {
   const { collapsed } = useContext(QuizzContext);
   const { submissions, setSubmissions } = useContext(QuizzContext);
   const userID = localStorage.getItem("userID");
+  const role = localStorage.getItem("role");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +36,7 @@ const MySubmission = () => {
   //   return date.toLocaleString();
   // };
 
-  return (
+  return role === "student" ? (
     <div className="bg-white min-h-screen">
       <HomeNavBar />
       <SideBar />
@@ -121,6 +124,8 @@ const MySubmission = () => {
         )}
       </div>
     </div>
+  ) : (
+    <RoomNotExist />
   );
 };
 

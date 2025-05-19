@@ -380,21 +380,6 @@ export default function TestHistoryDetail() {
                       3/3 students (100%)
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Score Distribution</p>
-                    <p className="mt-1 text-sm">
-                      <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>
-                      Score &gt;= 8: 3 students (100%)
-                    </p>
-                    <p className="mt-1 text-sm">
-                      <span className="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-1"></span>
-                      Score 5-7: 0 students (0%)
-                    </p>
-                    <p className="mt-1 text-sm">
-                      <span className="inline-block w-3 h-3 bg-red-500 rounded-full mr-1"></span>
-                      Score &lt; 5: 0 students (0%)
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>

@@ -7,9 +7,9 @@ import { BsPeople, BsDoorOpen } from "react-icons/bs";
 import { RiTestTubeFill } from "react-icons/ri";
 import NotificationComponent from "../components/NotificationComponent";
 import io from "socket.io-client";
-
-import axios from "axios";
 import { toast } from "react-toastify";
+import axios from "axios";
+
 const TeacherClassDetails = () => {
   const { socket, setState, setSocket } = useContext(QuizzContext);
   const { classId } = useParams();
@@ -30,12 +30,25 @@ const TeacherClassDetails = () => {
   const [selectedTestDurtaion, setSelectedTestDurtaion] = useState(0);
 
   const [studentLength, setStudentLength] = useState(0);
-  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const [students, setStudents] = useState([]);
+  // const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.on("acepted", () => {
+    socket.on("aceptedStudentJoinClass", async ({ studentId }) => {
+      console.log(studentId);
+      const foundStudent = await axios.get(
+        `http://localhost:3000/api/v1/users/${studentId}`
+      );
+      const id = foundStudent.data.metadata.user_attributes.student_id;
+      const addedStudentToClassReq = await axios.post(
+        `http://localhost:3000/api/v1/classes/${classId}`,
+        {
+          studentID: id,
+        }
+      );
+      console.log(addedStudentToClassReq);
       toast.success("Student accepted to join class");
     });
   }, [socket]);
@@ -47,6 +60,7 @@ const TeacherClassDetails = () => {
       })
     );
   }, [role, setSocket, userID]);
+
   // Generate className + 6 digits code
   const generateRoomCode = () => {
     const characters = "abcdefghijklmnopqrstuvwxyz";
@@ -62,6 +76,7 @@ const TeacherClassDetails = () => {
     }
     setRoomCode(classes.name + "-" + result);
   };
+
   const createRoom = () => {
     socket.emit(
       "createRoom",
@@ -81,9 +96,24 @@ const TeacherClassDetails = () => {
       );
       const res = await req.json();
       setClass(res.metadata);
-
-      setStudentLength(res.metadata.students.length);
       setClassName(res.metadata.name);
+
+      if (res.metadata.students && res.metadata.students.length > 0) {
+        setStudentLength(res.metadata.students.length);
+
+        // Fetch each student's details
+        const studentPromises = res.metadata.students.map((studentId) =>
+          axios.get(`http://localhost:3000/api/v1/users/${studentId}`)
+        );
+
+        try {
+          const studentResponses = await Promise.all(studentPromises);
+          const studentData = studentResponses.map((response) => response.data);
+          setStudents(studentData);
+        } catch (error) {
+          console.error("Error fetching student data:", error);
+        }
+      }
     };
 
     const fetchTestByTeacherID = async () => {
@@ -119,30 +149,6 @@ const TeacherClassDetails = () => {
       alert("Please enter a valid student ID");
       return;
     }
-    // find Student first
-    // const foundStudent = await axios.get("");
-    // try {
-    //   const req = await fetch(
-    //     `http://localhost:3000/api/v1/classes/${classId}`,
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         studentID: studentID,
-    //       }),
-    //     }
-    //   );
-    //   const res = await req.json();
-
-    //   console.log(res);
-    //   if (res.status !== "error") {
-    //     setStudentLength((l) => l + 1);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
     socket.emit("requestToJoinClass", classes, studentID);
   };
 
@@ -163,7 +169,6 @@ const TeacherClassDetails = () => {
   };
 
   const findTestById = (id) => {
-    console.log(tests);
     for (let test of tests) {
       if (test._id === id) {
         return test.title;
@@ -171,6 +176,7 @@ const TeacherClassDetails = () => {
     }
     return "Default Test Title";
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
       {/* Header */}
@@ -295,7 +301,7 @@ const TeacherClassDetails = () => {
                         onClick={() => {
                           socket.emit("deleteRoom", room[0]);
                         }}
-                        className="text-red-500 hover:text-green-600 text-sm font-semibold flex items-center"
+                        className="text-red-500 hover:text-red-600 text-sm font-semibold flex items-center"
                       >
                         Delete Room
                       </button>
@@ -304,6 +310,111 @@ const TeacherClassDetails = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Student List Section */}
+      <div className="max-w-5xl mx-auto mt-8 px-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-700">Student List</h2>
+          <span className="bg-green-100 text-green-600 py-1 px-3 rounded-full text-sm font-medium">
+            {studentLength} Students
+          </span>
+        </div>
+
+        {students.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <BsPeople className="text-green-500 text-2xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Students Yet
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Add students to your class to get started.
+            </p>
+            <button
+              onClick={() => setIsOpenAddStudent(true)}
+              className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-md shadow hover:shadow-lg transition-all font-medium"
+            >
+              Add Your First Student
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Student ID
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Email
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    School
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {students.map((student, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {student.metadata.user_attributes.student_id || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {student.metadata.user_attributes.name || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {student.metadata.email || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {student.metadata.user_attributes.school_name || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          // Add remove student functionality here
+                          if (
+                            window.confirm(
+                              `Remove ${student.metadata.user_attributes.name} from this class?`
+                            )
+                          ) {
+                            // Implement the removal logic
+                            // You could emit a socket event or make an API call
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -446,29 +557,6 @@ const TeacherClassDetails = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Empty State for No Classes */}
-      {classes && classes.students && classes.students.length === 0 && (
-        <div className="max-w-5xl mx-auto mt-8 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <BsPeople className="text-green-500 text-2xl" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              No Students Yet
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Add students to your class to get started.
-            </p>
-            <button
-              onClick={() => setIsOpenAddStudent(true)}
-              className="bg-green-400 hover:bg-green-500 text-white px-5 py-2 rounded-md shadow hover:shadow-lg transition-all font-medium"
-            >
-              Add Your First Student
-            </button>
           </div>
         </div>
       )}
