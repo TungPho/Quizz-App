@@ -68,7 +68,6 @@ const MyClasses = () => {
 
   const handleDeleteClass = async (classId) => {
     if (!classId) return;
-    console.log(classId);
     if (window.confirm("Are you sure you want to delete this class?")) {
       const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`, {
         method: "DELETE",
@@ -99,7 +98,7 @@ const MyClasses = () => {
         ? await fetch(`${BACK_END_LOCAL_URL}/teacher_get_classes/${userId}`)
         : await fetch(`${BACK_END_LOCAL_URL}/student_get_classes/${userId}`);
     const classes = await req.json();
-    setClasses(classes.metadata);
+    setClasses(classes?.metadata);
   };
 
   useEffect(() => {
@@ -226,7 +225,7 @@ const MyClasses = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {classes
-              .filter((className) => {
+              ?.filter((className) => {
                 if (!searchValue) return className;
                 return className.name
                   .toLowerCase()
@@ -317,8 +316,10 @@ const MyClasses = () => {
               ))}
           </div>
 
-          {classes.length === 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg p-8 text-center shadow-sm">
+          {classes?.length === 0 && role !== "student" && (
+            <div
+              className={`bg-white border border-gray-200 rounded-lg p-8 text-center shadow-sm`}
+            >
               <div className="text-gray-500 mb-4">No classes yet</div>
               <button
                 onClick={() => {

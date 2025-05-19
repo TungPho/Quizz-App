@@ -31,7 +31,7 @@ const StudentClassDetails = () => {
   const role = localStorage.getItem("role");
 
   const userName = localStorage.getItem("userName");
-
+  const studentId = localStorage.getItem("studentId");
   const navigate = useNavigate();
 
   // request permission and recieved
@@ -141,9 +141,9 @@ const StudentClassDetails = () => {
     }
     // emit an event ro join room
     socket.emit("joinRoom", roomCode, {
-      name: "Pho Duc Tung ",
+      name: userName,
       student_id_db: userID,
-      student_id: "211210244",
+      student_id: studentId,
     });
     // actually enter the exam
     navigate(`/main_exam`, {

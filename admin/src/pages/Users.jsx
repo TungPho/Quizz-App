@@ -11,7 +11,6 @@ import {
 import { AdminContext } from "../context/AdminContext";
 import axios from "axios";
 import SideBar from "../components/Sidebar";
-
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true); // Thêm state loading
@@ -85,9 +84,22 @@ export default function UserList() {
   const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
 
   // Handle student deletion
-  const handleDeleteStudent = () => {
+  const handleDeleteStudent = async () => {
     if (studentToDelete) {
-      setUsers(users.filter((student) => student.id !== studentToDelete));
+      try {
+        const deleteReq = await axios.delete(
+          `http://localhost:3000/api/v1/users/${studentToDelete}`,
+          {
+            headers: {
+              email: "admin@gmail.com",
+            },
+          }
+        );
+        console.log(deleteReq);
+      } catch (error) {
+        console.log(error);
+      }
+      setUsers(users.filter((student) => student._id !== studentToDelete));
       setIsDeleteModalOpen(false);
       setStudentToDelete(null);
     }
@@ -186,6 +198,9 @@ export default function UserList() {
                       id
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
                       University
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
@@ -198,44 +213,50 @@ export default function UserList() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {currentStudents.length > 0 ? (
-                    currentStudents.map((student, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="py-4 px-4 text-gray-800">
-                          {student.user_attributes?.name || "-"}
-                        </td>
-                        <td className="py-4 px-4 text-gray-800">
-                          {student.email || "-"}
-                        </td>
-                        <td className="py-4 px-4 text-gray-800">
-                          {student._id || "-"}
-                        </td>
-                        <td className="py-4 px-4 text-gray-800">
-                          {student.user_attributes?.school_name || "-"}
-                        </td>
-                        <td className="py-4 px-4 text-gray-800">
-                          {formatDate(student.createdAt)}
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-3">
-                            <button className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50">
-                              <Edit size={18} />
-                            </button>
-                            <button
-                              className="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-50"
-                              onClick={() => {
-                                setStudentToDelete(student.id);
-                                setIsDeleteModalOpen(true);
-                              }}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                            <button className="text-gray-600 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50">
-                              <MoreHorizontal size={18} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                    currentStudents.map((student, index) => {
+                      if (student.role === "admin") return;
+                      return (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="py-4 px-4 text-gray-800">
+                            {student.user_attributes?.name || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {student.email || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {student._id || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {student?.role || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {student.user_attributes?.school_name || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {formatDate(student.createdAt)}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <button className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50">
+                                <Edit size={18} />
+                              </button>
+                              <button
+                                className="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-50"
+                                onClick={() => {
+                                  setStudentToDelete(student._id);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                              <button className="text-gray-600 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50">
+                                <MoreHorizontal size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td

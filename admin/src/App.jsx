@@ -1,11 +1,12 @@
 import React from "react";
-import SideBar from "./components/Sidebar";
 import { Route, Routes } from "react-router-dom";
 import TeacherList from "./pages/Teachers";
 import StudentList from "./pages/Students";
 import UserList from "./pages/Users";
 import AdminLogin from "./pages/Login";
 import ProtectedLayout from "./components/ProtectedLayout";
+import PendingTeacherList from "./pages/PendingTeacherList";
+import QuizzTest from "./pages/QuizzTest";
 const App = () => {
   return (
     <div>
@@ -16,6 +17,8 @@ const App = () => {
           <Route path="/users" element={<UserList />} />
           <Route path="/students" element={<StudentList />} />
           <Route path="/teachers" element={<TeacherList />} />
+          <Route path="/pending_teachers" element={<PendingTeacherList />} />
+          <Route path="/submissions" element={<QuizzTest />} />
         </Route>
       </Routes>
     </div>

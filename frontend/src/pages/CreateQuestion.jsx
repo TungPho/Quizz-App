@@ -63,7 +63,6 @@ const CreateQuestion = () => {
       return;
     }
     const correctAnswer = answers.filter((a) => a.isCorrect);
-    console.log(correctAnswer);
     if (correctAnswer.length === 0) {
       toast.error("You must set at least 1 correct answer");
       return;

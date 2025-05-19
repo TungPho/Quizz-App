@@ -411,7 +411,7 @@ const MainExam = () => {
             type="primary"
             style={{ backgroundColor: "#31cd63", borderColor: "#31cd63" }}
             onClick={() => {
-              navigate("/home/library");
+              navigate("/home/my_submission");
             }}
           >
             Return To Home

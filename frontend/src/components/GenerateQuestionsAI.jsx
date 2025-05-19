@@ -56,6 +56,7 @@ const GenerateQuestionsAI = () => {
 
     // Automatically create exam after questions are generated
     try {
+      // add those questions to the test
       const reqCreateExamAI = await fetch(
         `http://localhost:3000/api/v1/generate_questions`,
         {

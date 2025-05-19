@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaHome, FaPlus } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { IoLibrary } from "react-icons/io5";
 import { TbReportSearch } from "react-icons/tb";
 import { MdClass } from "react-icons/md";
@@ -8,6 +8,7 @@ import { RiMenuFoldLine, RiMenuUnfoldLine } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { useContext, useEffect, useRef, useState } from "react";
 import { QuizzContext } from "../context/ContextProvider";
+import { toast } from "react-toastify";
 
 const SideBar = () => {
   const role = localStorage.getItem("role");
@@ -16,14 +17,43 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { collapsed, setCollapsed } = useContext(QuizzContext);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  //TODO: phân route cho role tại đây
+  const [isCreatingClass, setIsCreatingClass] = useState(false);
+  const [className, setClassName] = useState("");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const userID = localStorage.getItem("userID");
   const showModal = () => {
     setIsOpen(true);
+    setIsCreatingClass(false);
   };
 
   const closeModal = () => {
     setIsOpen(false);
+    setIsCreatingClass(false);
+    setClassName("");
+  };
+
+  const handleCreateClass = async () => {
+    const req = await fetch(`${BACK_END_LOCAL_URL}/classes`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        name: className,
+        teacherId: userID,
+      }),
+    });
+
+    const res = await req.json();
+    console.log(res);
+    if (req.status !== 200) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success("Create a class success");
+    // Refresh classes after creating a new one
+
+    closeModal();
   };
 
   const toggleSidebar = () => {
@@ -204,53 +234,93 @@ const SideBar = () => {
         ></div>
       )}
 
-      {/* Modal */}
+      {/* Create Options Modal */}
       <div ref={modal} className="flex justify-center z-50">
+        {!isCreatingClass && (
+          <div
+            className={`${
+              isOpen ? "flex" : "hidden"
+            } fixed inset-0 z-50 bg-black bg-opacity-50 items-center justify-center`}
+          >
+            <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 animate-fade-in">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold">Create</h3>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={closeModal}
+                >
+                  <IoMdClose size={24} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  onClick={() => {
+                    navigate("/question_type_choosing");
+                    closeModal();
+                  }}
+                  className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+                >
+                  <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
+                  <span>Create Assessments</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setIsCreatingClass(true);
+                  }}
+                  className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+                >
+                  <MdClass className="text-3xl mb-3 text-[#31cd63]" />
+                  <span>Create Classes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Class Modal */}
         <div
-          className={`${
-            isOpen ? "flex" : "hidden"
-          } fixed inset-0 z-50 bg-black bg-opacity-50 items-center justify-center`}
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
+            isOpen && isCreatingClass ? "" : "hidden"
+          }`}
         >
-          <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Create</h3>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Create Class
+              </h2>
               <button
-                className="text-gray-500 hover:text-gray-700"
                 onClick={closeModal}
+                className="border border-slate-500 rounded-full p-2 text-gray-400 hover:bg-slate-300"
               >
-                <IoMdClose size={24} />
+                <IoMdClose />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div
-                onClick={() => {
-                  navigate("/question_type_choosing");
-                  closeModal();
-                }}
-                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+            <p className="text-sm text-slate-500 font-sans">Enter class name</p>
+            <input
+              onChange={(e) => setClassName(e.target.value)}
+              value={className}
+              className="w-full mb-4 mt-2 border rounded-md border-slate-400 text-sm font-sans focus:outline-none p-2"
+              type="text"
+              placeholder="Try 'CNTT-2' Or 'Math Class'"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={closeModal}
+                className="border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100"
               >
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Assessments</span>
-              </div>
-
-              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Lessons</span>
-              </div>
-
-              <div
-                onClick={() => {}}
-                className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer"
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateClass}
+                className="bg-green-400 text-white px-4 py-2 rounded-md hover:bg-green-500"
+                disabled={!className.trim()}
               >
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Create Classes</span>
-              </div>
-
-              <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg hover:border-[#31cd63] hover:shadow-md transition-all duration-200 cursor-pointer">
-                <GoChecklist className="text-3xl mb-3 text-[#31cd63]" />
-                <span>Comprehension</span>
-              </div>
+                Create Class
+              </button>
             </div>
           </div>
         </div>

@@ -19,6 +19,11 @@ const UserSchema = Schema(
     user_attributes: {
       type: Object,
     },
+    is_active: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -21,6 +21,46 @@ class UserController {
     });
   };
 
+  getUserById = async (req, res, next) => {
+    const { userId } = req.params;
+    const result = await UserServiceFactory.getUserById(userId);
+    res.status(200).json({
+      metadata: result,
+      message: "Get user by id Success",
+    });
+  };
+
+  updateUserById = async (req, res, next) => {
+    const { userId } = req.params;
+    const { name, school_name } = req.body;
+    const result = await UserServiceFactory.updateUserById(
+      userId,
+      name,
+      school_name
+    );
+    res.status(200).json({
+      metadata: result,
+      message: "Update user by id Success",
+    });
+  };
+  banUserById = async (req, res, next) => {
+    const { userId } = req.params;
+    const result = await UserServiceFactory.deleteUserById(userId);
+    res.status(200).json({
+      metadata: result,
+      message: "Delete user by id Success",
+    });
+  };
+
+  deleteUserById = async (req, res, next) => {
+    const { userId } = req.params;
+    const result = await UserServiceFactory.deleteUserById(userId);
+    res.status(200).json({
+      metadata: result,
+      message: "Delete user by id Success",
+    });
+  };
+
   getAllStudents = async (req, res, next) => {
     const result = await UserServiceFactory.getAllStudents();
     res.status(200).json({
@@ -37,12 +77,29 @@ class UserController {
     });
   };
 
+  getTeacherPendingRequests = async (req, res, next) => {
+    const result = await UserServiceFactory.getAllTeachersRequests();
+    res.status(200).json({
+      metadata: result,
+      message: "Get all Teachers Request Success",
+    });
+  };
+
+  approveTeacherRequest = async (req, res, next) => {
+    const { teacherId } = req.params;
+    const result = await UserServiceFactory.approveTeacherRequest(teacherId);
+    res.status(200).json({
+      metadata: result,
+      message: "Approve Teacher Success",
+    });
+  };
+
   // TODO
   // password 0-8 characters
   // 1 speacial Characters
   // 1 Uppercase Chars
   registerUser = async (req, res, next) => {
-    const { email, password, role, user_attributes } = req.body;
+    const { email, password, role, user_attributes, is_active } = req.body;
     const student_id = req.body.user_attributes.student_id;
     const foundEmail = await userModel.findOne({ email });
     if (foundEmail) {
@@ -55,7 +112,6 @@ class UserController {
       student_id,
     });
     if (foundStudent) throw new Error("Student Id already exist");
-    // console.log(student_id.length, foundStudent.length);
     if (role === "student") {
       if (student_id.length <= 0 || student_id.length > 9)
         throw new Error("Student ID not valid ");
@@ -88,7 +144,9 @@ class UserController {
   loginUser = async (req, res, next) => {
     const { email, password } = req.body;
     const foundUser = await userModel.findOne({ email });
-
+    if (foundUser.role === "teacher" && !foundUser.is_active) {
+      throw new Error("Not Authorized");
+    }
     // find userName
 
     const comparePassword = await bcrypt.compare(password, foundUser.password);

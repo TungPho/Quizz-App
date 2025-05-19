@@ -26,19 +26,9 @@ const SideBar = () => {
   };
 
   const confirmLogout = () => {
-    // Add your logout logic here
-    // For example:
-    // 1. Clear tokens/sessions from localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // 2. Clear any app state that contains user data
-    // If you're using a context for user authentication, you might want to update it here
-
-    // 3. Redirect to login page
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminEmail");
     navigate("/login");
-
-    // 4. Close the modal
     setShowLogoutModal(false);
   };
 
@@ -177,6 +167,38 @@ const SideBar = () => {
                 size={18}
               />
               {collapsed && !isMobile ? "" : "All Teachers"}
+            </NavLink>
+            <NavLink
+              to={"/submissions"}
+              className={({ isActive }) =>
+                `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
+                  isActive
+                    ? "text-[#31cd63] bg-green-50 font-medium shadow-sm"
+                    : "hover:bg-gray-100"
+                } ${collapsed && !isMobile ? "justify-center" : ""}`
+              }
+            >
+              <FaUsers
+                className={`${collapsed && !isMobile ? "" : "mr-3"}`}
+                size={18}
+              />
+              {collapsed && !isMobile ? "" : "All Quizz Tests"}
+            </NavLink>
+            <NavLink
+              to={"/pending_teachers"}
+              className={({ isActive }) =>
+                `flex items-center py-3 px-4 my-1.5 rounded-lg transition-colors duration-200 ${
+                  isActive
+                    ? "text-[#31cd63] bg-green-50 font-medium shadow-sm"
+                    : "hover:bg-gray-100"
+                } ${collapsed && !isMobile ? "justify-center" : ""}`
+              }
+            >
+              <MdPerson
+                className={`${collapsed && !isMobile ? "" : "mr-3"}`}
+                size={18}
+              />
+              {collapsed && !isMobile ? "" : "Pending Teacher Requests"}
             </NavLink>
           </nav>
 
